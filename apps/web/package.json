@@ -1,0 +1,29 @@
+{
+  "name": "@chute/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@solana/web3.js": "^1.98.4",
+    "@tabler/icons-react": "^3.45.0",
+    "@telegram-apps/sdk-react": "^3.3.9",
+    "@tonconnect/ui-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tabler-icons-react": "^1.56.0"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "jsdom": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "vitest": "latest"
+  }
+}

@@ -1,0 +1,437 @@
+/* Neo Arcade Football - Main Layout Overrides */
+/* Importa tokens primeiro */
+@import url('neo-arcade-tokens.css');
+
+/* Typography Imports */
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Anton&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+/* Reset & Base */
+:root {
+  font-family: 'Rajdhani', 'Space Grotesk', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--neo-text-primary);
+  background-color: var(--neo-bg-dark);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, var(--neo-bg-dark) 0%, #1a2240 50%, var(--neo-bg-dark) 100%);
+  min-height: 100vh;
+  color: var(--neo-white);
+}
+
+main {
+  width: 100%;
+  max-width: 560px;
+  margin: auto;
+  min-height: 844px;
+  padding: calc(18px + var(--tg-safe-area-inset-top, 0px)) 16px calc(18px + var(--tg-safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(10, 15, 31, 0.98), rgba(26, 34, 64, 0.95));
+  overflow: hidden;
+}
+
+/* Typography */
+h1, h2, h3 {
+  font-family: 'Teko', 'Anton', 'Black Ops One', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0.5em 0;
+  color: var(--neo-white);
+}
+
+h1 {
+  font-size: 48px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: 32px;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+p {
+  font-family: 'Rajdhani', monospace;
+  margin: 0.5em 0;
+  line-height: 1.6;
+}
+
+/* Eyebrow Labels */
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--neo-lime);
+  text-transform: uppercase;
+  margin: 16px 0 8px;
+}
+
+.muted {
+  color: var(--neo-text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Buttons */
+button {
+  font-family: 'Teko', 'Anton', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 12px 20px;
+  border: 2px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--neo-transition-fast);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200, 240, 0, 0.3);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary Button */
+button:not(.secondary, .danger, .ghost, .back) {
+  background-color: var(--neo-orange);
+  color: var(--neo-white);
+  border-color: var(--neo-orange);
+}
+
+button:not(.secondary, .danger, .ghost, .back):hover:not(:disabled) {
+  background-color: #ff6f1a;
+  border-color: #ff6f1a;
+}
+
+/* Secondary Button */
+button.secondary {
+  background-color: transparent;
+  color: var(--neo-lime);
+  border-color: var(--neo-lime);
+}
+
+button.secondary:hover:not(:disabled) {
+  background-color: var(--neo-lime);
+  color: var(--neo-navy);
+}
+
+/* Danger Button */
+button.danger {
+  background-color: transparent;
+  color: var(--neo-orange);
+  border-color: var(--neo-orange);
+}
+
+button.danger:hover:not(:disabled) {
+  background-color: var(--neo-orange);
+  color: var(--neo-white);
+}
+
+/* Ghost/Text Button */
+button.ghost {
+  background-color: transparent;
+  color: var(--neo-lime);
+  border-color: transparent;
+  text-decoration: underline;
+}
+
+button.ghost:hover:not(:disabled) {
+  color: var(--neo-white);
+}
+
+/* Back Button */
+button.back {
+  background-color: transparent;
+  color: var(--neo-lime);
+  border: none;
+  padding: 8px 0;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+button.back:hover {
+  color: var(--neo-white);
+  text-decoration: underline;
+}
+
+/* Cards */
+.card, .proof, .status-card, .opportunity-card, .tier-card {
+  background-color: var(--neo-bg-card);
+  border: 2px solid var(--neo-lime);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: 0 4px 12px rgba(3, 19, 48, 0.3);
+}
+
+.card:hover, .opportunity-card:hover, .tier-card:hover {
+  border-color: var(--neo-orange);
+  box-shadow: 0 6px 16px rgba(255, 90, 0, 0.2);
+}
+
+.card > div, .proof p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(200, 240, 0, 0.2);
+}
+
+.card > div:last-child, .proof p:last-child {
+  border: none;
+}
+
+.card small, .proof small {
+  color: var(--neo-text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.card strong, .proof strong {
+  color: var(--neo-lime);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Status Card */
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--neo-navy);
+  border-color: var(--neo-neon-green);
+}
+
+.status-card .pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--neo-neon-green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Grid Layouts */
+.grid {
+  display: grid;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+/* Hero Section */
+.hero {
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+.hero h1 {
+  color: var(--neo-lime);
+  margin: 16px 0;
+}
+
+.hero h1 em {
+  display: block;
+  color: var(--neo-white);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.hero-art {
+  position: relative;
+  margin: 0 -16px 24px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.hero-art img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.art-stamp {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: var(--neo-orange);
+  color: var(--neo-white);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+/* CTA Buttons */
+.telegram-cta {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--neo-lime), var(--neo-electric-yellow));
+  color: var(--neo-navy);
+  padding: 14px 28px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 700;
+  margin: 12px;
+  transition: all var(--neo-transition-fast);
+  border: none;
+  cursor: pointer;
+}
+
+.telegram-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(200, 240, 0, 0.4);
+}
+
+.ghost-cta {
+  background-color: transparent;
+  color: var(--neo-lime);
+  border: 2px solid var(--neo-lime);
+  padding: 12px 24px;
+}
+
+.ghost-cta:hover {
+  background-color: var(--neo-lime);
+  color: var(--neo-navy);
+}
+
+/* Hero Proof */
+.hero-proof {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.hero-proof span {
+  font-size: 12px;
+  color: var(--neo-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Error Message */
+.error {
+  color: var(--neo-orange);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--neo-navy);
+  border-top: 2px solid var(--neo-lime);
+  padding: 8px 0 calc(8px + var(--tg-safe-area-inset-bottom, 0px));
+  max-width: 560px;
+  margin: auto;
+}
+
+.mobile-nav button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  font-size: 12px;
+  color: var(--neo-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  transition: all var(--neo-transition-fast);
+}
+
+.mobile-nav button span {
+  font-size: 20px;
+}
+
+.mobile-nav button:hover, .mobile-nav button.active {
+  color: var(--neo-lime);
+  background-color: rgba(200, 240, 0, 0.1);
+}
+
+/* Utility Classes */
+.fine {
+  font-size: 12px;
+  color: var(--neo-text-muted);
+  text-align: center;
+  margin-top: 16px;
+}
+
+.wrap {
+  word-break: break-all;
+}
+
+/* Live Dot */
+.live-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--neo-lime);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.live-dot::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--neo-lime);
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

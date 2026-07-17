@@ -1,0 +1,212 @@
+{
+  "snapshotId": "txline-replay-18179551-892",
+  "fixtureId": 18179551,
+  "mode": "REPLAY",
+  "network": "devnet",
+  "feedTier": "1",
+  "teams": [
+    "Spain",
+    "Austria"
+  ],
+  "fixture": {
+    "competition": "World Cup",
+    "competitionId": 72,
+    "startTime": "2026-07-02T19:00:00.000Z",
+    "participant1": "Spain",
+    "participant2": "Austria",
+    "participant1Id": 3021,
+    "participant2Id": 1521
+  },
+  "score": {
+    "sequence": 892,
+    "sourceTimestamp": "2026-07-02T20:44:59.554Z",
+    "action": "yellow_card",
+    "statusId": 4,
+    "stats": {
+      "1": 2,
+      "2": 0,
+      "3": 0,
+      "4": 1,
+      "5": 0,
+      "6": 0,
+      "7": 9,
+      "8": 0,
+      "1001": 1,
+      "1002": 0,
+      "1003": 0,
+      "1004": 0,
+      "1005": 0,
+      "1006": 0,
+      "1007": 6,
+      "1008": 0,
+      "2001": 1,
+      "2002": 0,
+      "2003": 0,
+      "2004": 0,
+      "2005": 0,
+      "2006": 0,
+      "2007": 6,
+      "2008": 0,
+      "3001": 1,
+      "3002": 0,
+      "3003": 0,
+      "3004": 1,
+      "3005": 0,
+      "3006": 0,
+      "3007": 3,
+      "3008": 0,
+      "4001": 0,
+      "4002": 0,
+      "4003": 0,
+      "4004": 0,
+      "4005": 0,
+      "4006": 0,
+      "4007": 0,
+      "4008": 0,
+      "5001": 0,
+      "5002": 0,
+      "5003": 0,
+      "5004": 0,
+      "5005": 0,
+      "5006": 0,
+      "5007": 0,
+      "5008": 0,
+      "6001": 0,
+      "6002": 0,
+      "6003": 0,
+      "6004": 0,
+      "6005": 0,
+      "6006": 0,
+      "6007": 0,
+      "6008": 0,
+      "7001": 0,
+      "7002": 0,
+      "7003": 0,
+      "7004": 0,
+      "7005": 0,
+      "7006": 0,
+      "7007": 0,
+      "7008": 0
+    },
+    "score": {
+      "Participant1": {
+        "H1": {
+          "Goals": 1,
+          "Corners": 6
+        },
+        "HT": {
+          "Goals": 1,
+          "Corners": 6
+        },
+        "H2": {
+          "Goals": 1,
+          "Corners": 3
+        },
+        "Total": {
+          "Goals": 2,
+          "Corners": 9
+        }
+      },
+      "Participant2": {
+        "H2": {
+          "YellowCards": 1
+        },
+        "Total": {
+          "YellowCards": 1
+        }
+      }
+    },
+    "possession": null
+  },
+  "validation": {
+    "statKeys": [
+      1,
+      2,
+      3001,
+      3002
+    ],
+    "targetTimestamp": 1783025099554,
+    "values": [
+      {
+        "key": 1,
+        "value": 2,
+        "period": 4
+      },
+      {
+        "key": 2,
+        "value": 0,
+        "period": 4
+      },
+      {
+        "key": 3001,
+        "value": 1,
+        "period": 4
+      },
+      {
+        "key": 3002,
+        "value": 0,
+        "period": 4
+      }
+    ],
+    "summary": {
+      "fixtureId": 18179551,
+      "updateStats": {
+        "updateCount": 63,
+        "minTimestamp": 1783024801716,
+        "maxTimestamp": 1783025099554
+      },
+      "eventStatsSubTreeRoot": [
+        48,
+        45,
+        92,
+        241,
+        127,
+        64,
+        236,
+        135,
+        37,
+        201,
+        51,
+        74,
+        0,
+        223,
+        105,
+        114,
+        61,
+        129,
+        145,
+        115,
+        54,
+        182,
+        15,
+        88,
+        244,
+        218,
+        42,
+        94,
+        79,
+        45,
+        82,
+        162
+      ]
+    },
+    "proofRefs": [
+      "https://txline-dev.txodds.com/api/scores/stat-validation?fixtureId=18179551&seq=892&statKeys=1,2,3001,3002"
+    ],
+    "onChainValidation": {
+      "valid": true,
+      "method": "validateStatV2.view",
+      "statKey": 1,
+      "programId": "6pW64gN1s2uqjHkn1unFeEjAwJkPGHoppGvS715wyP2J",
+      "targetTimestamp": 1783024801716
+    }
+  },
+  "evidence": {
+    "fixtureSource": "https://txline-dev.txodds.com/api/fixtures/snapshot?competitionId=72&startEpochDay=20624",
+    "scoreSource": "https://txline-dev.txodds.com/api/scores/snapshot/18179551",
+    "validationSource": "https://txline-dev.txodds.com/api/scores/stat-validation?fixtureId=18179551&seq=892&statKeys=1,2,3001,3002"
+  },
+  "modelVersion": "chute-quiz-v2-txline-replay",
+  "dataStatus": "txline_replay",
+  "contentHash": "sha256:267abbc4418c3b1e0cb403dbfca3a3fdfbbccef18af836dc146edaa7ac93c2dc"
+}

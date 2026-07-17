@@ -1,0 +1,46 @@
+<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .chute-text {
+        font-family: 'Teko', 'Anton', 'Arial Black', sans-serif;
+        font-size: 52px;
+        font-weight: 900;
+        fill: #F8F8F3;
+        stroke: #031330;
+        stroke-width: 2;
+        font-style: italic;
+        letter-spacing: -2px;
+      }
+      .live-shots-text {
+        font-family: 'Teko', 'Anton', 'Arial Black', sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        font-style: italic;
+      }
+      .live-word { fill: #C8F000; }
+      .shots-word { fill: #FF5A00; }
+      .accent-line { stroke: #FF5A00; stroke-width: 3; stroke-linecap: round; }
+      .lime-accent { fill: #C8F000; }
+    </style>
+  </defs>
+
+  <!-- Main "CHUTE" text with shadow -->
+  <text x="14" y="54" class="chute-text" style="fill: #031330; opacity: 0.3; letter-spacing: -2px;">CHUTE</text>
+  <text x="12" y="52" class="chute-text">CHUTE</text>
+
+  <!-- Orange accent line under CHUTE -->
+  <line x1="12" y1="64" x2="155" y2="64" class="accent-line"/>
+
+  <!-- "LIVE SHOTS" subtitle -->
+  <text x="12" y="88" class="live-shots-text">
+    <tspan class="live-word">LIVE</tspan>
+    <tspan class="shots-word" x="68" y="88">SHOTS</tspan>
+  </text>
+
+  <!-- Lime green accent dot (pixel style) -->
+  <rect x="157" y="26" width="4" height="4" class="lime-accent"/>
+  <rect x="165" y="30" width="3" height="3" class="lime-accent" opacity="0.7"/>
+  
+  <!-- Small orange accent detail -->
+  <rect x="165" y="60" width="2" height="2" fill="#FF5A00"/>
+</svg>

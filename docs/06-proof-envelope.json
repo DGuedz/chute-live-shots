@@ -1,0 +1,14 @@
+{
+  "network": "devnet",
+  "eventId": "fixture-event-id",
+  "marketId": "shots-on-target-10m",
+  "feedTier": "1",
+  "sourceTimestamp": "2026-07-15T00:00:00.000Z",
+  "receivedAt": "2026-07-15T00:00:02.000Z",
+  "decisionId": "decision-id",
+  "policyResult": "ALLOW",
+  "requestId": "request-id",
+  "txlineProofRef": "txline-proof-reference",
+  "transactionSignature": null,
+  "settlementId": null
+}

@@ -1,0 +1,10 @@
+{
+  "name": "chute-mini-app",
+  "private": true,
+  "workspaces": ["apps/web", "apps/txline-worker"],
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm --workspace apps/web run build",
+    "test": "npm --workspace apps/web run test"
+  }
+}

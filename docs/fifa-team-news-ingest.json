@@ -1,0 +1,55 @@
+{
+  "source": "FIFA World Cup 2026 team news",
+  "extractedAt": "2026-07-16T00:00:00-03:00",
+  "purpose": "Editorial context for the CHUTE Spain x Argentina mobile-game experience",
+  "canonicalDataPolicy": {
+    "editorialContext": "FIFA",
+    "matchMetricsAndProofs": "TxLINE",
+    "rule": "FIFA narrative must not be used as statistical evidence, prediction input, score input or proof reference."
+  },
+  "sections": [
+    {
+      "section": "Argentina",
+      "articles": [
+        {
+          "title": "Argentina team news",
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams/argentina/team-news",
+          "section": "Argentina",
+          "content": "The requested FIFA page is JavaScript-rendered and returned no extractable article body in this environment. Use it as the live editorial source when available.",
+          "metadata": {"retrieval": "direct page returned HTTP 200 with no text body", "usableForMetrics": false}
+        },
+        {
+          "title": "All the World Cup 2026 squad announcements",
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/all-world-cup-squad-announcements",
+          "section": "Argentina",
+          "content": "Indexed FIFA editorial context describes Argentina as defending champions and references Lionel Messi and the provisional squad announcement. This is narrative context only.",
+          "metadata": {"retrieval": "indexed supplementary FIFA page", "usableForMetrics": false}
+        }
+      ]
+    },
+    {
+      "section": "Spain",
+      "articles": [
+        {
+          "title": "Spain team news",
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams/spain/team-news",
+          "section": "Spain",
+          "content": "The requested FIFA page is JavaScript-rendered and returned no extractable article body in this environment. Use it as the live editorial source when available.",
+          "metadata": {"retrieval": "direct page returned HTTP 200 with no text body", "usableForMetrics": false}
+        },
+        {
+          "title": "All the World Cup 2026 squad announcements",
+          "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/all-world-cup-squad-announcements",
+          "section": "Spain",
+          "content": "Indexed FIFA editorial context references the core of Spain's UEFA EURO 2024-winning side, including Rodri, Lamine Yamal and Nico Williams. This is narrative context only.",
+          "metadata": {"retrieval": "indexed supplementary FIFA page", "usableForMetrics": false}
+        }
+      ]
+    }
+  ],
+  "failedOrRestrictedPages": [
+    {"url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams/argentina/team-news", "reason": "JS-rendered page; no extractable body returned"},
+    {"url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams/spain/team-news", "reason": "JS-rendered page; no extractable body returned"}
+  ],
+  "nextStep": "Wait for the quiz reference, then map five complementary question families only to validated TxLINE historical metrics and source refs."
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@chute/txline-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev":"tsx src/server.ts","build":"tsc --noEmit","test":"vitest run"},
+  "dependencies": {"@solana/web3.js":"latest","axios":"latest","eventsource":"latest","express":"latest","tweetnacl":"latest"},
+  "devDependencies": {"@types/express":"latest","tsx":"latest","typescript":"latest","vitest":"latest"}
+}

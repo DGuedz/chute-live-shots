@@ -1,0 +1,213 @@
+/* Neo Arcade Football - Design System Tokens */
+:root {
+  /* Primary Colors - 45% lime + 30% navy + 15% white + 10% orange */
+  --neo-navy: #031330;           /* Azul-marinho profundo */
+  --neo-lime: #C8F000;           /* Verde-limão (cor identidade) */
+  --neo-orange: #FF5A00;         /* Laranja energético (cor de ação) */
+  --neo-white: #F8F8F3;          /* Branco neutro */
+
+  /* Secondary Colors */
+  --neo-neon-green: #A7D900;     /* Verde neon */
+  --neo-olive-dark: #29430F;     /* Verde-oliva escuro */
+  --neo-electric-yellow: #E7FF00; /* Amarelo elétrico */
+  --neo-blue-gray: #4D5870;      /* Cinza azulado */
+
+  /* Background & Surfaces */
+  --neo-bg-dark: #0a0f1f;        /* Fundo muito escuro (mais que navy) */
+  --neo-bg-card: #1a2240;        /* Fundo card/painel */
+  --neo-surface: #2d3a52;        /* Superfície hover */
+
+  /* Text Colors */
+  --neo-text-primary: #F8F8F3;   /* Texto principal branco */
+  --neo-text-secondary: #A7D900; /* Texto secundário verde neon */
+  --neo-text-muted: #4D5870;     /* Texto atenuado cinza */
+  --neo-text-action: #FF5A00;    /* Texto de ação laranja */
+
+  /* Status Colors */
+  --neo-success: #A7D900;        /* Sucesso verde neon */
+  --neo-warning: #E7FF00;        /* Aviso amarelo elétrico */
+  --neo-error: #FF5A00;          /* Erro laranja */
+  --neo-info: #C8F000;           /* Info verde-limão */
+
+  /* Shadows & Effects */
+  --neo-shadow-sm: 0 2px 8px rgba(3, 19, 48, 0.3);
+  --neo-shadow-md: 0 4px 16px rgba(3, 19, 48, 0.4);
+  --neo-shadow-lg: 0 8px 24px rgba(3, 19, 48, 0.5);
+  --neo-shadow-action: 0 0 20px rgba(200, 240, 0, 0.3);
+  --neo-glow-lime: 0 0 12px rgba(200, 240, 0, 0.4);
+  --neo-glow-orange: 0 0 12px rgba(255, 90, 0, 0.4);
+
+  /* Border Styles */
+  --neo-border-thin: 1px solid rgba(200, 240, 0, 0.2);
+  --neo-border-thick: 2px solid rgba(200, 240, 0, 0.5);
+  --neo-border-heavy: 3px solid #C8F000;
+  --neo-border-action: 2px solid #FF5A00;
+
+  /* Transitions */
+  --neo-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --neo-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --neo-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography Scales */
+  --neo-font-family-display: 'Teko', 'Anton', 'Black Ops One', 'Arial Black', sans-serif;
+  --neo-font-family-body: 'Rajdhani', 'Space Grotesk', 'Courier New', monospace;
+
+  --neo-font-size-xs: 12px;
+  --neo-font-size-sm: 14px;
+  --neo-font-size-base: 16px;
+  --neo-font-size-lg: 20px;
+  --neo-font-size-xl: 24px;
+  --neo-font-size-2xl: 32px;
+  --neo-font-size-3xl: 48px;
+  --neo-font-size-4xl: 64px;
+
+  --neo-font-weight-normal: 400;
+  --neo-font-weight-bold: 700;
+  --neo-font-weight-black: 900;
+
+  /* Spacing Scale */
+  --neo-space-xs: 4px;
+  --neo-space-sm: 8px;
+  --neo-space-md: 16px;
+  --neo-space-lg: 24px;
+  --neo-space-xl: 32px;
+  --neo-space-2xl: 48px;
+  --neo-space-3xl: 64px;
+
+  /* Border Radius */
+  --neo-radius-none: 0;
+  --neo-radius-sm: 2px;
+  --neo-radius-md: 4px;
+  --neo-radius-lg: 8px;
+
+  /* Z-index Scale */
+  --neo-z-base: 0;
+  --neo-z-dropdown: 100;
+  --neo-z-sticky: 200;
+  --neo-z-modal: 500;
+  --neo-z-tooltip: 600;
+  --neo-z-notification: 700;
+}
+
+/* Dark mode (default) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --neo-bg-dark: #0a0f1f;
+    --neo-bg-card: #1a2240;
+    --neo-surface: #2d3a52;
+    --neo-text-primary: #F8F8F3;
+  }
+}
+
+/* Light mode fallback */
+@media (prefers-color-scheme: light) {
+  :root {
+    --neo-bg-dark: #f0f2f7;
+    --neo-bg-card: #f8fafb;
+    --neo-surface: #e8ebf0;
+    --neo-text-primary: #031330;
+  }
+}
+
+/* Icon System Utility Classes */
+.neo-navy {
+  color: var(--neo-navy);
+}
+
+.neo-navy-dark {
+  background-color: #0a0f1f;
+}
+
+.neo-lime {
+  color: var(--neo-lime);
+}
+
+.neo-orange {
+  color: var(--neo-orange);
+}
+
+.neo-white {
+  color: var(--neo-white);
+}
+
+.neo-neon-green {
+  color: var(--neo-neon-green);
+}
+
+.neo-electric-yellow {
+  color: var(--neo-electric-yellow);
+}
+
+.neo-blue-gray {
+  color: var(--neo-blue-gray);
+}
+
+.neo-surface {
+  background-color: var(--neo-surface);
+}
+
+/* Icon Button Styles */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--neo-transition-fast);
+}
+
+.icon-button:hover {
+  transform: scale(1.1);
+}
+
+.icon-button-primary {
+  background-color: transparent;
+  color: var(--neo-lime);
+  border-color: var(--neo-lime);
+}
+
+.icon-button-primary:hover {
+  background-color: var(--neo-lime);
+  color: var(--neo-navy);
+  box-shadow: var(--neo-glow-lime);
+}
+
+.icon-button-secondary {
+  background-color: transparent;
+  color: var(--neo-white);
+  border-color: var(--neo-white);
+}
+
+.icon-button-secondary:hover {
+  background-color: var(--neo-white);
+  color: var(--neo-navy);
+}
+
+.icon-button-danger {
+  background-color: transparent;
+  color: var(--neo-orange);
+  border-color: var(--neo-orange);
+}
+
+.icon-button-danger:hover {
+  background-color: var(--neo-orange);
+  color: var(--neo-white);
+  box-shadow: var(--neo-glow-orange);
+}
+
+/* Icon Badge */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: var(--neo-navy);
+  color: var(--neo-lime);
+  border-radius: 0.25rem;
+  border: 2px solid var(--neo-lime);
+  font-size: 12px;
+  font-weight: 700;
+}

@@ -1,0 +1,1 @@
+.intro-copy{transition:opacity .7s ease,transform .7s ease}.intro-fading .intro-copy{opacity:0;transform:translateY(12px);pointer-events:none}@media(prefers-reduced-motion:reduce){.intro-copy{transition:none}}

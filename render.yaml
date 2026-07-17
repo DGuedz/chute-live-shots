@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: chute-api
+    runtime: docker
+    dockerfilePath: apps/api/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: CHUTE_DRY_RUN
+        value: "true"
+      - key: CHUTE_CORS_ORIGINS
+        sync: false # ex.: https://chute.vercel.app
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
