@@ -1,2 +1,138 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
-:root{font-family:'VT323',monospace;color:#fff1d2;background:#07162b;font-synthesis:none;--orange:#ff6a24;--cream:#fff1d2;--navy:#07162b;--green:#60bd3b;--line:#173454}*{box-sizing:border-box}body{margin:0;background:linear-gradient(#07162b 0 25%,#d96e2d 55%,#102b45 80%);min-height:100vh}main{width:100%;max-width:560px;margin:auto;min-height:844px;padding:calc(18px + var(--tg-safe-area-inset-top,0px)) 16px calc(18px + var(--tg-safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(7,22,43,.92),rgba(7,22,43,.72));overflow:hidden}header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-family:'Press Start 2P',monospace;font-size:22px;letter-spacing:-2px;color:var(--cream)}.pill{font-size:15px;color:#fff;background:#8f2e20;border:2px solid var(--orange);padding:5px 9px}.eyebrow{font-size:15px;letter-spacing:1px;color:var(--orange);margin:8px 0}.hero{padding:0}.hero h1{font-family:'Press Start 2P',monospace;font-size:30px;line-height:1.35;letter-spacing:-2px;margin:18px 0;color:var(--cream)}h2{font-family:'Press Start 2P',monospace;font-size:22px;line-height:1.45;color:var(--navy);margin:14px 0 20px}.hero .muted{color:#eacda3;font-size:20px;line-height:1.15;margin:18px 0 26px}.hero:before{content:'⚽  CHUTE  ⚽';display:block;text-align:center;font-family:'Press Start 2P',monospace;color:var(--orange);font-size:14px;background:#0c2845;border:4px solid #38516a;padding:11px;margin-bottom:18px}button{width:100%;border:4px solid #07162b;border-radius:5px;padding:16px 18px;background:var(--orange);color:#fff1d2;font-family:'Press Start 2P',monospace;font-size:13px;line-height:1.5;cursor:pointer;box-shadow:4px 4px 0 #07162b}button span{float:right}button:disabled{opacity:.4;cursor:not-allowed}.back{background:transparent;color:var(--orange);border:0;box-shadow:none;padding:4px 0;text-align:left;margin-bottom:12px}.card,.proof,.status-card{border:4px solid #38516a;background:#0c2845;padding:4px 14px;margin:15px 0 22px;box-shadow:4px 4px 0 #07162b}.card>div,.proof p{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:2px dotted #38516a}.card>div:last-child,.proof p:last-child{border:0}.card small,.proof small{color:#82a2bd;font-size:15px}.card strong,.proof strong{font-size:18px;text-align:right;color:var(--cream)}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.choices button{background:var(--green);color:#07162b}.choices button:last-child{background:var(--orange);color:#fff1d2}.choices .selected{outline:4px solid var(--cream);outline-offset:-8px}.fine{font-size:15px;color:#d9b98a;text-align:center;margin-top:18px}.status-card{display:flex;align-items:center;gap:14px;padding:20px}.status-card p{margin:5px 0 0}.status-card strong{font-size:22px;color:var(--cream)}.pulse{width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 0 7px #1d4d2a}.error{color:#ffb0a0;font-size:17px}
+/* Neo Arcade Football - Style Reset */
+/* Remove todas as cores Solana, use APENAS Neo Arcade */
+
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Anton&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Rajdhani', monospace;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--neo-bg-dark);
+  color: var(--neo-text-primary);
+}
+
+body {
+  min-height: 100vh;
+}
+
+main {
+  width: 100%;
+  max-width: 560px;
+  margin: auto;
+  min-height: 844px;
+  padding: calc(18px + var(--tg-safe-area-inset-top, 0px)) 16px calc(18px + var(--tg-safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, var(--neo-bg-dark) 0%, var(--neo-bg-card) 50%, var(--neo-bg-dark) 100%);
+  overflow: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Teko', 'Anton', sans-serif;
+  font-weight: 700;
+  margin: 0.5em 0;
+}
+
+p {
+  margin: 0.5em 0;
+}
+
+/* Links */
+a {
+  color: var(--neo-lime);
+  text-decoration: none;
+  transition: color var(--neo-transition-fast);
+}
+
+a:hover {
+  color: var(--neo-electric-yellow);
+  text-decoration: underline;
+}
+
+/* Buttons - remova estilos antigos Solana */
+button {
+  font-family: 'Teko', 'Anton', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 20px;
+  border: 2px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--neo-transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input/Select */
+input, select, textarea {
+  font-family: 'Rajdhani', monospace;
+  background-color: var(--neo-navy);
+  color: var(--neo-white);
+  border: 2px solid var(--neo-lime);
+  border-radius: 4px;
+  padding: 8px 12px;
+  transition: border-color var(--neo-transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--neo-orange);
+  box-shadow: 0 0 8px rgba(255, 90, 0, 0.3);
+}
+
+/* Utility Classes - remova cores antigas */
+.error {
+  color: var(--neo-orange);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.success {
+  color: var(--neo-neon-green);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.warning {
+  color: var(--neo-electric-yellow);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--neo-navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neo-lime);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neo-orange);
+}

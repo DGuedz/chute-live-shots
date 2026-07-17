@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import './neo-arcade-tokens.css';
 import './style.css';
+import './neo-arcade-main.css';
+import './neo-arcade-sections.css';
 import { Header } from './components/Header';
 import { Icon, IconShowcase } from './icons';
 import { CleanButton, StatRow, StatusBadge, InfoAlert } from './components/CleanComponents';
