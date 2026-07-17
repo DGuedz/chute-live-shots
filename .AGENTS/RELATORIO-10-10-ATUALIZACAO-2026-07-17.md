@@ -88,9 +88,36 @@ cd apps/web && npm test -- --run src/solana-anchor.test.ts
 cd ../.. && env PYTHONPATH=apps/api python3 scripts/verify_e2e.py
 ```
 
+## Alternativa ao Render — decisão de hosting
+
+O Render deixou de ser a rota recomendada porque o pagamento/login bloqueia a criação do serviço. Para este MVP, a alternativa principal é **Railway**:
+
+- deploy direto do GitHub;
+- detecção do `apps/api/Dockerfile` já existente;
+- variáveis de ambiente no painel;
+- domínio público HTTPS gerado pelo serviço;
+- trial informado oficialmente como sem cartão, com crédito inicial por 30 dias e cobrança mínima posterior de US$1/mês.
+
+Referências: [Railway pricing](https://railway.com/pricing), [deploy com Dockerfile e domínio público](https://docs.railway.com/guides/docker-compose).
+
+Alternativa secundária: **Koyeb**, que oferece uma instância Web Service free de 512 MB/0,1 vCPU/2 GB, mas escala a zero após uma hora sem tráfego, limita-se a uma instância e não suporta Worker Service free. Isso é aceitável para um endpoint de demo, mas menos adequado ao caminho live TxLINE.
+
+### Rota Railway recomendada
+
+1. Criar projeto em Railway e escolher `Deploy from GitHub Repo`.
+2. Selecionar `DGuedz/chute-live-shots`.
+3. Confirmar que o serviço usa `apps/api/Dockerfile` com contexto na raiz.
+4. Adicionar `CHUTE_CORS_ORIGINS=https://chute-live-shots.vercel.app,https://web-six-lemon-25.vercel.app`.
+5. Adicionar `CHUTE_DRY_RUN=true`.
+6. Gerar domínio em `Settings → Networking → Generate Domain`.
+7. Validar com `python3 scripts/verify_prod.py https://<dominio>.up.railway.app`.
+8. Configurar `VITE_API_URL` na Vercel e redeployar.
+
+O Dockerfile já escuta `0.0.0.0` e respeita `${PORT:-8000}`, portanto não exige alteração para Railway/Koyeb.
+
 ## Bloqueio atual
 
-O único bloqueio que não pode ser resolvido pela máquina sem autoridade externa é a criação do serviço Render, pois o dashboard exige login do proprietário. Depois da URL pública da API, a configuração Vercel e a validação de produção são tarefas imediatas.
+O único bloqueio que não pode ser resolvido pela máquina sem autoridade externa é a criação do serviço no provedor escolhido, pois o dashboard exige login do proprietário. Railway é a rota recomendada; depois da URL pública da API, a configuração Vercel e a validação de produção são tarefas imediatas.
 
 ## Atualização desta sessão
 
@@ -98,3 +125,35 @@ O único bloqueio que não pode ser resolvido pela máquina sem autoridade exter
 - Confirmado: 22 testes API, 26 provas E2E e 14 testes de ancoragem web.
 - Corrigido o diagnóstico anterior: ausência de testes de componente React é uma melhoria opcional, não falha do build.
 - Registrado o caminho crítico para alcançar 10/10 sem ampliar escopo de risco.
+- Alternativa Railway preparada pelo terminal: CLI `railway 5.27.0` instalada; autenticação ainda necessária via `railway login`.
+- Adicionado `.dockerignore` para reduzir o contexto de build e excluir `.git`, caches, `node_modules`, bancos auxiliares e segredos.
+
+## Atualização — preparação de build Railway
+
+- A implementação foi registrada como preparação local, não como deploy concluído.
+- O terminal confirmou que a CLI Railway está instalada, porém retorna `Unauthorized` até a autenticação interativa.
+- O Dockerfile da API já usa `0.0.0.0` e respeita a variável `PORT`, compatível com Railway.
+- O `.dockerignore` foi adicionado para reduzir o contexto e evitar envio de artefatos desnecessários.
+- O pipeline sem credenciais TxLINE/Solana permanece em dry-run; nenhum settlement ou transação foi executado.
+- Build local da imagem `chute-api:railway` concluído com sucesso usando `docker build -f apps/api/Dockerfile .`.
+- Container iniciou com Uvicorn em `0.0.0.0:8000`; a sonda de porta publicada pelo Docker Desktop não respondeu neste ambiente local, portanto a validação HTTP definitiva permanece para a URL pública do Railway.
+
+## Atualização — deploy público concluído
+
+- Railway autenticado via CLI e projeto `sweet-celebration` vinculado ao serviço `chute-api`.
+- O primeiro deploy falhou porque o serviço estava em `RAILPACK` e ignorava o Dockerfile; `railway.toml` corrigiu o builder para Docker.
+- Deploy concluído com sucesso em `https://chute-api-production.up.railway.app`.
+- `VITE_API_URL` configurado na Vercel e web redeployado; alias `https://web-six-lemon-25.vercel.app` está READY.
+- `scripts/verify_prod.py` executado contra produção: **20/20 validações passaram**.
+- Restante para 10/10: uma transação Memo real na devnet via Phantom e o link do Explorer para o vídeo.
+
+### Próximo comando após login
+
+```bash
+railway login
+railway init
+railway up
+railway domain
+```
+
+Após gerar o domínio, executar `python3 scripts/verify_prod.py <URL>` antes de apontar a Vercel.

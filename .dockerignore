@@ -1,0 +1,14 @@
+.git
+.gitignore
+.DS_Store
+.pytest_cache
+node_modules
+apps/web/dist
+apps/web/node_modules
+apps/txline-worker/node_modules
+*.db-shm
+*.db-wal
+*.log
+.env
+.env.*
+!.env.example
