@@ -46,6 +46,17 @@ Rodada completa em 2026-07-17 — tudo verde:
 
 Bugs reais encontrados e corrigidos por essas provas: progress preditivo lia campo inexistente (`payload_json` vs `payload`), parse de `quiz_id` quebrava com fixture hifenizado, e alias de fixture não era resolvido para o id numérico TxLINE — cada um agora coberto por teste de regressão (`apps/api/tests/test_predictive_progress.py`).
 
+## Prova on-chain real (devnet)
+
+Transação Memo confirmada na devnet em 2026-07-17, ancorando a prova do resultado replay com o content hash TxLINE:
+
+- **Assinatura**: `5xN6h8uDD3igxpkEsHuekv2wK8dKa8dxzVH6MSsEUtsQsTnhSXfP1DnE6wJp7gaBeRy3xpNk3zpnCXxjxjoRmxF8`
+- **Explorer**: https://explorer.solana.com/tx/5xN6h8uDD3igxpkEsHuekv2wK8dKa8dxzVH6MSsEUtsQsTnhSXfP1DnE6wJp7gaBeRy3xpNk3zpnCXxjxjoRmxF8?cluster=devnet
+- **Slot**: 477016879 · sem erro · log do Memo program registra o payload integral:
+  `CHUTE|18179551|txline-replay-18179551-892|sha256:267abbc4…c2dc|score:634`
+- **Payer**: `2p7atbV7QnSV11zbBHrHskdFUBv2bir2aNfm3fNxLWBo` (wallet devnet do projeto)
+- Reproduzível: `node scripts/anchor_memo_devnet.mjs` (mesmo payload do botão "Ancorar prova on-chain" do app)
+
 ## Checklist de submissão
 
 - [ ] **Demo video ≤5 min** (obrigatório p/ triagem): problema → /start no Telegram → leitura do jogo → 5 chutes → resultado + ranking → ancorar prova on-chain + Explorer → mostrar worker TxLINE sincronizando.
