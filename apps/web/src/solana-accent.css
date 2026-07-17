@@ -1,7 +1,0 @@
-/* Solana bridge: tecnologia nos pontos de ação, CHUTE no restante da narrativa. */
-:root{--solana-purple:#9945ff;--solana-cyan:#66f6ff;--solana-green:#14f195;--solana-gradient:linear-gradient(110deg,#9945ff 0%,#66f6ff 48%,#14f195 100%)}
-.telegram-cta,.hero button,section>button:not(.back){background:var(--solana-gradient);box-shadow:0 10px 28px rgba(20,241,149,.16)}
-.proof{border-color:rgba(102,246,255,.3);background:linear-gradient(135deg,rgba(153,69,255,.1),rgba(20,241,149,.06))}
-.hero-proof span:first-child{border-color:rgba(102,246,255,.42);color:var(--solana-cyan)}
-.quiz-options button.selected,.package.selected{background:var(--solana-gradient);color:#071321}
-.package.selected small{color:#173454}

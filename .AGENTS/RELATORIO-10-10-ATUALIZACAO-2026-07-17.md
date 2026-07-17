@@ -146,6 +146,7 @@ O único bloqueio que não pode ser resolvido pela máquina sem autoridade exter
 - `VITE_API_URL` configurado na Vercel e web redeployado; alias `https://web-six-lemon-25.vercel.app` está READY.
 - `scripts/verify_prod.py` executado contra produção: **20/20 validações passaram**.
 - Restante para 10/10: uma transação Memo real na devnet via Phantom e o link do Explorer para o vídeo.
+- Atualização: Memo real executado e confirmado na Solana devnet via `scripts/anchor_memo_devnet.mjs`; assinatura `5xN6h8uDD3igxpkEsHuekv2wK8dKa8dxzVH6MSsEUtsQsTnhSXfP1DnE6wJp7gaBeRy3xpNk3zpnCXxjxjoRmxF8`, payload CHUTE verificado por RPC. Phantom permanece recomendada para a cena de UX, mas deixou de ser bloqueio técnico.
 
 ### Próximo comando após login
 

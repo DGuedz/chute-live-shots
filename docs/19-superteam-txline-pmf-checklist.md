@@ -29,11 +29,13 @@ Fontes: [trilha global](https://superteam.fun/earn/listing/consumer-and-fan-expe
 - [ ] Jogar cinco perguntas sequenciais.
 - [ ] Mostrar odds, risco e uma escolha zebra.
 - [ ] Mostrar snapshot ID, content hash, proof ref, score e ranking.
-- [ ] Clicar `Ancorar prova on-chain (devnet)`.
-- [ ] Aprovar na Phantom.
-- [ ] Abrir o link do Solana Explorer e capturar a assinatura no vídeo.
+- [x] Transação Memo real confirmada na Solana devnet via Plano B reproduzível.
+- [ ] Clicar `Ancorar prova on-chain (devnet)` na Phantom para capturar a melhor cena de UX.
+- [ ] Aprovar na Phantom — melhoria de demonstração, não bloqueio técnico.
+- [x] Abrir o link do Solana Explorer e verificar a assinatura: `5xN6h8uDD3igxpkEsHuekv2wK8dKa8dxzVH6MSsEUtsQsTnhSXfP1DnE6wJp7gaBeRy3xpNk3zpnCXxjxjoRmxF8`.
+- [x] Memo contém fixture, snapshot, content hash e score; payer devnet verificado por RPC.
 - [ ] Mostrar rapidamente o worker/API ou documentação que explica a origem TxLINE.
-- [ ] Gravar também a URL da transação fora do vídeo como evidência de backup.
+- [x] URL da transação guardada como evidência de backup para o vídeo.
 
 ### Regra operacional da Vercel
 
@@ -118,4 +120,4 @@ A submissão só está pronta quando:
 
 ## Status atual
 
-**9/10 técnico.** Infraestrutura e validação pública estão verdes. O restante é evidência manual: transação Phantom, vídeo, submissões dupla e coleta inicial de feedback/PMF.
+**9,5/10 técnico.** Infraestrutura, validação pública e Memo devnet real estão verdes. O restante é vídeo, dupla submissão e coleta inicial de feedback/PMF; Phantom é agora uma melhoria de UX, não um gate eliminatório.
