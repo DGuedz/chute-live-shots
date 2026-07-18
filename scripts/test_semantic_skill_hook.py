@@ -25,3 +25,15 @@ def test_routes_onchain_to_settler():
 
 def test_routes_broad_task_to_orchestrator():
     assert run("integrar tudo para a submissão do hackathon")['skill'] == 'chute-quiz-orchestrator'
+
+
+def test_routes_market_depth_to_txline_miner():
+    assert run("mapeie a profundidade de mercado e proof coverage da TxLINE")['skill'] == 'txline-market-depth-miner'
+
+
+def test_routes_historical_priors_to_txodds_analyst():
+    assert run("analise priors historicos do TxOdds, volatilidade e zebra")['skill'] == 'txodds-historical-prior-analyst'
+
+
+def test_routes_creator_quiz_to_community_market_maker():
+    assert run("um creator quer mintar um quiz da comunidade com fee split e wallet")['skill'] == 'community-quiz-market-maker'

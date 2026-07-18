@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "default_skill": "chute-quiz-orchestrator",
+  "routes": [
+    {"skill":"txline-market-depth-miner","contract":"txline-market-depth-miner","patterns":["market depth","profundidade","statkeys","proof coverage","famílias estatísticas","familias estatisticas","mercado publicável","mercado publicavel","settleable"]},
+    {"skill":"txodds-historical-prior-analyst","contract":"txodds-historical-prior-analyst","patterns":["priors","historico txodds","volatilidade","zebra","historical prior","player baseline","faixa recomendada"]},
+    {"skill":"community-quiz-market-maker","contract":"community-quiz-market-maker","patterns":["creator quiz","community quiz","quiz da comunidade","quiz comunitário","quiz comunitario","mintar quiz","mint quiz","fee split","wallet do criador","creator fee"]},
+    {"skill":"txline-stat-curator","contract":"txline-stat-curator","patterns":["estatística","estatisticas","stats","curadoria","TxLINE","chutes por jogo","posse","escanteios","xG","forma recente","fonte"]},
+    {"skill":"quiz-question-generator","contract":"quiz-question-generator","patterns":["pergunta","perguntas","quiz","question","duelo","Argentina","Espanha"]},
+    {"skill":"probability-option-generator","contract":"probability-option-generator","patterns":["probabilidade","opções","opcoes","coverage","cobertura","distribuição","raio","alternativas"]},
+    {"skill":"quiz-snapshot-locker","contract":"quiz-snapshot-locker","patterns":["snapshot","congelar","imutável","imutavel","lock","mesmas perguntas","freeze"]},
+    {"skill":"quiz-score-engine","contract":"quiz-score-engine","patterns":["pontuação","pontuacao","score","exatidão","exatidao","proximidade","ranking","empate"]},
+    {"skill":"txline-solana-proof-settler","contract":"txline-solana-proof-settler","patterns":["Solana","onchain","on-chain","prova","proof","settlement","liquidar","transação","transacao","wallet"]},
+    {"skill":"chute-quiz-orchestrator","contract":"quiz-engine-orchestration","patterns":["orquestrar","pipeline","ciclo completo","end-to-end","hackathon","submissão","submissao","integrar tudo","próximo passo","proximo passo"]}
+  ],
+  "guards": {
+    "requires_dry_run_for": ["txline-solana-proof-settler", "chute-quiz-orchestrator", "community-quiz-market-maker"],
+    "requires_evidence_for": ["txline-market-depth-miner", "txodds-historical-prior-analyst", "community-quiz-market-maker", "quiz-question-generator", "probability-option-generator", "quiz-snapshot-locker", "quiz-score-engine", "txline-solana-proof-settler"],
+    "blocked_without": {"txline-stat-curator": ["txline_adapter"], "txline-market-depth-miner": ["txline_adapter"], "txodds-historical-prior-analyst": ["txodds_history_store"], "community-quiz-market-maker": ["txline_adapter", "txodds_history_store", "solana_rpc"], "txline-solana-proof-settler": ["txline_api", "solana_rpc"]}
+  }
+}

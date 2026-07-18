@@ -1,0 +1,111 @@
+{
+  "skill_id": "community_quiz_market_maker",
+  "name": "Community Quiz Market Maker",
+  "objective": "Turn wallet-connected creator intent into proof-aware community quiz proposals, mint outlines and fee models for CHUTE.",
+  "domain": "creator_economy_quiz",
+  "description": "Designs creator-led quizzes, mint payloads and fee splits using TxLINE and TxOdds intelligence.",
+  "plugin_owner": "MISSING_DATA",
+  "inputs": {
+    "schema": {
+      "fixture_id": "string",
+      "creator_wallet": "string|MISSING_DATA",
+      "teams": ["string"],
+      "tier_candidates": ["string"],
+      "community_size_hint": "number|MISSING_DATA",
+      "network": "devnet|mainnet",
+      "dry_run": "boolean"
+    },
+    "required": ["fixture_id", "teams", "network"]
+  },
+  "outputs": {
+    "schema": {
+      "creator_wallet_required": "boolean",
+      "resolved_fixture_id": "string|MISSING_DATA",
+      "creator_stats_panel": "object|MISSING_DATA",
+      "market_recommendations": ["object"],
+      "quiz_proposal": "object|MISSING_DATA",
+      "mint_payload_outline": "object|MISSING_DATA",
+      "fee_model": "object|MISSING_DATA",
+      "publishability_status": "string",
+      "required_child_skills": ["string"],
+      "evidence_refs": ["string"],
+      "recommended_actions": ["string"],
+      "blocked_actions": ["string"],
+      "confidence_score": "number"
+    },
+    "required": [
+      "creator_wallet_required",
+      "market_recommendations",
+      "publishability_status",
+      "required_child_skills",
+      "evidence_refs",
+      "recommended_actions",
+      "blocked_actions",
+      "confidence_score"
+    ]
+  },
+  "required_mcps": [
+    {
+      "name": "txline_adapter",
+      "purpose": "Read fixture identity, live-proof families and validation availability."
+    },
+    {
+      "name": "txodds_history_store",
+      "purpose": "Read historical priors and creator-facing context."
+    },
+    {
+      "name": "solana_rpc",
+      "purpose": "Prepare mint or signing payload outlines for creator-owned quiz markets."
+    }
+  ],
+  "required_permissions": [
+    "read_txline",
+    "read_txodds_history",
+    "read_solana",
+    "write_solana_only_after_approval"
+  ],
+  "risk_level": "high",
+  "requires_human_approval": true,
+  "human_approval_required_for": [
+    "minting a creator quiz",
+    "activating fee split in production",
+    "publishing creator-owned markets to real users"
+  ],
+  "dry_run_required": true,
+  "evidence_required": true,
+  "evidence_refs": [],
+  "confidence_score": {
+    "type": "number",
+    "minimum": 0,
+    "maximum": 1,
+    "default_when_missing_data": 0
+  },
+  "confidence_rules": [
+    ">=0.9 only when creator wallet, market depth, prior signals and fee rules are all evidenced.",
+    "<=0.5 when creator intent exists but proof coverage or economic rules are still partial.",
+    "0 when wallet ownership or evidence is missing."
+  ],
+  "failure_modes": [
+    {
+      "mode": "WALLET_MISSING",
+      "behavior": "Return blocked mint path and creator_wallet_required=true."
+    },
+    {
+      "mode": "PROOF_COVERAGE_GAP",
+      "behavior": "Do not recommend minting the affected quiz."
+    },
+    {
+      "mode": "ECONOMICS_UNCLEAR",
+      "behavior": "Return proposal draft without activation approval."
+    }
+  ],
+  "recommended_actions": [
+    "Use this skill to propose creator-safe quizzes before any mint or publish action.",
+    "Keep CHUTE-native quizzes and creator-led quizzes clearly separated in UX and economics."
+  ],
+  "blocked_actions": [
+    "Do not mint creator quizzes automatically.",
+    "Do not promise fee profitability without activation thresholds and review.",
+    "Do not expose creator flow as proof-capable if its stat family lacks settlement clarity."
+  ]
+}
