@@ -1,0 +1,137 @@
+{
+  "skill_id": "chute_market_intelligence_orchestrator",
+  "name": "CHUTE Market Intelligence Orchestrator",
+  "objective": "Turn TxLINE live data and TxOdds priors into safe quiz composition decisions and child-skill requirements.",
+  "domain": "sports_market_intelligence",
+  "description": "Coordinates fixture intelligence, proof coverage and quiz composition for CHUTE.",
+  "plugin_owner": "MISSING_DATA",
+  "inputs": {
+    "schema": {
+      "fixture_id": "string",
+      "teams": ["string"],
+      "tier_candidates": ["string"],
+      "network": "devnet|mainnet",
+      "dry_run": "boolean"
+    },
+    "required": ["fixture_id", "teams", "network"]
+  },
+  "outputs": {
+    "schema": {
+      "resolved_fixture_id": "string|MISSING_DATA",
+      "market_map": "object|MISSING_DATA",
+      "tier_recommendations": ["object"],
+      "quiz_composition_rules": "object|MISSING_DATA",
+      "proof_coverage": "object|MISSING_DATA",
+      "historical_priors": "object|MISSING_DATA",
+      "editorial_signals": "object|MISSING_DATA",
+      "required_child_skills": ["string"],
+      "evidence_refs": ["string"],
+      "recommended_actions": ["string"],
+      "blocked_actions": ["string"],
+      "confidence_score": "number"
+    },
+    "required": [
+      "tier_recommendations",
+      "required_child_skills",
+      "evidence_refs",
+      "recommended_actions",
+      "blocked_actions",
+      "confidence_score"
+    ]
+  },
+  "required_mcps": [
+    {
+      "name": "txline_adapter",
+      "purpose": "Read live fixtures, snapshots, proof refs and validation availability."
+    },
+    {
+      "name": "txodds_history_store",
+      "purpose": "Read historical priors and editorial signals used by predictive tiers."
+    }
+  ],
+  "required_permissions": [
+    "read_txline",
+    "read_txodds_history",
+    "read_submission_artifacts"
+  ],
+  "risk_level": "high",
+  "requires_human_approval": true,
+  "human_approval_required_for": [
+    "opening a new tier in production",
+    "publishing a new market family as proof-capable",
+    "claiming Superteam submission readiness",
+    "activating creator-owned quiz economics"
+  ],
+  "dry_run_required": true,
+  "evidence_required": true,
+  "evidence_refs": [],
+  "confidence_score": {
+    "type": "number",
+    "minimum": 0,
+    "maximum": 1,
+    "default_when_missing_data": 0
+  },
+  "confidence_rules": [
+    ">=0.9 only when live fixture identity, proof coverage and historical priors are all evidenced.",
+    "<=0.4 when proof coverage is partial or fixture identity is unresolved.",
+    "0 when TxLINE access or proof evidence is missing."
+  ],
+  "failure_modes": [
+    {
+      "mode": "MISSING_DATA",
+      "behavior": "Return blocked output and list missing child skills or evidence."
+    },
+    {
+      "mode": "PROOF_COVERAGE_GAP",
+      "behavior": "Do not open or market the affected tier."
+    },
+    {
+      "mode": "FIXTURE_MISMATCH",
+      "behavior": "Stop and request manual reconciliation."
+    }
+  ],
+  "recommended_actions": [
+    "Use TxOdds to shape priors and TxLINE to authorize proof-capable publication.",
+    "Keep outputs compact and evidence-backed.",
+    "Create missing child skills before expanding market families.",
+    "Treat creator-led quiz minting as a separate risk and economics lane."
+  ],
+  "blocked_actions": [
+    "Do not infer proof coverage from editorial data alone.",
+    "Do not publish new tiers from replay evidence as if they were live-proofed.",
+    "Do not claim Superteam readiness without evidence package and human review.",
+    "Do not expose creator monetization without wallet ownership, fee rules and proof-aware publishability."
+  ],
+  "example_json": {
+    "input": {
+      "fixture_id": "argentina-spain",
+      "teams": ["Spain", "Argentina"],
+      "tier_candidates": ["chutes", "escanteios", "faltas"],
+      "network": "devnet",
+      "dry_run": true
+    },
+    "output": {
+      "resolved_fixture_id": "18257739",
+      "market_map": "MISSING_DATA",
+      "tier_recommendations": [],
+      "quiz_composition_rules": "MISSING_DATA",
+      "proof_coverage": "MISSING_DATA",
+      "historical_priors": "MISSING_DATA",
+      "editorial_signals": "MISSING_DATA",
+      "required_child_skills": [
+        "txline-market-depth-miner",
+        "txodds-historical-prior-analyst",
+        "community-quiz-market-maker",
+        "quiz-tier-composer"
+      ],
+      "evidence_refs": [],
+      "recommended_actions": [
+        "Mine TxLINE and TxOdds evidence before expanding tiers."
+      ],
+      "blocked_actions": [
+        "Cannot publish a new proof-capable tier yet."
+      ],
+      "confidence_score": 0
+    }
+  }
+}
