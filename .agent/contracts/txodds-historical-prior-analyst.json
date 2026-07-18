@@ -1,0 +1,83 @@
+{
+  "skill_id": "txodds_historical_prior_analyst",
+  "name": "TxOdds Historical Prior Analyst",
+  "objective": "Convert TxOdds historical and editorial data into priors, volatility signals and zebra opportunities for CHUTE quiz composition.",
+  "domain": "sports_market_intelligence",
+  "description": "Builds composition-grade priors from TxOdds history without claiming live proof.",
+  "plugin_owner": "MISSING_DATA",
+  "inputs": {
+    "schema": {
+      "fixture_id": "string",
+      "teams": ["string"],
+      "tier_candidates": ["string"],
+      "players_of_interest": ["string"]
+    },
+    "required": ["fixture_id", "teams"]
+  },
+  "outputs": {
+    "schema": {
+      "historical_priors": "object|MISSING_DATA",
+      "player_signals": "object|MISSING_DATA",
+      "team_signals": "object|MISSING_DATA",
+      "zebra_opportunities": ["object"],
+      "volatility_map": "object|MISSING_DATA",
+      "recommended_ranges": "object|MISSING_DATA",
+      "editorial_alignment": "object|MISSING_DATA",
+      "evidence_refs": ["string"],
+      "recommended_actions": ["string"],
+      "blocked_actions": ["string"],
+      "confidence_score": "number"
+    },
+    "required": [
+      "zebra_opportunities",
+      "evidence_refs",
+      "recommended_actions",
+      "blocked_actions",
+      "confidence_score"
+    ]
+  },
+  "required_mcps": [
+    {
+      "name": "txodds_history_store",
+      "purpose": "Read player/team historical stats and editorial context used by CHUTE."
+    }
+  ],
+  "required_permissions": [
+    "read_txodds_history"
+  ],
+  "risk_level": "medium",
+  "requires_human_approval": false,
+  "human_approval_required_for": [],
+  "dry_run_required": true,
+  "evidence_required": true,
+  "evidence_refs": [],
+  "confidence_score": {
+    "type": "number",
+    "minimum": 0,
+    "maximum": 1,
+    "default_when_missing_data": 0
+  },
+  "confidence_rules": [
+    ">=0.9 when priors are derived from sufficient historical depth and clearly aligned editorial data.",
+    "<=0.5 when sample size is thin, volatile or role changes distort the baseline.",
+    "0 when historical evidence is missing."
+  ],
+  "failure_modes": [
+    {
+      "mode": "MISSING_DATA",
+      "behavior": "Return blocked output and avoid prior-driven recommendations."
+    },
+    {
+      "mode": "LOW_SAMPLE_DEPTH",
+      "behavior": "Reduce confidence and mark the range as exploratory."
+    }
+  ],
+  "recommended_actions": [
+    "Use priors to shape options, odds bands and zebra questions.",
+    "Feed outputs into quiz-tier composition, not into settlement claims."
+  ],
+  "blocked_actions": [
+    "Do not present TxOdds priors as live proof.",
+    "Do not use thin historical samples as hard odds without confidence labeling."
+  ]
+}

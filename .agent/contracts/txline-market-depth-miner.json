@@ -1,0 +1,88 @@
+{
+  "skill_id": "txline_market_depth_miner",
+  "name": "TxLINE Market Depth Miner",
+  "objective": "Map live TxLINE stat families, proof coverage and settlement-safe market depth for CHUTE.",
+  "domain": "sports_market_intelligence",
+  "description": "Audits which TxLINE market families are live, provable and safe for quiz publication.",
+  "plugin_owner": "MISSING_DATA",
+  "inputs": {
+    "schema": {
+      "fixture_id": "string",
+      "teams": ["string"],
+      "network": "devnet|mainnet",
+      "as_of": "datetime|MISSING_DATA"
+    },
+    "required": ["fixture_id", "teams", "network"]
+  },
+  "outputs": {
+    "schema": {
+      "resolved_fixture_id": "string|MISSING_DATA",
+      "fixture_state": "object|MISSING_DATA",
+      "market_depth": "object|MISSING_DATA",
+      "proof_coverage": "object|MISSING_DATA",
+      "live_readiness": "object|MISSING_DATA",
+      "blocked_families": ["string"],
+      "recommended_families": ["string"],
+      "evidence_refs": ["string"],
+      "recommended_actions": ["string"],
+      "blocked_actions": ["string"],
+      "confidence_score": "number"
+    },
+    "required": [
+      "blocked_families",
+      "recommended_families",
+      "evidence_refs",
+      "recommended_actions",
+      "blocked_actions",
+      "confidence_score"
+    ]
+  },
+  "required_mcps": [
+    {
+      "name": "txline_adapter",
+      "purpose": "Read TxLINE fixtures, snapshots, validation payloads and proof refs."
+    }
+  ],
+  "required_permissions": [
+    "read_txline"
+  ],
+  "risk_level": "high",
+  "requires_human_approval": false,
+  "human_approval_required_for": [],
+  "dry_run_required": true,
+  "evidence_required": true,
+  "evidence_refs": [],
+  "confidence_score": {
+    "type": "number",
+    "minimum": 0,
+    "maximum": 1,
+    "default_when_missing_data": 0
+  },
+  "confidence_rules": [
+    ">=0.9 only with direct fixture evidence, fresh snapshots and explicit proof-capable families.",
+    "<=0.4 when snapshots exist but proof coverage is partial or stale.",
+    "0 when fixture identity or TxLINE access is missing."
+  ],
+  "failure_modes": [
+    {
+      "mode": "MISSING_DATA",
+      "behavior": "Block publication and list missing evidence."
+    },
+    {
+      "mode": "PROOF_COVERAGE_GAP",
+      "behavior": "Mark affected families as blocked."
+    },
+    {
+      "mode": "FIXTURE_MISMATCH",
+      "behavior": "Stop and request manual reconciliation."
+    }
+  ],
+  "recommended_actions": [
+    "Use only proof-capable families for settlement-sensitive quizzes.",
+    "Prefer families with clear semantic labels and repeated live coverage."
+  ],
+  "blocked_actions": [
+    "Do not publish ambiguous stat families as if they were settleable.",
+    "Do not substitute TxLINE depth with editorial inference."
+  ]
+}
