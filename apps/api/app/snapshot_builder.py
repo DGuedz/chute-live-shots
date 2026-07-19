@@ -91,6 +91,9 @@ def seed_replay_snapshot() -> str | None:
 
 # Alias fixture ids that the web/legacy clients may request for the guaranteed replay.
 REPLAY_ALIASES = {"argentina-spain", "replay", "demo"}
+PREDICTIVE_LIVE_ALIASES = {
+    "argentina-spain": ("Spain", "Argentina"),
+}
 
 
 def resolve_fixture_id(fixture_id: str) -> str:
@@ -98,4 +101,29 @@ def resolve_fixture_id(fixture_id: str) -> str:
     if fixture_id in REPLAY_ALIASES:
         envelope = load_replay_envelope()
         return str(envelope["fixtureId"])
+    return fixture_id
+
+
+def resolve_predictive_fixture_id(fixture_id: str) -> str:
+    """Resolve editorial fixture aliases to the live TxLINE fixture when available.
+
+    Predictive progress must never silently fall back to the replay fixture; if the
+    live match is not present in TxLINE yet, the caller should remain fail-closed.
+    """
+    teams = PREDICTIVE_LIVE_ALIASES.get(fixture_id)
+    if not teams:
+        return fixture_id
+    live_fixture = storage.find_fixture_by_teams(*teams)
+    return str(live_fixture["fixture_id"]) if live_fixture else fixture_id
+
+
+def resolve_editorial_alias(fixture_id: str) -> str:
+    """Map a live TxLINE fixture id back to its editorial alias (ex.: 18257739 → argentina-spain).
+
+    A leitura editorial é curada por slug textual; quando o cliente navega pelo id numérico
+    do fixture live, reconciliamos via os times persistidos pela TxLINE.
+    """
+    for alias in PREDICTIVE_LIVE_ALIASES:
+        if resolve_predictive_fixture_id(alias) == str(fixture_id):
+            return alias
     return fixture_id

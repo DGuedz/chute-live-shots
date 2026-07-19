@@ -19,7 +19,7 @@ const memoryStorage=():Storage=>{
 
 describe('network + explorer',()=>{
  it('resolves RPC per network',()=>{
-  expect(rpcUrl('devnet')).toContain('devnet');
+  expect(rpcUrl('devnet')).toMatch(/devnet|\/api\/solana\/rpc/);
   expect(rpcUrl('mainnet')).toContain('mainnet-beta');
  });
  it('adds cluster param only on devnet',()=>{
@@ -36,6 +36,10 @@ describe('memo payloads',()=>{
  it('predictive memo includes fixture, snapshot and hash',()=>{
   expect(buildPredictiveMemo({fixture_id:'argentina-spain',snapshot_id:'snap-2',content_hash:'sha256:def',score:412.4,percentage:60}))
    .toBe('CHUTE-PRED|argentina-spain|snap-2|sha256:def|score:412|60%');
+ });
+ it('predictive memo appends compact proof ref when available',()=>{
+  expect(buildPredictiveMemo({fixture_id:'argentina-spain',snapshot_id:'snap-2',content_hash:'sha256:def',score:412.4,percentage:60,proof_ref:'proofref-abcdefghijklmnopqrstuvwxyz-123456'}))
+   .toBe('CHUTE-PRED|argentina-spain|snap-2|sha256:def|score:412|60%|proof:proofref-a…123456');
  });
  it('predictive memo marks unresolved snapshot explicitly',()=>{
   expect(buildPredictiveMemo({score:0,percentage:0})).toBe('CHUTE-PRED|?|unresolved|unresolved|score:0|0%');

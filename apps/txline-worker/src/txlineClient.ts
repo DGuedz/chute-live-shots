@@ -17,26 +17,60 @@ export class TxlineClient {
     return {Authorization: `Bearer ${jwt}`, 'X-Api-Token': this.config.apiToken};
   }
 
-  private async startGuestSession() {
-    const response = await axios.post(`${this.config.apiOrigin}/auth/guest/start`, undefined, {timeout: 15000});
-    const token = response.data?.token;
+  private async startGuestSession(): Promise<string> {
+    // A resposta pode vir como JSON {token} ou como texto cru — o token de API real
+    // (mainnet) devolveu texto puro em pelo menos um endpoint irmão, então blindamos aqui.
+    const response = await axios.post(`${this.config.apiOrigin}/auth/guest/start`, undefined, {timeout: 15000, transformResponse: (data) => data});
+    let token: string | undefined;
+    try {
+      token = JSON.parse(response.data)?.token;
+    } catch {
+      token = typeof response.data === 'string' ? response.data : undefined;
+    }
     if (!token) throw new Error('MISSING_DATA: TXLINE guest JWT was not returned');
     this.guestJwt = token;
     return token;
   }
 
+  /** Renova o JWT sob demanda (401/403) e reexecuta a chamada uma única vez.
+   * O apiToken da assinatura on-chain é de longa duração; só o JWT expira. */
+  private async withJwtRetry<T>(run: (headers: {Authorization: string; 'X-Api-Token': string}) => Promise<T>): Promise<T> {
+    try {
+      return await run(await this.headers());
+    } catch (err) {
+      const status = (err as {response?: {status?: number}})?.response?.status;
+      if (status !== 401 && status !== 403) throw err;
+      this.guestJwt = undefined;
+      await this.startGuestSession();
+      return run(await this.headers());
+    }
+  }
+
   async listFixtures(params: Record<string, string> = {}) {
-    const response = await this.http.get(this.config.fixturesPath, {params, headers: await this.headers()});
+    const response = await this.withJwtRetry((headers) => this.http.get(this.config.fixturesPath, {params, headers}));
+    return response.data;
+  }
+
+  async listQuizzes(params: Record<string, string> = {}) {
+    if (!this.config.quizzesPath) throw new Error('MISSING_DATA: quizzesPath not configured');
+    const response = await this.withJwtRetry((headers) => this.http.get(this.config.quizzesPath!, {params, headers}));
     return response.data;
   }
 
   async getScores(fixtureId: string) {
-    const response = await this.http.get(`${this.config.scoresPath}/${encodeURIComponent(fixtureId)}`, {headers: await this.headers()});
+    const response = await this.withJwtRetry((headers) => this.http.get(`${this.config.scoresPath}/${encodeURIComponent(fixtureId)}`, {headers}));
     return response.data;
   }
 
   async getProof(proofRef: string) {
-    const response = await this.http.get(`${this.config.proofsPath}/${encodeURIComponent(proofRef)}`, {headers: await this.headers()});
+    const response = await this.getProofDocument(proofRef);
+    return response;
+  }
+
+  async getProofDocument(proofRef: string) {
+    const response = await this.withJwtRetry((headers) => /^https?:\/\//i.test(proofRef)
+      ? axios.get(proofRef, {headers, timeout: 15000})
+      : this.http.get(`${this.config.proofsPath}/${encodeURIComponent(proofRef)}`, {headers}));
     return response.data;
   }
 

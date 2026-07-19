@@ -1,165 +1,196 @@
-"""Resolve predictive quiz questions against TxLINE event stream."""
+"""Resolve predictive quiz questions against o feed real da TxLINE.
+
+O wire real (mainnet, SL12) reporta estatísticas por CÓDIGO NUMÉRICO, não por nome:
+  1/2 = gols (Participant1/2) · 3/4 = amarelo · 5/6 = vermelho · 7/8 = escanteios
+(prefixo de período: 0=jogo todo, 1000=1ºT, 3000=2ºT, 7000=total do tempo extra — não usado aqui).
+Isso é o que a TxODDS documenta para o tier gratuito da Copa; não existem faltas nem chutes
+no alvo nesse feed, por isso os tiers do CHUTE são gols/escanteios/cartões.
+"""
+
+from __future__ import annotations
 
 from typing import Any
-from . import storage, quiz_engine
+
+_STAT_BASE = {"goals": 1, "yellow": 3, "red": 5, "corners": 7}
 
 
-def resolve_fouls_question(question_id: str, answer: Any, txline_score: dict[str, Any]) -> dict[str, Any]:
-	"""Compare foul prediction against TxLINE score data.
-
-	question_id patterns:
-	- q1: team_fouls (numeric) — compare total foul count
-	- q2: yellow_card_early (categorical) — check if yellow in first 25 min
-	- q3: player_fouls (categorical) — check if player made foul
-	- q4: player_yellow (categorical/zebra) — check if specific player got yellow
-	- q5: red_card (categorical/zebra) — check if any red card
-	"""
-	score_data = txline_score.get("score", {})
-	stats = score_data.get("stats", {})
-
-	if question_id == "q1":
-		# Numeric comparison: total fouls by team
-		actual_fouls = stats.get("fouls_committed", 0)
-		correct = int(answer) == actual_fouls
-		return {"resolved": True, "correct": correct, "actual": actual_fouls, "expected": answer}
-
-	elif question_id == "q2":
-		# Yellow in first 25 min
-		events = score_data.get("events", [])
-		yellow_before_25 = any(e.get("type") == "yellow_card" and e.get("minute", 90) <= 25 for e in events)
-		correct = (answer == "Sim") == yellow_before_25
-		return {"resolved": True, "correct": correct, "actual": "Sim" if yellow_before_25 else "Não"}
-
-	elif question_id == "q3":
-		# Player made foul (simplified: check if any foul recorded)
-		events = score_data.get("events", [])
-		player_name = "De Paul"  # Hardcoded for MVP; would come from question meta
-		player_fouls = sum(1 for e in events if e.get("type") == "foul" and e.get("player") == player_name)
-		correct = (answer == "Sim") == (player_fouls > 0)
-		return {"resolved": True, "correct": correct, "actual": "Sim" if player_fouls > 0 else "Não"}
-
-	elif question_id == "q4":
-		# Specific player yellow card (zebra)
-		events = score_data.get("events", [])
-		player_name = "Messi"  # Hardcoded for MVP
-		player_yellow = sum(1 for e in events if e.get("type") == "yellow_card" and e.get("player") == player_name)
-		correct = (answer == "Sim") == (player_yellow > 0)
-		return {"resolved": True, "correct": correct, "actual": "Sim" if player_yellow > 0 else "Não", "payoff": 3.5 if correct else 0}
-
-	elif question_id == "q5":
-		# Red card (zebra) — rare event
-		events = score_data.get("events", [])
-		any_red = any(e.get("type") == "red_card" for e in events)
-		correct = (answer == "Sim") == any_red
-		return {"resolved": True, "correct": correct, "actual": "Sim" if any_red else "Não", "payoff": 3.5 if correct else 0}
-
-	return {"resolved": False, "error": "unknown_question"}
+def _participant_index(team_name: str | None, home_team: str | None, away_team: str | None) -> int | None:
+	"""Mapeia o nome da seleção para Participant1 (home) ou Participant2 (away) no wire real.
+	Sem o fixture persistido não há como saber com segurança — falha explícita, nunca adivinha."""
+	if not team_name:
+		return None
+	if team_name == home_team:
+		return 1
+	if team_name == away_team:
+		return 2
+	return None
 
 
-def resolve_corners_question(question_id: str, answer: Any, txline_score: dict[str, Any]) -> dict[str, Any]:
-	"""Compare corner prediction against TxLINE score data."""
-	score_data = txline_score.get("score", {})
-	stats = score_data.get("stats", {})
+def _real_stat(stats: dict[str, Any], family: str, participant: int) -> int:
+	"""Lê o código numérico real (ex.: '1', '8') do payload cru da TxLINE."""
+	code = str(_STAT_BASE[family] + (0 if participant == 1 else 1))
+	try:
+		return int(stats.get(code, 0) or 0)
+	except (TypeError, ValueError):
+		return 0
 
-	if question_id == "q1":
-		# Total corners by team
-		actual_corners = stats.get("corners_for", 0)
-		correct = int(answer) == actual_corners
-		return {"resolved": True, "correct": correct, "actual": actual_corners, "expected": answer}
 
-	elif question_id == "q2":
-		# More than 10 corners
-		actual_corners = stats.get("corners_for", 0)
-		correct = (answer == "Sim") == (actual_corners > 10)
-		return {"resolved": True, "correct": correct, "actual": "Sim" if actual_corners > 10 else "Não"}
+def _latest_stats(txline_score: dict[str, Any]) -> dict[str, Any]:
+	"""O payload persistido pode ser um evento único ou uma lista de eventos (snapshot bruto
+	da TxLINE); pegamos sempre o mais recente, igual ao worker faz para decidir o estado atual."""
+	score_data = txline_score.get("score", txline_score)
+	if isinstance(score_data, list):
+		score_data = score_data[-1] if score_data else {}
+	stats = score_data.get("Stats") or score_data.get("stats") or {}
+	return stats if isinstance(stats, dict) else {}
 
-	elif question_id == "q3":
-		# Corner in first 15 min
-		events = score_data.get("events", [])
-		corner_early = any(e.get("type") == "corner" and e.get("minute", 90) <= 15 for e in events)
-		correct = (answer == "Sim") == corner_early
-		return {"resolved": True, "correct": correct, "actual": "Sim" if corner_early else "Não"}
 
-	elif question_id == "q4":
-		# Goal from corner (zebra)
-		events = score_data.get("events", [])
-		corner_goal = any(e.get("type") == "goal" and e.get("assist_type") == "corner" for e in events)
-		correct = (answer == "Sim") == corner_goal
-		return {"resolved": True, "correct": correct, "actual": "Sim" if corner_goal else "Não", "payoff": 3.5 if correct else 0}
+def resolve_gols_question(question_id: str, answer: Any, txline_score: dict[str, Any], question: dict[str, Any] | None, home_team: str | None, away_team: str | None) -> dict[str, Any]:
+	stats = _latest_stats(txline_score)
+	meta = (question or {}).get("meta", {})
 
-	elif question_id == "q5":
-		# Yellow/red from corner scuffle (zebra)
-		events = score_data.get("events", [])
-		card_from_corner = any(e.get("type") in ("yellow_card", "red_card") and e.get("reason") == "corner_dispute" for e in events)
-		correct = (answer == "Sim") == card_from_corner
-		return {"resolved": True, "correct": correct, "actual": "Sim" if card_from_corner else "Não", "payoff": 3.5 if correct else 0}
+	if question_id in ("q1", "q3"):
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "goals", participant)
+		return {"resolved": True, "correct": int(answer) == actual, "actual": actual, "expected": answer}
+
+	if question_id == "q2":  # goleada solo (própria equipe, >=4 gols)
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "goals", participant)
+		hit = actual >= 4
+		return {"resolved": True, "correct": (answer == "Sim") == hit, "actual": "Sim" if hit else "Não"}
+
+	if question_id == "q4":  # rival sem marcar
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "goals", participant)
+		hit = actual == 0
+		return {"resolved": True, "correct": (answer == "Sim") == hit, "actual": "Sim" if hit else "Não"}
+
+	if question_id == "q5":  # duelo de gols
+		p_own = _participant_index(meta.get("team"), home_team, away_team)
+		p_rival = _participant_index(meta.get("opponent"), home_team, away_team)
+		if p_own is None or p_rival is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		own_goals = _real_stat(stats, "goals", p_own)
+		rival_goals = _real_stat(stats, "goals", p_rival)
+		outcome = _duel_outcome(own_goals, rival_goals, meta.get("team"), meta.get("opponent"))
+		correct = answer == outcome
+		payoff = 3.5 if correct and outcome in ("Empate", "Dobradinha") else (1.0 if correct else 0.0)
+		return {"resolved": True, "correct": correct, "actual": outcome, "payoff": payoff}
 
 	return {"resolved": False, "error": "unknown_question"}
 
 
-def resolve_shots_question(question_id: str, answer: Any, txline_score: dict[str, Any]) -> dict[str, Any]:
-	"""Compare shot prediction against TxLINE score data."""
-	score_data = txline_score.get("score", {})
-	stats = score_data.get("stats", {})
+def resolve_escanteios_question(question_id: str, answer: Any, txline_score: dict[str, Any], question: dict[str, Any] | None, home_team: str | None, away_team: str | None) -> dict[str, Any]:
+	stats = _latest_stats(txline_score)
+	meta = (question or {}).get("meta", {})
 
-	if question_id == "q1":
-		# Total shots on target
-		actual_shots = stats.get("shots_on_target", 0)
-		correct = int(answer) == actual_shots
-		return {"resolved": True, "correct": correct, "actual": actual_shots, "expected": answer}
+	if question_id in ("q1", "q3"):
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "corners", participant)
+		return {"resolved": True, "correct": int(answer) == actual, "actual": actual, "expected": answer}
 
-	elif question_id == "q2":
-		# Player shoots on target (easy)
-		events = score_data.get("events", [])
-		player_name = "Messi"  # Hardcoded for MVP
-		player_shots = sum(1 for e in events if e.get("type") == "shot_on_target" and e.get("player") == player_name)
-		correct = (answer == "Sim") == (player_shots > 0)
-		return {"resolved": True, "correct": correct, "actual": "Sim" if player_shots > 0 else "Não"}
+	if question_id == "q2":  # 10 ou mais escanteios
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "corners", participant)
+		hit = actual >= 10
+		return {"resolved": True, "correct": (answer == "Sim") == hit, "actual": "Sim" if hit else "Não"}
 
-	elif question_id == "q3":
-		# More than 3 shots on target (easy)
-		actual_shots = stats.get("shots_on_target", 0)
-		correct = (answer == "Sim") == (actual_shots > 3)
-		return {"resolved": True, "correct": correct, "actual": "Sim" if actual_shots > 3 else "Não"}
+	if question_id == "q4":  # rival com menos de 2 escanteios
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "corners", participant)
+		hit = actual < 2
+		return {"resolved": True, "correct": (answer == "Sim") == hit, "actual": "Sim" if hit else "Não"}
 
-	elif question_id == "q4":
-		# Hat trick (zebra)
-		events = score_data.get("events", [])
-		goals_by_player = {}
-		for e in events:
-			if e.get("type") == "goal":
-				player = e.get("player", "unknown")
-				goals_by_player[player] = goals_by_player.get(player, 0) + 1
-		hat_trick = any(g >= 3 for g in goals_by_player.values())
-		correct = (answer == "Sim") == hat_trick
-		return {"resolved": True, "correct": correct, "actual": "Sim" if hat_trick else "Não", "payoff": 3.5 if correct else 0}
-
-	elif question_id == "q5":
-		# Header goal (zebra)
-		events = score_data.get("events", [])
-		header_goal = any(e.get("type") == "goal" and e.get("shot_type") == "header" for e in events)
-		correct = (answer == "Sim") == header_goal
-		return {"resolved": True, "correct": correct, "actual": "Sim" if header_goal else "Não", "payoff": 3.5 if correct else 0}
+	if question_id == "q5":  # duelo de escanteios
+		p_own = _participant_index(meta.get("team"), home_team, away_team)
+		p_rival = _participant_index(meta.get("opponent"), home_team, away_team)
+		if p_own is None or p_rival is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		own = _real_stat(stats, "corners", p_own)
+		rival = _real_stat(stats, "corners", p_rival)
+		outcome = _duel_outcome(own, rival, meta.get("team"), meta.get("opponent"))
+		correct = answer == outcome
+		payoff = 3.5 if correct and outcome in ("Empate", "Dobradinha") else (1.0 if correct else 0.0)
+		return {"resolved": True, "correct": correct, "actual": outcome, "payoff": payoff}
 
 	return {"resolved": False, "error": "unknown_question"}
 
 
-def resolve_prediction_answer(quiz_id: str, tier: str, question_id: str, answer: Any, txline_score: dict[str, Any]) -> dict[str, Any]:
-	"""Resolve a single prediction against TxLINE score.
+def resolve_cartoes_question(question_id: str, answer: Any, txline_score: dict[str, Any], question: dict[str, Any] | None, home_team: str | None, away_team: str | None) -> dict[str, Any]:
+	stats = _latest_stats(txline_score)
+	meta = (question or {}).get("meta", {})
+
+	if question_id in ("q1", "q3"):
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "yellow", participant)
+		return {"resolved": True, "correct": int(answer) == actual, "actual": actual, "expected": answer}
+
+	if question_id in ("q2", "q4"):  # cartão vermelho (própria equipe ou rival, conforme meta)
+		participant = _participant_index(meta.get("team"), home_team, away_team)
+		if participant is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		actual = _real_stat(stats, "red", participant)
+		hit = actual > 0
+		return {"resolved": True, "correct": (answer == "Sim") == hit, "actual": "Sim" if hit else "Não"}
+
+	if question_id == "q5":  # duelo de disciplina (amarelo + 2×vermelho)
+		p_own = _participant_index(meta.get("team"), home_team, away_team)
+		p_rival = _participant_index(meta.get("opponent"), home_team, away_team)
+		if p_own is None or p_rival is None:
+			return {"resolved": False, "error": "MISSING_FIXTURE_MAPPING"}
+		own = _real_stat(stats, "yellow", p_own) + 2 * _real_stat(stats, "red", p_own)
+		rival = _real_stat(stats, "yellow", p_rival) + 2 * _real_stat(stats, "red", p_rival)
+		outcome = _duel_outcome(own, rival, meta.get("team"), meta.get("opponent"))
+		correct = answer == outcome
+		payoff = 3.5 if correct and outcome in ("Empate", "Dobradinha") else (1.0 if correct else 0.0)
+		return {"resolved": True, "correct": correct, "actual": outcome, "payoff": payoff}
+
+	return {"resolved": False, "error": "unknown_question"}
+
+
+def _duel_outcome(own: int, rival: int, own_name: str | None, rival_name: str | None) -> str:
+	if own == rival:
+		return "Empate"
+	if min(own, rival) >= 3 and max(own, rival) >= 2 * min(own, rival):
+		return "Dobradinha"
+	return own_name if own > rival else rival_name
+
+
+def resolve_prediction_answer(quiz_id: str, tier: str, question_id: str, answer: Any, txline_score: dict[str, Any], question: dict[str, Any] | None = None, home_team: str | None = None, away_team: str | None = None) -> dict[str, Any]:
+	"""Resolve uma predição contra o placar real da TxLINE.
 
 	Returns: {resolved, correct, actual, payoff (optional), ...}
 	"""
-	if tier == "faltas":
-		return resolve_fouls_question(question_id, answer, txline_score)
+	if tier == "cartoes":
+		return resolve_cartoes_question(question_id, answer, txline_score, question, home_team, away_team)
 	elif tier == "escanteios":
-		return resolve_corners_question(question_id, answer, txline_score)
-	elif tier == "chutes":
-		return resolve_shots_question(question_id, answer, txline_score)
+		return resolve_escanteios_question(question_id, answer, txline_score, question, home_team, away_team)
+	elif tier == "gols":
+		return resolve_gols_question(question_id, answer, txline_score, question, home_team, away_team)
 	else:
 		return {"resolved": False, "error": f"unknown_tier: {tier}"}
 
 
-def score_prediction_quiz(quiz_id: str, tier: str, participant_answers: list[dict[str, Any]], txline_score: dict[str, Any]) -> dict[str, Any]:
+def score_prediction_quiz(
+	quiz_id: str, tier: str, participant_answers: list[dict[str, Any]], txline_score: dict[str, Any],
+	questions_by_id: dict[str, dict[str, Any]] | None = None,
+	home_team: str | None = None, away_team: str | None = None,
+) -> dict[str, Any]:
 	"""Score a complete predictive quiz against TxLINE events.
 
 	participant_answers: list of {question_id, answer}
@@ -172,7 +203,8 @@ def score_prediction_quiz(quiz_id: str, tier: str, participant_answers: list[dic
 	for ans in participant_answers:
 		question_id = ans["question_id"]
 		answer = ans["answer"]
-		resolution = resolve_prediction_answer(quiz_id, tier, question_id, answer, txline_score)
+		question = (questions_by_id or {}).get(question_id)
+		resolution = resolve_prediction_answer(quiz_id, tier, question_id, answer, txline_score, question, home_team, away_team)
 
 		if resolution.get("resolved"):
 			is_correct = resolution.get("correct", False)

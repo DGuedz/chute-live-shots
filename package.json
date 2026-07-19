@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "npm --workspace apps/web run dev",
     "build": "npm --workspace apps/web run build",
-    "test": "npm --workspace apps/web run test"
+    "test": "npm --workspace apps/web run test",
+    "validate:videos": "node scripts/validate-video-assets.mjs --staged",
+    "validate:videos:all": "node scripts/validate-video-assets.mjs --all",
+    "validate:videos:report": "node scripts/validate-video-assets.mjs --all --write-report"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "intent": "factual",
+  "freshness_mode": "balanced_recent",
+  "cluster_mode": "none",
+  "subqueries": [
+    {
+      "label": "primary",
+      "search_query": "AFA RFEF official national team crest logo SVG",
+      "ranking_query": "Which current official crest versions are used by the Argentina and Spain national football teams?",
+      "sources": ["reddit", "x", "youtube", "tiktok", "instagram", "hackernews", "polymarket"],
+      "weight": 1.0
+    },
+    {
+      "label": "argentina",
+      "search_query": "Argentina AFA three stars crest SVG",
+      "ranking_query": "What is the current Argentina AFA national team crest and where is a reliable vector available?",
+      "sources": ["reddit", "youtube"],
+      "weight": 0.8
+    },
+    {
+      "label": "spain",
+      "search_query": "Spain RFEF national team crest star SVG",
+      "ranking_query": "What is the current Spain RFEF national team crest and where is a reliable vector available?",
+      "sources": ["reddit", "youtube"],
+      "weight": 0.8
+    }
+  ]
+}

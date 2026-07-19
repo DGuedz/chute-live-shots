@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-07-18T17:44:30.135549+00:00",
+  "artifact_type": "market_intelligence_skills_dogfood",
+  "status": "ok",
+  "summary": {
+    "total_checks": 11,
+    "passed": 11,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "kind": "file_presence",
+      "target": ".agent/skills/txline-market-depth-miner/SKILL.md",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/skills/txodds-historical-prior-analyst/SKILL.md",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/skills/community-quiz-market-maker/SKILL.md",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/skills/chute-market-intelligence-orchestrator/SKILL.md",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/contracts/txline-market-depth-miner.json",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/contracts/txodds-historical-prior-analyst.json",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/contracts/community-quiz-market-maker.json",
+      "status": "pass"
+    },
+    {
+      "kind": "file_presence",
+      "target": ".agent/contracts/chute-market-intelligence-orchestrator.json",
+      "status": "pass"
+    },
+    {
+      "kind": "semantic_route",
+      "intent": "mapeie a profundidade de mercado e proof coverage da TxLINE para abrir novos tiers",
+      "expected_skill": "txline-market-depth-miner",
+      "actual_skill": "txline-market-depth-miner",
+      "confidence": 0.67,
+      "status": "pass"
+    },
+    {
+      "kind": "semantic_route",
+      "intent": "analise historical priors do TxOdds, volatilidade e zebra para compor quiz",
+      "expected_skill": "txodds-historical-prior-analyst",
+      "actual_skill": "txodds-historical-prior-analyst",
+      "confidence": 1.0,
+      "status": "pass"
+    },
+    {
+      "kind": "semantic_route",
+      "intent": "um creator quer mintar um quiz da comunidade com wallet e fee split",
+      "expected_skill": "community-quiz-market-maker",
+      "actual_skill": "community-quiz-market-maker",
+      "confidence": 0.67,
+      "status": "pass"
+    }
+  ],
+  "recommended_actions": [
+    "Promote the branch only if dogfood status stays ok and pytest remains green.",
+    "Keep creator-quiz minting behind human approval and dry-run."
+  ],
+  "blocked_actions": [
+    "Do not publish creator monetization as production-ready without runtime implementation.",
+    "Do not claim live-proof coverage beyond the audited stat families."
+  ]
+}

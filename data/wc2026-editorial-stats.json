@@ -2,7 +2,12 @@
   "dataStatus": "editorial_curated",
   "disclaimer": "Contexto editorial curado para leitura pré-jogo. NÃO é feed TxLINE: resultado e pontuação vêm exclusivamente de snapshots TxLINE verificados.",
   "updatedAt": "2026-07-17",
-  "sources": ["FIFA.com (estatísticas oficiais)", "ESPN", "ge.globo", "mercados de apostas agregados"],
+  "sources": [
+    "FIFA.com (estatísticas oficiais)",
+    "ESPN",
+    "ge.globo",
+    "mercados de apostas agregados"
+  ],
   "tournament": {
     "name": "Copa do Mundo FIFA 2026",
     "format": "48 seleções · 104 jogos · EUA/México/Canadá",
@@ -12,22 +17,82 @@
       "Os 3 países-sede caíram nas oitavas: EUA, México e Canadá"
     ],
     "team_stats": [
-      {"team": "Argentina", "goals": 19, "xg": 15.38, "shots": 113, "clean_sheets": 2},
-      {"team": "França", "goals": 16, "xg": 13.79, "shots": 120, "clean_sheets": 4},
-      {"team": "Inglaterra", "goals": 14, "xg": 12.7, "shots": 99, "clean_sheets": null},
-      {"team": "Bélgica", "goals": 14, "xg": null, "shots": 112, "clean_sheets": null},
-      {"team": "Espanha", "goals": 13, "xg": 14.96, "shots": 120, "clean_sheets": 6}
+      {
+        "team": "Argentina",
+        "goals": 19,
+        "xg": 15.38,
+        "shots": 113,
+        "clean_sheets": 2
+      },
+      {
+        "team": "França",
+        "goals": 16,
+        "xg": 13.79,
+        "shots": 120,
+        "clean_sheets": 4
+      },
+      {
+        "team": "Inglaterra",
+        "goals": 14,
+        "xg": 12.7,
+        "shots": 99,
+        "clean_sheets": null
+      },
+      {
+        "team": "Bélgica",
+        "goals": 14,
+        "xg": null,
+        "shots": 112,
+        "clean_sheets": null
+      },
+      {
+        "team": "Espanha",
+        "goals": 13,
+        "xg": 14.96,
+        "shots": 120,
+        "clean_sheets": 6
+      }
     ],
     "player_stats": [
-      {"player": "Lionel Messi", "team": "Argentina", "goals": 8, "assists": 4, "shots": 34},
-      {"player": "Kylian Mbappé", "team": "França", "goals": 8, "assists": 3, "shots": 33},
-      {"player": "Erling Haaland", "team": "Noruega", "goals": 7, "assists": 0, "shots": null},
-      {"player": "Jude Bellingham", "team": "Inglaterra", "goals": 6, "assists": 1, "shots": null},
-      {"player": "Harry Kane", "team": "Inglaterra", "goals": 6, "assists": 1, "shots": null}
+      {
+        "player": "Lionel Messi",
+        "team": "Argentina",
+        "goals": 8,
+        "assists": 4,
+        "shots": 34
+      },
+      {
+        "player": "Kylian Mbappé",
+        "team": "França",
+        "goals": 8,
+        "assists": 3,
+        "shots": 33
+      },
+      {
+        "player": "Erling Haaland",
+        "team": "Noruega",
+        "goals": 7,
+        "assists": 0,
+        "shots": null
+      },
+      {
+        "player": "Jude Bellingham",
+        "team": "Inglaterra",
+        "goals": 6,
+        "assists": 1,
+        "shots": null
+      },
+      {
+        "player": "Harry Kane",
+        "team": "Inglaterra",
+        "goals": 6,
+        "assists": 1,
+        "shots": null
+      }
     ]
   },
   "fixtures": {
-    "18257739": {
+    "argentina-spain": {
       "match": "Espanha × Argentina — Final",
       "venue": "Nova Jersey, 19/07/2026",
       "path": {
@@ -35,16 +100,36 @@
         "Argentina": "Semifinal: Argentina 2-1 Inglaterra"
       },
       "reading": [
-        {"signal": "Ataque", "edge": "Argentina", "detail": "Melhor ataque e xG do torneio (19 gols · 15.38 xG)."},
-        {"signal": "Defesa", "edge": "Spain", "detail": "Melhor defesa do Mundial: 6 clean sheets."},
-        {"signal": "Craque", "edge": "Argentina", "detail": "Messi: 8 gols + 4 assistências em 34 chutes."},
-        {"signal": "Meio-campo", "edge": "Spain", "detail": "Rodri lidera passes (694) e distância percorrida."},
-        {"signal": "Mercados", "edge": "equilíbrio", "detail": "Casas apontam final equilibrada; leve favoritismo Espanha pela defesa, Argentina pelo fator Messi/xG."}
+        {
+          "signal": "Ataque",
+          "edge": "Argentina",
+          "detail": "Melhor ataque e xG do torneio (19 gols · 15.38 xG)."
+        },
+        {
+          "signal": "Defesa",
+          "edge": "Spain",
+          "detail": "Melhor defesa do Mundial: 6 clean sheets."
+        },
+        {
+          "signal": "Craque",
+          "edge": "Argentina",
+          "detail": "Messi: 8 gols + 4 assistências em 34 chutes."
+        },
+        {
+          "signal": "Meio-campo",
+          "edge": "Spain",
+          "detail": "Rodri lidera passes (694) e distância percorrida."
+        },
+        {
+          "signal": "Mercados",
+          "edge": "equilíbrio",
+          "detail": "Casas apontam final equilibrada; leve favoritismo Espanha pela defesa, Argentina pelo fator Messi/xG."
+        }
       ],
       "tier_hints": {
-        "chutes": "Espanha e França lideram em volume de finalizações (120); Argentina converte melhor (19 gols de 113 chutes).",
         "escanteios": "Posse alta da Espanha tende a gerar pressão e escanteios; Argentina ataca em transição.",
-        "faltas": "Finais concentram faltas táticas no meio; observe o duelo Rodri × De Paul."
+        "gols": "Espanha e França lideram em volume de finalizações (120); Argentina converte melhor (19 gols de 113 chutes).",
+        "cartoes": "Finais concentram faltas táticas no meio; observe o duelo Rodri × De Paul."
       }
     }
   }

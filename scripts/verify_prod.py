@@ -81,13 +81,17 @@ def main() -> None:
     mine = next((r for r in ranking.get("ranking", []) if r["participant_id"] == participant), None)
     check("Ranking em produção", mine is not None, f"score={mine['score']}")
 
-    status, pred, _ = call(api, "GET", "/api/predictions/argentina-spain/Argentina/chutes")
-    check("Quiz preditivo abre", status == 200 and len(pred["questions"]) == 5)
-    for i, question in enumerate(pred["questions"]):
+    status, preview, _ = call(api, "GET", "/api/predictions/argentina-spain/Argentina/chutes")
+    check("Preview preditivo em produção não vaza perguntas", status == 200 and "questions" not in preview)
+    status, pred, _ = call(api, "POST", "/api/predictions/argentina-spain/Argentina/chutes/start", {"participant_id": participant})
+    check("Quiz preditivo inicia em produção", status == 200 and pred["current_question"]["id"] == "q1")
+    current_question = pred["current_question"]
+    for i in range(pred["total"]):
         status, body, _ = call(api, "POST", f"/api/predictions/{pred['quiz_id']}/answer", {
-            "participant_id": participant, "question_id": question["id"],
-            "answer": question["options"][0]["value"], "request_id": str(uuid.uuid4())})
+            "participant_id": participant, "question_id": current_question["id"],
+            "answer": current_question["options"][0]["value"], "request_id": str(uuid.uuid4())})
         check(f"Resposta preditiva {i + 1}/5", status == 200 and body["accepted"])
+        current_question = body.get("next_question")
     status, progress, _ = call(api, "GET", f"/api/predictions/{pred['quiz_id']}/progress?participant_id={participant}")
     check("Preditivo resolve em produção", status == 200 and progress["status"] == "scoring"
           and len(progress["breakdown"]) == 5,

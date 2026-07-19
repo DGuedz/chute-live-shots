@@ -1,19 +1,19 @@
 {
-  "dataStatus": "editorial_curated_predictive",
-  "description": "Copa do Mundo 2026: histórico de equipes e jogadores para geração preditiva de quiz",
+  "dataStatus": "txline_mainnet_verified",
+  "description": "Copa do Mundo 2026: histórico de equipes e jogadores para geração preditiva de quiz | Argentina/Espanha: médias reais agregadas de 7 jogos cada via TxLINE mainnet (SL12), 2026-07-19.",
   "updatedAt": "2026-07-17",
   "teams": {
     "Argentina": {
       "stats_per_game": {
         "fouls_committed": 7.8,
         "fouls_received": 6.2,
-        "corners_for": 9.2,
+        "corners_for": 4.57,
         "corners_against": 8.1,
         "shots": 10.2,
         "shots_on_target": 4.1,
-        "yellow_cards": 0.8,
-        "red_cards": 0.05,
-        "goals": 2.7
+        "yellow_cards": 1.29,
+        "red_cards": 0.14,
+        "goals": 2.0
       },
       "players": {
         "Messi": {
@@ -66,13 +66,13 @@
       "stats_per_game": {
         "fouls_committed": 6.2,
         "fouls_received": 7.8,
-        "corners_for": 10.1,
+        "corners_for": 6.14,
         "corners_against": 9.2,
         "shots": 12.3,
         "shots_on_target": 5.3,
-        "yellow_cards": 0.6,
-        "red_cards": 0.02,
-        "goals": 2.4
+        "yellow_cards": 0.86,
+        "red_cards": 0.0,
+        "goals": 1.71
       },
       "players": {
         "Rodri": {
@@ -123,7 +123,7 @@
   "distribution_rules": {
     "fouls": {
       "easy_threshold": 0.65,
-      "zebra_threshold": 0.20,
+      "zebra_threshold": 0.2,
       "description": "3 opções acima median + wide, 1 abaixo, 1 extremo"
     },
     "corners": {
@@ -132,12 +132,12 @@
       "description": "Baseado em posse + padrão de ataque"
     },
     "shots_on_target": {
-      "easy_threshold": 0.70,
+      "easy_threshold": 0.7,
       "zebra_threshold": 0.15,
       "description": "Dado ofensivo; correlaciona com xG"
     },
     "yellow_cards": {
-      "easy_threshold": 0.70,
+      "easy_threshold": 0.7,
       "zebra_threshold": 0.12,
       "description": "Baseado em histórico de indisciplina"
     },

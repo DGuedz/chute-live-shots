@@ -1,0 +1,64 @@
+{
+  "ok": true,
+  "checked": 2,
+  "configVersion": 1,
+  "generatedAt": "2026-07-18T18:28:08.683Z",
+  "configPath": "config/video-validation.rules.json",
+  "reportPath": "artifacts/video-validation-report.json",
+  "results": [
+    {
+      "file": "apps/web/public/chute-intro.mp4",
+      "ok": true,
+      "profile": "web-public",
+      "policy": {
+        "name": "web-public",
+        "maxSizeMb": 30,
+        "maxKeyframeGapFrames": 60,
+        "requireFirstFrameKeyframe": true,
+        "maxWidth": 1920,
+        "maxHeight": 1080,
+        "maxBitrateKbps": 10000
+      },
+      "codec": "h264",
+      "width": 480,
+      "height": 854,
+      "duration": 5.8,
+      "fps": 30,
+      "bitrateKbps": 2878.954,
+      "sizeBytes": 2228306,
+      "sizeMb": 2.1250782012939453,
+      "keyframes": 6,
+      "firstKeyframeAt": 0,
+      "maxGapFrames": 29.000010000000003,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "file": "chute_oficial_video/chute_oficial_video.mp4",
+      "ok": true,
+      "profile": "default",
+      "policy": {
+        "name": "default",
+        "maxSizeMb": 35,
+        "maxKeyframeGapFrames": 60,
+        "requireFirstFrameKeyframe": true,
+        "maxWidth": 1920,
+        "maxHeight": 1080,
+        "maxBitrateKbps": 12000
+      },
+      "codec": "h264",
+      "width": 480,
+      "height": 854,
+      "duration": 5.8,
+      "fps": 30,
+      "bitrateKbps": 2880.091,
+      "sizeBytes": 2229130,
+      "sizeMb": 2.125864028930664,
+      "keyframes": 6,
+      "firstKeyframeAt": 0,
+      "maxGapFrames": 29.000010000000003,
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

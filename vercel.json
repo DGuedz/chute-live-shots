@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "buildCommand": "npm --workspace apps/web run build",
+  "outputDirectory": "apps/web/dist",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "nodeVersion": "20.x",
+  "env": {
+    "VITE_PUBLIC_APP_URL": {
+      "description": "Public app URL for Phantom deep links",
+      "required": false
+    },
+    "VITE_API_URL": {
+      "description": "Backend API URL",
+      "required": false
+    },
+    "VITE_SOLANA_RPC_URL": {
+      "description": "Solana mainnet RPC (default: api.mainnet-beta.solana.com)",
+      "required": false
+    }
+  }
+}

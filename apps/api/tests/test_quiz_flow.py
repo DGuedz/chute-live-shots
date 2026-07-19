@@ -78,7 +78,7 @@ def test_ranking_orders_numerically():
 
 
 def test_three_tiers_are_playable_on_replay():
-    for tier in ('chutes', 'escanteios', 'faltas'):
+    for tier in ('gols', 'escanteios', 'cartoes'):
         quiz = client.get(f'/api/quizzes/argentina-spain?tier={tier}').json()
         assert quiz['tier'] == tier
         assert quiz['quiz_id'].endswith(tier)
@@ -92,10 +92,28 @@ def test_unknown_tier_is_rejected():
 
 
 def test_insights_editorial_for_final_and_availability_for_replay():
+    from app.storage import upsert_fixture
+    upsert_fixture(
+        {
+            'FixtureId': 18257739,
+            'CompetitionId': 72,
+            'Participant1': 'Spain',
+            'Participant2': 'Argentina',
+            'StartTime': 1784487600000,
+            'GameState': 2,
+        },
+        'devnet',
+        '2026-07-18T16:48:37.703Z',
+    )
+    # A final resolve a leitura editorial tanto pelo slug quanto pelo id numérico live.
     final = client.get('/api/fixtures/18257739/insights').json()
     assert final['data_status'] == 'editorial_curated'
-    assert final['has_snapshot'] is False
-    assert all(t['available'] is False for t in final['tiers'])  # fail-closed: sem snapshot, sem quiz
+    assert final['editorial']['match']
+    slug = client.get('/api/fixtures/argentina-spain/insights').json()
+    assert slug['data_status'] == 'editorial_curated'
+    assert slug['editorial'] == final['editorial']
+    # Disponibilidade de tier vem do histórico TxOdds (preditivo), não do snapshot de replay.
+    assert all(t['available'] for t in final['tiers'])
     replay = client.get('/api/fixtures/18179551/insights').json()
     assert replay['has_snapshot'] is True
     assert all(t['available'] for t in replay['tiers'])

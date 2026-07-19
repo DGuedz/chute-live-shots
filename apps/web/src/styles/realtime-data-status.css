@@ -1,0 +1,119 @@
+/* ========== Realtime Data Status - Clean & Minimal ========== */
+
+.realtime-data-status {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(191, 255, 0, 0.04);
+  border: 1px solid rgba(191, 255, 0, 0.12);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* Status Container */
+.status-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Pulse Indicator */
+.status-pulse {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse-status 2s infinite;
+}
+
+.pulse-dot.live {
+  background: #BFFF00;
+  box-shadow: 0 0 8px rgba(191, 255, 0, 0.6);
+}
+
+.pulse-dot.offline {
+  background: #94A3B8;
+  animation: none;
+}
+
+@keyframes pulse-status {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+.status-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+/* Status Badge */
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(191, 255, 0, 0.1);
+  border: 1px solid rgba(191, 255, 0, 0.2);
+  border-radius: 6px;
+}
+
+.check-mark {
+  font-size: 12px;
+  font-weight: 700;
+  color: #BFFF00;
+}
+
+.badge-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: capitalize;
+}
+
+/* Last Update */
+.last-update {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .realtime-data-status {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .status-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .realtime-data-status {
+    background: rgba(191, 255, 0, 0.03);
+    border-color: rgba(191, 255, 0, 0.1);
+  }
+}

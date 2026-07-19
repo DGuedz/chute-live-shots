@@ -6,7 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-DB_PATH = Path(os.getenv("CHUTE_DB_PATH", Path(__file__).resolve().parents[3] / "data" / "chute.db"))
+DB_PATH = Path(os.getenv("CHUTE_DB_PATH") or Path(__file__).resolve().parents[3] / "data" / "chute.db")
 
 def connect() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -58,12 +58,38 @@ def init_db() -> None:
           locked_at TEXT NOT NULL,
           PRIMARY KEY(participant_id, quiz_id)
         );
+        CREATE TABLE IF NOT EXISTS predictive_quiz_sessions (
+          participant_id TEXT NOT NULL,
+          quiz_id TEXT NOT NULL,
+          fixture_id TEXT NOT NULL,
+          team TEXT NOT NULL,
+          tier TEXT NOT NULL,
+          title TEXT NOT NULL,
+          questions_json TEXT NOT NULL,
+          total INTEGER NOT NULL,
+          locked_at TEXT NOT NULL,
+          PRIMARY KEY(participant_id, quiz_id)
+        );
         CREATE TABLE IF NOT EXISTS wallet_challenges (
           public_key TEXT PRIMARY KEY,
           nonce TEXT NOT NULL,
           created_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS app_state (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
         """)
+
+def set_state(key: str, value: str) -> None:
+    with connect() as db:
+        db.execute("INSERT INTO app_state(key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=datetime('now')", (key, value))
+
+def get_state(key: str) -> str | None:
+    with connect() as db:
+        row = db.execute("SELECT value FROM app_state WHERE key=?", (key,)).fetchone()
+    return row["value"] if row else None
 
 def save_wallet(public_key: str, network: str = "devnet") -> None:
     with connect() as db:
@@ -119,6 +145,27 @@ def list_fixtures(limit: int = 50) -> list[dict[str, Any]]:
         FROM fixtures f ORDER BY f.start_time DESC LIMIT ?""", (limit,)).fetchall()
     return [dict(row) for row in rows]
 
+def find_fixture_by_teams(home_team: str, away_team: str) -> dict[str, Any] | None:
+    with connect() as db:
+        row = db.execute(
+            """SELECT fixture_id, competition_id, home_team, away_team, start_time, game_state, network, source_timestamp, updated_at
+            FROM fixtures
+            WHERE home_team=? AND away_team=?
+            ORDER BY start_time DESC, updated_at DESC
+            LIMIT 1""",
+            (home_team, away_team),
+        ).fetchone()
+    return dict(row) if row else None
+
+def get_fixture(fixture_id: str) -> dict[str, Any] | None:
+    with connect() as db:
+        row = db.execute(
+            """SELECT fixture_id, competition_id, home_team, away_team, start_time, game_state, network, source_timestamp, updated_at
+            FROM fixtures WHERE fixture_id=?""",
+            (str(fixture_id),),
+        ).fetchone()
+    return dict(row) if row else None
+
 def latest_snapshot(fixture_id: str) -> dict[str, Any] | None:
     with connect() as db:
         row = db.execute("SELECT * FROM match_snapshots WHERE fixture_id=? ORDER BY created_at DESC LIMIT 1", (str(fixture_id),)).fetchone()
@@ -156,6 +203,42 @@ def get_quiz_session(participant_id: str, quiz_id: str) -> dict[str, Any] | None
     with connect() as db:
         row = db.execute("SELECT * FROM quiz_sessions WHERE participant_id=? AND quiz_id=?", (participant_id, quiz_id)).fetchone()
     return dict(row) if row else None
+
+def lock_predictive_quiz_session(participant_id: str, quiz: dict[str, Any]) -> dict[str, Any]:
+    with connect() as db:
+        db.execute(
+            """INSERT INTO predictive_quiz_sessions(participant_id, quiz_id, fixture_id, team, tier, title, questions_json, total, locked_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now')) ON CONFLICT(participant_id, quiz_id) DO NOTHING""",
+            (
+                participant_id,
+                quiz["quiz_id"],
+                str(quiz["fixture_id"]),
+                quiz["team"],
+                quiz["tier"],
+                quiz["title"],
+                json.dumps(quiz["questions"], separators=(",", ":")),
+                len(quiz["questions"]),
+            ),
+        )
+        row = db.execute(
+            "SELECT * FROM predictive_quiz_sessions WHERE participant_id=? AND quiz_id=?",
+            (participant_id, quiz["quiz_id"]),
+        ).fetchone()
+    result = dict(row)
+    result["questions"] = json.loads(result.pop("questions_json"))
+    return result
+
+def get_predictive_quiz_session(participant_id: str, quiz_id: str) -> dict[str, Any] | None:
+    with connect() as db:
+        row = db.execute(
+            "SELECT * FROM predictive_quiz_sessions WHERE participant_id=? AND quiz_id=?",
+            (participant_id, quiz_id),
+        ).fetchone()
+    if not row:
+        return None
+    result = dict(row)
+    result["questions"] = json.loads(result.pop("questions_json"))
+    return result
 
 def list_participants(quiz_id: str) -> list[str]:
     with connect() as db:

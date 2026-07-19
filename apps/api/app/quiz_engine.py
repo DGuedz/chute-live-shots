@@ -93,6 +93,19 @@ def _risk_tier(prob: float) -> tuple[str, float]:
     return "ZEBRA", 3.5
 
 
+def _count_options(values: list[int], mean: float) -> list[dict[str, Any]]:
+    """Normalized Poisson prior over the offered counts, with real odd/risk per option
+    (mesma régua de _numeric_options; nunca odd fixa)."""
+    weights = {v: _poisson_pmf(v, mean) for v in values}
+    total = sum(weights.values()) or 1.0
+    options = []
+    for v in values:
+        prob = round(weights[v] / total, 3) or 0.001
+        risk, mult = _risk_tier(prob)
+        options.append({"value": v, "label": str(v), "probability": prob, "odd": round(1 / prob, 2), "risk": risk, "reward_multiplier": mult})
+    return options
+
+
 def _numeric_options(true_value: int, prior_mean: float | None) -> list[dict[str, Any]]:
     """Four mutually exclusive integer options including the true value, each carrying an
     auditable prior probability/odd. Probabilities come from the prior model, never from the
@@ -197,9 +210,9 @@ def score_answers(quiz: dict[str, Any], answers: list[dict[str, Any]], snapshot:
 # when its stats are present in the snapshot (fail-closed); the required keys are the
 # score-snapshot fields that must exist for the tier's outcomes to be real, not invented.
 TIERS = {
-    "chutes": {"label": "Chutes a gol", "stat_field": "Goals", "description": "Placar, autoria e resultado — quem transformou chute em gol."},
+    "gols": {"label": "Gols", "stat_field": "Goals", "description": "Placar real — quantos gols cada seleção faz na final."},
     "escanteios": {"label": "Escanteios", "stat_field": "Corners", "description": "Pressão e bolas na área — volume de escanteios por equipe."},
-    "faltas": {"label": "Faltas & Cartões", "stat_field": "YellowCards", "description": "Disciplina e intensidade — cartões amarelos por equipe."},
+    "cartoes": {"label": "Cartões", "stat_field": "YellowCards", "description": "Disciplina e intensidade — amarelos e vermelhos por equipe."},
 }
 
 
@@ -211,7 +224,7 @@ def tier_available(snapshot: dict[str, Any], tier: str) -> bool:
 
 def _tier_questions(tier: str, teams: list[str], o: dict[str, int], snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     proof_q = {"id": "q5", "kind": "proof_sequence", "answer_type": "numeric", "prompt": "Qual sequência do score está ancorada na prova on-chain?", "options": _numeric_options(int(snapshot["score"]["sequence"]), None), "stat_basis": "TxLINE stat-validation proof sequence"}
-    if tier == "chutes":
+    if tier == "gols":
         return [
             {"id": "q1", "kind": "total_goals", "answer_type": "numeric", "prompt": "Quantos gols no total a partida registrou?", "options": _numeric_options(o["total_goals"], PRIORS["total_goals"]), "stat_basis": "TxLINE score snapshot: Goals/Total"},
             {"id": "q2", "kind": "home_goals", "answer_type": "numeric", "prompt": f"Quantos gols marcou {teams[0]}?", "options": _numeric_options(o["home_goals"], PRIORS["home_goals"]), "stat_basis": "TxLINE score snapshot: Goals/Participant1"},
@@ -227,7 +240,7 @@ def _tier_questions(tier: str, teams: list[str], o: dict[str, int], snapshot: di
             {"id": "q4", "kind": "corners_majority", "answer_type": "categorical", "prompt": "Quem pressionou mais pelos lados (mais escanteios)?", "options": _categorical_options([(teams[0], 0.40), (teams[1], 0.36), ("Empate com escanteios", 0.20), ("Empate sem escanteios", 0.04)]), "stat_basis": "TxLINE score snapshot: Corners por participante"},
             proof_q,
         ]
-    if tier == "faltas":
+    if tier == "cartoes":
         return [
             {"id": "q1", "kind": "total_yellow_cards", "answer_type": "numeric", "prompt": "Quantos cartões amarelos no total?", "options": _numeric_options(o["total_yellow_cards"], PRIORS["total_yellow_cards"]), "stat_basis": "TxLINE score snapshot: YellowCards/Total"},
             {"id": "q2", "kind": "home_yellow_cards", "answer_type": "numeric", "prompt": f"Quantos amarelos recebeu {teams[0]}?", "options": _numeric_options(o["home_yellow_cards"], PRIORS["home_yellow_cards"]), "stat_basis": "TxLINE score snapshot: YellowCards/Participant1"},
@@ -238,7 +251,7 @@ def _tier_questions(tier: str, teams: list[str], o: dict[str, int], snapshot: di
     raise RuntimeError(f"UNKNOWN_TIER: {tier}")
 
 
-def build_quiz_from_snapshot(snapshot: dict[str, Any] | None = None, tier: str = "chutes") -> dict[str, Any]:
+def build_quiz_from_snapshot(snapshot: dict[str, Any] | None = None, tier: str = "gols") -> dict[str, Any]:
     snapshot = snapshot or load_verified_snapshot()
     if _canonical_hash(snapshot) != snapshot["contentHash"]:
         raise RuntimeError("SNAPSHOT_TAMPERED: content hash mismatch")
@@ -286,253 +299,254 @@ def _get_team_predictions(team_name: str, stats: dict[str, Any]) -> dict[str, An
     return team_stats.get("stats_per_game", {})
 
 
-def _build_predictive_questions_fouls(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
-    """Generate 5 predictive foul-based questions: 3 easy + 2 zebra."""
-    team_pred = _get_team_predictions(team_name, stats)
-    team_players = stats["teams"].get(team_name, {}).get("players", {})
-
-    mean_fouls = team_pred.get("fouls_committed", 7.0)
-    std_dev = max(1.5, mean_fouls * 0.2)  # estimate std dev
-
-    questions = []
-
-    # Q1 (Easy): Total fouls by team
-    q1_low = int(mean_fouls - std_dev)
-    q1_high = int(mean_fouls + std_dev)
-    q1_mid = int(mean_fouls)
-    q1_options = sorted(set([q1_low - 2, q1_low, q1_mid, q1_high, q1_high + 2]))[:4]
-    questions.append({
-        "id": "q1", "kind": "team_fouls", "answer_type": "numeric",
-        "prompt": f"Quantas faltas {team_name} vai cometer?",
-        "options": [{"value": v, "label": str(v), "probability": _poisson_pmf(v, mean_fouls), "odd": 1.0, "risk": "ACESSIVEL", "reward_multiplier": 1.0} for v in q1_options],
-        "stat_basis": f"TxLINE histórico {team_name}: {mean_fouls:.1f} faltas/jogo",
-        "payoff_multiplier": 1.0
-    })
-
-    # Q2 (Easy): Yellow card in first 25 min
-    prob_yellow_25 = 0.22
-    questions.append({
-        "id": "q2", "kind": "yellow_card_early", "answer_type": "categorical",
-        "prompt": "Vai ter cartão amarelo nos primeiros 25 minutos?",
-        "options": [
-            {"value": "Sim", "label": "Sim", "probability": prob_yellow_25, "odd": round(1 / prob_yellow_25, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-            {"value": "Não", "label": "Não", "probability": 1 - prob_yellow_25, "odd": round(1 / (1 - prob_yellow_25), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-        ],
-        "stat_basis": "TxLINE distribuição temporal de cartões",
-        "payoff_multiplier": 1.0
-    })
-
-    # Q3 (Easy): Key player makes foul
-    key_players = sorted(team_players.items(), key=lambda x: x[1].get("fouls_committed", 0), reverse=True)[:3]
-    player_name = key_players[0][0] if key_players else team_name
-    player_fouls = team_players.get(player_name, {}).get("fouls_committed", 1.0)
-    prob_player_foul = min(0.90, player_fouls / mean_fouls * 0.85)  # ~90% chance
-    questions.append({
-        "id": "q3", "kind": "player_fouls", "answer_type": "categorical",
-        "prompt": f"{player_name} vai fazer falta?",
-        "options": [
-            {"value": "Sim", "label": "Sim", "probability": prob_player_foul, "odd": round(1 / prob_player_foul, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-            {"value": "Não", "label": "Não", "probability": 1 - prob_player_foul, "odd": round(1 / (1 - prob_player_foul), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-        ],
-        "stat_basis": f"TxLINE histórico {player_name}: {player_fouls:.1f} faltas/jogo",
-        "payoff_multiplier": 1.0
-    })
-
-    # Q4 (Zebra): Specific player yellow card (18% prob)
-    key_player_yellow = key_players[1][0] if len(key_players) > 1 else key_players[0][0] if key_players else team_name
-    prob_yellow = 0.18
-    questions.append({
-        "id": "q4", "kind": "player_yellow", "answer_type": "categorical",
-        "prompt": f"{key_player_yellow} vai levar amarelo?",
-        "options": [
-            {"value": "Sim", "label": "Sim", "probability": prob_yellow, "odd": round(1 / prob_yellow, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-            {"value": "Não", "label": "Não", "probability": 1 - prob_yellow, "odd": round(1 / (1 - prob_yellow), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-        ],
-        "stat_basis": f"TxLINE histórico {key_player_yellow}: {team_players.get(key_player_yellow, {}).get('yellow_cards', 0.15):.2f} amarelos/jogo",
-        "payoff_multiplier": 3.5
-    })
-
-    # Q5 (Zebra): Red card (8% prob, very rare)
-    prob_red = 0.08
-    questions.append({
-        "id": "q5", "kind": "red_card", "answer_type": "categorical",
-        "prompt": "Vai ter cartão vermelho na partida?",
-        "options": [
-            {"value": "Sim", "label": "Sim", "probability": prob_red, "odd": round(1 / prob_red, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-            {"value": "Não", "label": "Não", "probability": 1 - prob_red, "odd": round(1 / (1 - prob_red), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-        ],
-        "stat_basis": "TxLINE histórico Copa 2026: vermelho em 8% dos jogos",
-        "payoff_multiplier": 3.5
-    })
-
-    return questions
+def _pt_team(team: str) -> str:
+	"""Nome da equipe em PT-BR para prompts; a chave TxLINE segue nos values/meta."""
+	return {"Spain": "Espanha", "Argentina": "Argentina"}.get(team, team)
 
 
-def _build_predictive_questions_corners(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
-	"""Generate 5 predictive corner-based questions: 3 easy + 2 zebra."""
-	team_pred = _get_team_predictions(team_name, stats)
-	mean_corners = team_pred.get("corners_for", 9.0)
+def _opponent_of(team_name: str, stats: dict[str, Any]) -> str:
+	others = [t for t in stats.get("teams", {}) if t != team_name]
+	return others[0] if others else team_name
 
-	questions = []
 
-	# Q1 (Easy): Total corners by team
-	q1_low = int(mean_corners - 2)
-	q1_high = int(mean_corners + 2)
-	q1_mid = int(mean_corners)
-	q1_options = sorted(set([q1_low, q1_mid - 1, q1_mid, q1_mid + 1, q1_high]))[:4]
+def _poisson_tail(k_min: int, lam: float) -> float:
+	"""P(X >= k_min) para X ~ Poisson(lam) — cauda real, nunca percentual inventado."""
+	return max(0.001, 1 - sum(_poisson_pmf(i, lam) for i in range(k_min)))
+
+
+def _poisson_cdf(k_max: int, lam: float) -> float:
+	"""P(X < k_max) para X ~ Poisson(lam)."""
+	return max(0.001, sum(_poisson_pmf(i, lam) for i in range(k_max)))
+
+
+def _yes_no_options(prob_yes: float) -> list[dict[str, Any]]:
+	prob_yes = min(0.97, max(0.03, prob_yes))
+	out = []
+	for value, prob in (("Sim", prob_yes), ("Não", 1 - prob_yes)):
+		risk, mult = _risk_tier(prob)
+		out.append({"value": value, "label": value, "probability": round(prob, 3), "odd": round(1 / prob, 2), "risk": risk, "reward_multiplier": mult})
+	return out
+
+
+def _duel_probabilities(mean_a: float, mean_b: float, cap: int = 14) -> dict[str, float]:
+	"""Partição exata do duelo entre A e B (Poisson independentes, mesma unidade estatística):
+	A vence · B vence · empate exato · dobradinha (alguém faz ≥2× o rival, com o menor ≥3).
+	As quatro fatias cobrem todo o espaço; a dobradinha e o empate exato são as zebras."""
+	p = {"A": 0.0, "B": 0.0, "EMPATE": 0.0, "DOBRADINHA": 0.0}
+	for a in range(cap + 1):
+		pa = _poisson_pmf(a, mean_a)
+		for b in range(cap + 1):
+			w = pa * _poisson_pmf(b, mean_b)
+			if a == b:
+				p["EMPATE"] += w
+			elif min(a, b) >= 3 and max(a, b) >= 2 * min(a, b):
+				p["DOBRADINHA"] += w
+			elif a > b:
+				p["A"] += w
+			else:
+				p["B"] += w
+	total = sum(p.values()) or 1.0
+	return {k: v / total for k, v in p.items()}
+
+
+def _duel_option(value: str, label: str, prob: float, zebra: bool) -> dict[str, Any]:
+	prob = max(prob, 0.001)
+	risk, mult = ("ZEBRA", 3.5) if zebra else _risk_tier(prob)
+	return {"value": value, "label": label, "probability": round(prob, 3), "odd": round(1 / prob, 2), "risk": risk, "reward_multiplier": mult}
+
+
+def _numeric_prompt_options(mean: float) -> list[dict[str, Any]]:
+	"""4 opções inteiras plausíveis ao redor da média real, cada uma com odd/risco reais."""
+	center = round(mean)
+	values = sorted({max(0, center - 1), center, center + 1, max(0, center + 2)})[:4]
+	while len(values) < 4:
+		values.append(values[-1] + 1)
+	return _count_options(values, mean)
+
+
+# ===== GOLS — tier principal. Placar real (código 1/2 no wire TxLINE) =====
+
+def _build_predictive_questions_gols(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
+	"""5 perguntas: 2 da sua equipe, 2 do rival, 1 mista — 3 de odd normal + 2 zebra."""
+	opponent = _opponent_of(team_name, stats)
+	mean_own = _get_team_predictions(team_name, stats).get("goals", 2.0)
+	mean_rival = _get_team_predictions(opponent, stats).get("goals", 2.0)
+	label_own, label_rival = _pt_team(team_name), _pt_team(opponent)
+
+	questions = [
+		{
+			"id": "q1", "kind": "team_goals", "answer_type": "numeric",
+			"prompt": f"Quantos gols {label_own} vai fazer?",
+			"options": _numeric_prompt_options(mean_own),
+			"stat_basis": f"TxLINE histórico {label_own}: {mean_own:.2f} gols/jogo nesta Copa",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q2", "kind": "team_goals_blowout", "answer_type": "categorical",
+			"prompt": f"{label_own} vai marcar 4 gols ou mais nessa final?",
+			"options": _yes_no_options(_poisson_tail(4, mean_own)),
+			"stat_basis": f"TxLINE: cauda de Poisson sobre {mean_own:.2f} gols/jogo — evento raro, real",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
+		},
+		{
+			"id": "q3", "kind": "rival_goals", "answer_type": "numeric",
+			"prompt": f"E o rival: quantos gols {label_rival} vai fazer?",
+			"options": _numeric_prompt_options(mean_rival),
+			"stat_basis": f"TxLINE histórico {label_rival}: {mean_rival:.2f} gols/jogo nesta Copa",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q4", "kind": "rival_goals_blank", "answer_type": "categorical",
+			"prompt": f"{label_rival} vai sair sem marcar (rede intacta do rival)?",
+			"options": _yes_no_options(_poisson_cdf(1, mean_rival)),
+			"stat_basis": f"TxLINE: P(0 gols) sobre {mean_rival:.2f} gols/jogo do {label_rival}",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 3.5,
+		},
+	]
+	duel = _duel_probabilities(mean_own, mean_rival)
 	questions.append({
-		"id": "q1", "kind": "team_corners", "answer_type": "numeric",
-		"prompt": f"Quantos escanteios {team_name} vai cobrar?",
-		"options": [{"value": v, "label": str(v), "probability": _poisson_pmf(v, mean_corners), "odd": 1.0, "risk": "ACESSIVEL", "reward_multiplier": 1.0} for v in q1_options],
-		"stat_basis": f"TxLINE histórico {team_name}: {mean_corners:.1f} escanteios/jogo",
-		"payoff_multiplier": 1.0
-	})
-
-	# Q2 (Easy): Will exceed 10 corners
-	prob_exceed = 0.65
-	questions.append({
-		"id": "q2", "kind": "corners_threshold", "answer_type": "categorical",
-		"prompt": f"{team_name} vai ter mais de 10 escanteios?",
+		"id": "q5", "kind": "goals_duel", "answer_type": "categorical",
+		"prompt": f"O duelo: quem faz mais gols, {label_own} ou {label_rival}?",
 		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_exceed, "odd": round(1 / prob_exceed, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_exceed, "odd": round(1 / (1 - prob_exceed), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
+			_duel_option(team_name, f"{label_own} faz mais gols", duel["A"], False),
+			_duel_option(opponent, f"{label_rival} faz mais gols", duel["B"], False),
+			_duel_option("Empate", "Empate no número de gols", duel["EMPATE"], True),
+			_duel_option("Dobradinha", "Um dos dois goleia o outro (2× ou mais)", duel["DOBRADINHA"], True),
 		],
-		"stat_basis": "TxLINE distribuição acumulada de escanteios",
-		"payoff_multiplier": 1.0
+		"stat_basis": f"TxLINE: Poisson conjunto {label_own} {mean_own:.2f} × {label_rival} {mean_rival:.2f} gols/jogo",
+		"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
 	})
-
-	# Q3 (Easy): Corner in first 15 min
-	prob_corner_15 = 0.72
-	questions.append({
-		"id": "q3", "kind": "corner_early", "answer_type": "categorical",
-		"prompt": "Vai ter escanteio nos primeiros 15 minutos?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_corner_15, "odd": round(1 / prob_corner_15, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_corner_15, "odd": round(1 / (1 - prob_corner_15), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE distribuição temporal de escanteios",
-		"payoff_multiplier": 1.0
-	})
-
-	# Q4 (Zebra): Gol from corner (10% prob)
-	prob_corner_goal = 0.10
-	questions.append({
-		"id": "q4", "kind": "corner_goal", "answer_type": "categorical",
-		"prompt": "Vai ter gol saído de escanteio?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_corner_goal, "odd": round(1 / prob_corner_goal, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_corner_goal, "odd": round(1 / (1 - prob_corner_goal), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE histórico Copa 2026: golaço de escanteio em 10% dos jogos",
-		"payoff_multiplier": 3.5
-	})
-
-	# Q5 (Zebra): Yellow card from corner scuffle (6% prob)
-	prob_corner_yellow = 0.06
-	questions.append({
-		"id": "q5", "kind": "corner_card", "answer_type": "categorical",
-		"prompt": "Vai ter cartão por disputa de escanteio?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_corner_yellow, "odd": round(1 / prob_corner_yellow, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_corner_yellow, "odd": round(1 / (1 - prob_corner_yellow), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE histórico Copa 2026: cartão em disputa de escanteio em 6% dos jogos",
-		"payoff_multiplier": 3.5
-	})
-
 	return questions
 
 
-def _build_predictive_questions_shots(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
-	"""Generate 5 predictive shot-based questions: 3 easy + 2 zebra."""
-	team_pred = _get_team_predictions(team_name, stats)
-	team_players = stats["teams"].get(team_name, {}).get("players", {})
+# ===== ESCANTEIOS — código 7/8 no wire TxLINE, resolve real =====
 
-	mean_shots = team_pred.get("shots_on_target", 4.0)
+def _build_predictive_questions_escanteios(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
+	opponent = _opponent_of(team_name, stats)
+	mean_own = _get_team_predictions(team_name, stats).get("corners_for", 6.0)
+	mean_rival = _get_team_predictions(opponent, stats).get("corners_for", 6.0)
+	label_own, label_rival = _pt_team(team_name), _pt_team(opponent)
 
-	questions = []
-
-	# Q1 (Easy): Total shots on target
-	q1_options = sorted(set([int(mean_shots - 2), int(mean_shots - 1), int(mean_shots), int(mean_shots + 1), int(mean_shots + 2)]))[:4]
+	questions = [
+		{
+			"id": "q1", "kind": "team_corners", "answer_type": "numeric",
+			"prompt": f"Quantos escanteios {label_own} vai cobrar?",
+			"options": _numeric_prompt_options(mean_own),
+			"stat_basis": f"TxLINE histórico {label_own}: {mean_own:.2f} escanteios/jogo nesta Copa",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q2", "kind": "team_corners_flood", "answer_type": "categorical",
+			"prompt": f"{label_own} vai cobrar 10 escanteios ou mais?",
+			"options": _yes_no_options(_poisson_tail(10, mean_own)),
+			"stat_basis": f"TxLINE: cauda de Poisson sobre {mean_own:.2f} escanteios/jogo",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
+		},
+		{
+			"id": "q3", "kind": "rival_corners", "answer_type": "numeric",
+			"prompt": f"E o rival: quantos escanteios {label_rival} vai cobrar?",
+			"options": _numeric_prompt_options(mean_rival),
+			"stat_basis": f"TxLINE histórico {label_rival}: {mean_rival:.2f} escanteios/jogo nesta Copa",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q4", "kind": "rival_corners_dry", "answer_type": "categorical",
+			"prompt": f"{label_rival} vai cobrar menos de 2 escanteios?",
+			"options": _yes_no_options(_poisson_cdf(2, mean_rival)),
+			"stat_basis": f"TxLINE: P(<2 escanteios) sobre {mean_rival:.2f} escanteios/jogo do {label_rival}",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 3.5,
+		},
+	]
+	duel = _duel_probabilities(mean_own, mean_rival)
 	questions.append({
-		"id": "q1", "kind": "team_shots", "answer_type": "numeric",
-		"prompt": f"Quantos chutes no alvo {team_name} vai fazer?",
-		"options": [{"value": v, "label": str(v), "probability": _poisson_pmf(v, mean_shots), "odd": 1.0, "risk": "ACESSIVEL", "reward_multiplier": 1.0} for v in q1_options],
-		"stat_basis": f"TxLINE histórico {team_name}: {mean_shots:.1f} chutes/jogo",
-		"payoff_multiplier": 1.0
-	})
-
-	# Q2 (Easy): Key player shoots
-	key_players = sorted(team_players.items(), key=lambda x: x[1].get("shots_on_target", 0), reverse=True)[:2]
-	player_name = key_players[0][0] if key_players else team_name
-	prob_player_shot = 0.80
-	questions.append({
-		"id": "q2", "kind": "player_shot", "answer_type": "categorical",
-		"prompt": f"{player_name} vai chutar no alvo?",
+		"id": "q5", "kind": "corners_duel", "answer_type": "categorical",
+		"prompt": f"O duelo: quem cobra mais escanteios, {label_own} ou {label_rival}?",
 		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_player_shot, "odd": round(1 / prob_player_shot, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_player_shot, "odd": round(1 / (1 - prob_player_shot), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
+			_duel_option(team_name, f"{label_own} cobra mais escanteios", duel["A"], False),
+			_duel_option(opponent, f"{label_rival} cobra mais escanteios", duel["B"], False),
+			_duel_option("Empate", "Empate no número de escanteios", duel["EMPATE"], True),
+			_duel_option("Dobradinha", "Um dos dois dobra o outro (2× ou mais)", duel["DOBRADINHA"], True),
 		],
-		"stat_basis": f"TxLINE histórico {player_name}: 80% dos jogos com chute",
-		"payoff_multiplier": 1.0
+		"stat_basis": f"TxLINE: Poisson conjunto {label_own} {mean_own:.2f} × {label_rival} {mean_rival:.2f} escanteios/jogo",
+		"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
 	})
-
-	# Q3 (Easy): Exceed 3 shots on target
-	prob_exceed_3 = 0.70
-	questions.append({
-		"id": "q3", "kind": "shots_threshold", "answer_type": "categorical",
-		"prompt": f"{team_name} fará mais de 3 chutes no alvo?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_exceed_3, "odd": round(1 / prob_exceed_3, 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_exceed_3, "odd": round(1 / (1 - prob_exceed_3), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE distribuição acumulada de chutes",
-		"payoff_multiplier": 1.0
-	})
-
-	# Q4 (Zebra): Hat trick (3% prob)
-	prob_hat_trick = 0.03
-	questions.append({
-		"id": "q4", "kind": "hat_trick", "answer_type": "categorical",
-		"prompt": "Vai ter hat-trick de um jogador?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_hat_trick, "odd": round(1 / prob_hat_trick, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_hat_trick, "odd": round(1 / (1 - prob_hat_trick), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE histórico Copa 2026: hat-trick em 3% dos jogos",
-		"payoff_multiplier": 3.5
-	})
-
-	# Q5 (Zebra): Header goal (12% prob)
-	prob_header_goal = 0.12
-	questions.append({
-		"id": "q5", "kind": "header_goal", "answer_type": "categorical",
-		"prompt": "Vai ter gol de cabeça?",
-		"options": [
-			{"value": "Sim", "label": "Sim", "probability": prob_header_goal, "odd": round(1 / prob_header_goal, 2), "risk": "ZEBRA", "reward_multiplier": 3.5},
-			{"value": "Não", "label": "Não", "probability": 1 - prob_header_goal, "odd": round(1 / (1 - prob_header_goal), 2), "risk": "ACESSIVEL", "reward_multiplier": 1.0}
-		],
-		"stat_basis": "TxLINE histórico Copa 2026: gol de cabeça em 12% dos jogos",
-		"payoff_multiplier": 3.5
-	})
-
 	return questions
 
 
-def build_predictive_quiz(fixture_id: str, team_name: str, tier: str = "faltas") -> dict[str, Any]:
+# ===== CARTÕES — amarelo (3/4) e vermelho (5/6) no wire TxLINE; "faltas" saiu (não existe no feed) =====
+
+def _build_predictive_questions_cartoes(team_name: str, stats: dict[str, Any]) -> list[dict[str, Any]]:
+	opponent = _opponent_of(team_name, stats)
+	yellow_own = _get_team_predictions(team_name, stats).get("yellow_cards", 1.0)
+	yellow_rival = _get_team_predictions(opponent, stats).get("yellow_cards", 1.0)
+	red_own = _get_team_predictions(team_name, stats).get("red_cards", 0.05)
+	red_rival = _get_team_predictions(opponent, stats).get("red_cards", 0.05)
+	label_own, label_rival = _pt_team(team_name), _pt_team(opponent)
+
+	questions = [
+		{
+			"id": "q1", "kind": "team_yellow_cards", "answer_type": "numeric",
+			"prompt": f"Quantos cartões amarelos {label_own} vai receber?",
+			"options": _numeric_prompt_options(yellow_own),
+			"stat_basis": f"TxLINE histórico {label_own}: {yellow_own:.2f} amarelos/jogo nesta Copa",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q2", "kind": "team_red_card", "answer_type": "categorical",
+			"prompt": f"{label_own} vai receber cartão vermelho?",
+			"options": _yes_no_options(red_own),
+			"stat_basis": f"TxLINE histórico {label_own}: {red_own:.2f} vermelhos/jogo (evento raro, piso realista aplicado)",
+			"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
+		},
+		{
+			"id": "q3", "kind": "rival_yellow_cards", "answer_type": "numeric",
+			"prompt": f"E o rival: quantos cartões amarelos {label_rival} vai receber?",
+			"options": _numeric_prompt_options(yellow_rival),
+			"stat_basis": f"TxLINE histórico {label_rival}: {yellow_rival:.2f} amarelos/jogo nesta Copa",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 1.0,
+		},
+		{
+			"id": "q4", "kind": "rival_red_card", "answer_type": "categorical",
+			"prompt": f"{label_rival} vai receber cartão vermelho?",
+			"options": _yes_no_options(red_rival),
+			"stat_basis": f"TxLINE histórico {label_rival}: {red_rival:.2f} vermelhos/jogo (evento raro, piso realista aplicado)",
+			"meta": {"team": opponent, "opponent": team_name}, "payoff_multiplier": 3.5,
+		},
+	]
+	weight_own, weight_rival = yellow_own + 2 * red_own, yellow_rival + 2 * red_rival
+	duel = _duel_probabilities(weight_own, weight_rival)
+	questions.append({
+		"id": "q5", "kind": "cards_duel", "answer_type": "categorical",
+		"prompt": f"O duelo da disciplina: quem se complica mais, {label_own} ou {label_rival}?",
+		"options": [
+			_duel_option(team_name, f"{label_own} é mais indisciplinado", duel["A"], False),
+			_duel_option(opponent, f"{label_rival} é mais indisciplinado", duel["B"], False),
+			_duel_option("Empate", "Empate na disciplina (peso amarelo+vermelho)", duel["EMPATE"], True),
+			_duel_option("Dobradinha", "Um dos dois se complica muito mais (2× ou mais)", duel["DOBRADINHA"], True),
+		],
+		"stat_basis": f"TxLINE: peso amarelo+2×vermelho — {label_own} {weight_own:.2f} × {label_rival} {weight_rival:.2f}",
+		"meta": {"team": team_name, "opponent": opponent}, "payoff_multiplier": 3.5,
+	})
+	return questions
+
+
+def build_predictive_quiz(fixture_id: str, team_name: str, tier: str = "gols") -> dict[str, Any]:
 	"""Build a predictive quiz (not replay-based) for a specific team and tier.
 
 	Predictive quizzes test what the fan thinks WILL HAPPEN based on historical data.
 	Answers are frozen at quiz start; they're resolved as TxLINE events arrive during the match.
+	Tiers (gols/escanteios/cartoes) resolvem contra códigos numéricos reais do feed TxLINE
+	(1/2=gols, 3/4=amarelo, 5/6=vermelho, 7/8=escanteios) — "faltas" e "chutes no alvo" saíram
+	porque o feed gratuito da Copa não reporta esses campos.
 	"""
 	stats = _load_player_stats()
 
-	if tier == "faltas":
-		questions = _build_predictive_questions_fouls(team_name, stats)
+	if tier == "cartoes":
+		questions = _build_predictive_questions_cartoes(team_name, stats)
 	elif tier == "escanteios":
-		questions = _build_predictive_questions_corners(team_name, stats)
-	elif tier == "chutes":
-		questions = _build_predictive_questions_shots(team_name, stats)
+		questions = _build_predictive_questions_escanteios(team_name, stats)
+	elif tier == "gols":
+		questions = _build_predictive_questions_gols(team_name, stats)
 	else:
 		raise ValueError(f"Unknown tier: {tier}")
 

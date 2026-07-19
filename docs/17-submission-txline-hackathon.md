@@ -3,12 +3,24 @@
 > Prazo: 19 jul 2026, 23:59 UTC · Anúncio: 29 jul 2026
 > Requisitos eliminatórios: vídeo demo (≤5 min), link funcionando, repo público, doc técnico, feedback da API.
 
+## 0. Atualização mainnet (2026-07-19)
+
+Desde a versão original deste documento, o CHUTE deixou de ser só devnet:
+
+- **Assinatura TxLINE mainnet real** (SL12, tempo real, tier gratuito da Copa) — `subscribe` on-chain
+  confirmado + token de API ativado, dados reais de 48 seleções puxados e conferidos.
+- **Âncora de prova em mainnet-beta real** (Memo program), transação confirmada e finalizada.
+- Detalhes, hashes de transação e passo a passo reprodutível: `.AGENTS/PRONTIDAO-MAINNET-2026-07-19.md`
+  e `scripts/txline-mainnet/`.
+
+O restante deste documento (fluxo devnet/replay) permanece válido como caminho garantido de demo.
+
 ## 1. Ideia central (one-liner)
 
 **CHUTE transforma a leitura estatística do torcedor em um jogo de 5 decisões com recibo verificável.**
-O fã lê os sinais TxLINE da partida, escolhe um tier (Chutes a gol, Escanteios, Faltas & Cartões),
+O fã lê os sinais TxLINE da partida, escolhe um tier (Gols, Escanteios, Cartões),
 responde 5 perguntas com probabilidade/odd explícitas e sai com um recibo criptográfico —
-snapshot congelado + content hash + prova Merkle ancorada no programa TxLINE na Solana devnet.
+snapshot congelado + content hash + prova Merkle ancorada no programa TxLINE na Solana.
 
 Diferencial vs. as ideias-exemplo do edital: não é um feed reempacotado nem um palpite cego —
 é *leitura provável auditável*. A zebra paga mais porque a probabilidade de cada opção é declarada
@@ -43,7 +55,7 @@ Pipeline: worker Node (`apps/txline-worker`, polling opcional com backoff + tele
 | Real-Time Responsiveness | Worker com polling TxLINE (fixtures 10 min, scores 60 s) + pulso ao vivo na tela de match (poll 20 s do snapshot persistido, sequência exibida) |
 | Originality & Value | "Leitura provável com recibo verificável" — probabilidade declarada antes do chute; zebra paga 3.5×; ranking por tier |
 | Commercial Path | Free-to-play com stake paper US$1 → caminho natural: entrada paga por rodada, tiers premium por pacote de dados, rake de liga entre amigos; a prova on-chain é o diferencial anti-fraude para operar com dinheiro real |
-| Completeness | Fluxo E2E funcional: fixture → leitura → tier → 5 respostas persistidas → recibo → ranking durável (sobrevive a restart). 19 testes API + 2 worker + builds verdes |
+| Completeness | Fluxo E2E funcional: fixture → leitura → tier → 5 respostas persistidas → recibo → ranking durável (sobrevive a restart). `verify_e2e.py` com 29 provas, worker com 7 testes + build verde, web build verde |
 
 ## 5. Roteiro do vídeo (4 min — eliminatório)
 

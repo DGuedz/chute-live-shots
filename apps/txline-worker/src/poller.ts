@@ -64,7 +64,7 @@ export async function syncFixturesOnce(client: TxlineClient): Promise<void> {
 export async function syncScoresOnce(client: TxlineClient): Promise<void> {
   for (const fixtureId of telemetry.trackedFixtures) {
     const scores = await client.getScores(fixtureId);
-    await persistScoreSnapshot(fixtureId, scores);
+    await persistScoreSnapshot(fixtureId, scores, client);
   }
   telemetry.lastScoreSyncAt = new Date().toISOString();
   telemetry.scoreSyncCount += 1;

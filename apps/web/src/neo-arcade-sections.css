@@ -1,5 +1,5 @@
 /* Neo Arcade Football - Sections */
-/* APENAS: Navy #031330, Lime #C8F000, Orange #FF5A00 */
+/* APENAS: Navy #031330, Lime #C8F000 — laranja removido do sistema */
 
 /* Hero Section */
 .hero.landing-hero {
@@ -64,12 +64,12 @@
 
 .opportunity-card.featured {
   border-color: var(--neo-orange);
-  background: linear-gradient(135deg, rgba(255, 90, 0, 0.05), rgba(200, 240, 0, 0.05));
+  background: linear-gradient(135deg, rgba(200, 240, 0, 0.05), rgba(200, 240, 0, 0.05));
 }
 
 .opportunity-card:hover {
   border-color: var(--neo-orange);
-  box-shadow: 0 6px 16px rgba(255, 90, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(200, 240, 0, 0.2);
 }
 
 .opp-top {
@@ -97,7 +97,7 @@
 
 .opportunity-card.featured .opp-status {
   background-color: var(--neo-orange);
-  color: var(--neo-white);
+  color: var(--neo-navy);
 }
 
 .fixture-line {
@@ -192,7 +192,7 @@
 
 .state-num.orange {
   background-color: var(--neo-orange);
-  color: var(--neo-white);
+  color: var(--neo-navy);
 }
 
 .state-grid h3 {
@@ -209,7 +209,7 @@
 
 /* Ecosystem Section */
 .ecosystem {
-  background: linear-gradient(135deg, rgba(200, 240, 0, 0.1), rgba(255, 90, 0, 0.1));
+  background: linear-gradient(135deg, rgba(200, 240, 0, 0.1), rgba(200, 240, 0, 0.1));
   border: 2px dashed var(--neo-lime);
   border-radius: 4px;
   padding: 24px 20px;
@@ -403,7 +403,7 @@
 
 .tier-card:hover:not(.locked) {
   border-color: var(--neo-orange);
-  box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(200, 240, 0, 0.2);
   transform: translateY(-2px);
 }
 
@@ -415,7 +415,7 @@
 
 .tier-card.selected {
   border-color: var(--neo-orange);
-  background: linear-gradient(135deg, rgba(255, 90, 0, 0.1), rgba(200, 240, 0, 0.05));
+  background: linear-gradient(135deg, rgba(200, 240, 0, 0.1), rgba(200, 240, 0, 0.05));
 }
 
 .tier-head {
@@ -513,7 +513,7 @@
 .disclaimer {
   display: flex;
   gap: 12px;
-  background-color: rgba(255, 90, 0, 0.1);
+  background-color: rgba(200, 240, 0, 0.1);
   border-left: 4px solid var(--neo-orange);
   padding: 12px;
   border-radius: 2px;

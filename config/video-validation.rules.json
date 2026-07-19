@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "reportPath": "artifacts/video-validation-report.json",
+  "profiles": {
+    "default": {
+      "maxSizeMb": 35,
+      "maxKeyframeGapFrames": 60,
+      "requireFirstFrameKeyframe": true,
+      "maxWidth": 1920,
+      "maxHeight": 1080,
+      "maxBitrateKbps": 12000
+    },
+    "web-public": {
+      "maxSizeMb": 30,
+      "maxKeyframeGapFrames": 60,
+      "requireFirstFrameKeyframe": true,
+      "maxWidth": 1920,
+      "maxHeight": 1080,
+      "maxBitrateKbps": 10000
+    },
+    "scroll-scrub": {
+      "maxSizeMb": 25,
+      "maxKeyframeGapFrames": 1.1,
+      "requireFirstFrameKeyframe": true,
+      "maxWidth": 1920,
+      "maxHeight": 1080,
+      "maxBitrateKbps": 8000
+    }
+  },
+  "rules": [
+    {
+      "directory": "apps/web/public",
+      "filenamePattern": "(scroll|scrub|hero)",
+      "profile": "scroll-scrub"
+    },
+    {
+      "directory": "apps/web/public",
+      "profile": "web-public"
+    }
+  ]
+}

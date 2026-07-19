@@ -1,0 +1,20 @@
+{
+  "project": "936a77b4-eb8e-4725-8355-fad644dfe9bf",
+  "environments": {
+    "production": {
+      "services": {
+        "api": {
+          "builder": "nixpacks",
+          "buildCommand": "npm install && npm run build",
+          "startCommand": "cd apps/api && python app/main.py",
+          "root": ".",
+          "variables": {
+            "PORT": "8000",
+            "CHUTE_ENV": "production",
+            "CHUTE_DRY_RUN": "false"
+          }
+        }
+      }
+    }
+  }
+}

@@ -78,6 +78,41 @@ def b58encode(raw: bytes) -> str:
     return "1" * pad + out
 
 
+def seed_live_predictive_snapshot() -> None:
+    """Seed the real Spain x Argentina live fixture so predictive E2E stays reproducible."""
+    status, _ = call("POST", "/internal/txline/fixtures", {
+        "network": "devnet",
+        "source_timestamp": "2026-07-18T16:48:37.703Z",
+        "fixtures": [{
+            "FixtureId": 18257739,
+            "CompetitionId": 72,
+            "Participant1": "Spain",
+            "Participant2": "Argentina",
+            "StartTime": 1784487600000,
+            "GameState": 2,
+        }],
+    })
+    check("Ingest fixture live via bridge interna", status == 200)
+    status, body = call("POST", "/internal/txline/snapshots", {
+        "fixture_id": "18257739",
+        "snapshot_type": "score",
+        "snapshot": {
+            "score": {"stats": {"1": 2, "2": 1, "3": 1, "4": 2, "7": 6, "8": 3}, "events": []},  # 1/2=gols 3/4=amarelo 7/8=escanteios (P1=Spain/P2=Argentina)
+            "validation": {
+                "proofRefs": ["proof-live-18257739"],
+                "onChainValidation": {"method": "validateStatV2.view"},
+            },
+        },
+        "network": "devnet",
+        "data_status": "txline_live",
+        "source_timestamp": "2026-07-18T16:48:37.703Z",
+        "sequence": "1",
+        "proof_refs": ["proof-live-18257739"],
+        "content_hash": "sha256:test-live-18257739",
+    })
+    check("Ingest snapshot live via bridge interna", status == 200 and body.get("snapshot_id"))
+
+
 def main() -> None:
     with socket.socket() as probe:
         if probe.connect_ex(("127.0.0.1", PORT)) == 0:
@@ -104,11 +139,11 @@ def main() -> None:
               quiz_meta["snapshot_id"])
 
         answered, total = 0, 5
-        status, current = call("GET", f"/api/quizzes/argentina-spain/current?participant_id={participant}&tier=chutes")
+        status, current = call("GET", f"/api/quizzes/argentina-spain/current?participant_id={participant}&tier=gols")
         check("Quiz replay abre com pergunta 1", status == 200 and current.get("question"))
         while answered < total:
             question = current.get("question") or current.get("next_question")
-            status, current = call("POST", "/api/quizzes/argentina-spain/answers?tier=chutes", {
+            status, current = call("POST", "/api/quizzes/argentina-spain/answers?tier=gols", {
                 "participant_id": participant, "question_id": question["id"],
                 "answer": question["options"][0]["value"], "request_id": str(uuid.uuid4()),
             })
@@ -116,7 +151,7 @@ def main() -> None:
             answered = current["answered"]
         check("Quiz replay fecha após 5 respostas", current["status"] == "complete")
 
-        status, ranking = call("GET", "/api/quizzes/argentina-spain/ranking?tier=chutes")
+        status, ranking = call("GET", "/api/quizzes/argentina-spain/ranking?tier=gols")
         mine = next((r for r in ranking.get("ranking", []) if r["participant_id"] == participant), None)
         check("Ranking durável contém o participante com score", mine is not None and isinstance(mine["score"], int),
               f"score={mine['score']}")
@@ -124,15 +159,21 @@ def main() -> None:
         check("Memo replay segue CHUTE|fixture|snapshot|hash|score", memo_replay.count("|") == 4, memo_replay)
 
         # ── 2. Fluxo preditivo ──────────────────────────────────────────
-        status, pred = call("GET", "/api/predictions/argentina-spain/Argentina/chutes")
-        check("Quiz preditivo abre com 5 perguntas congeladas", status == 200 and len(pred["questions"]) == 5,
+        seed_live_predictive_snapshot()
+        status, preview = call("GET", "/api/predictions/argentina-spain/Argentina/gols")
+        check("Preview preditivo não vaza perguntas futuras", status == 200 and "questions" not in preview,
+              preview.get("quiz_id"))
+        status, pred = call("POST", "/api/predictions/argentina-spain/Argentina/gols/start", {"participant_id": participant})
+        check("Quiz preditivo inicia com pergunta atual apenas", status == 200 and pred["total"] == 5 and pred["current_question"]["id"] == "q1",
               pred["quiz_id"])
-        for i, question in enumerate(pred["questions"]):
+        current_question = pred["current_question"]
+        for i in range(pred["total"]):
             status, body = call("POST", f"/api/predictions/{pred['quiz_id']}/answer", {
-                "participant_id": participant, "question_id": question["id"],
-                "answer": question["options"][0]["value"], "request_id": str(uuid.uuid4()),
+                "participant_id": participant, "question_id": current_question["id"],
+                "answer": current_question["options"][0]["value"], "request_id": str(uuid.uuid4()),
             })
             check(f"Resposta preditiva {i + 1}/5 aceita", status == 200 and body["accepted"])
+            current_question = body.get("next_question")
 
         status, progress = call("GET", f"/api/predictions/{pred['quiz_id']}/progress?participant_id={participant}")
         check("Progress resolve contra snapshot TxLINE (status=scoring)", status == 200
@@ -141,6 +182,10 @@ def main() -> None:
               f"{progress['progress']} acertos · {progress['percentage']}%")
         check("Progress expõe snapshot_id + content_hash para o memo",
               bool(progress.get("snapshot_id")) and str(progress.get("content_hash", "")).startswith("sha256:"))
+        check("Progress expõe fixture live reconciliado + prova on-chain",
+              progress.get("resolved_fixture_id") == "18257739"
+              and progress.get("proof_refs") == ["proof-live-18257739"]
+              and progress.get("on_chain_validation", {}).get("method") == "validateStatV2.view")
         memo_pred = (f"CHUTE-PRED|{progress['fixture_id']}|{progress['snapshot_id']}|"
                      f"{progress['content_hash']}|score:{round(progress['score'])}|{progress['percentage']}%")
         check("Memo preditivo segue CHUTE-PRED|fixture|snapshot|hash|score|pct", memo_pred.count("|") == 5, memo_pred)
