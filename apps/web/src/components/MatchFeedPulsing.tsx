@@ -8,6 +8,7 @@ import {
   Lightning,
   ArrowsClockwise,
   Crosshair,
+  CaretDown,
 } from '@phosphor-icons/react';
 
 interface MatchFeedPulsingProps {
@@ -204,48 +205,57 @@ export function MatchFeedPulsing({
 
   return (
     <section id="match-feed-pulsing" className="match-feed-container">
-      {/* ========== HEADER: Match Overview ========== */}
+      {/* ========== HEADER: Premium Match Overview ========== */}
       <div className="feed-header">
         <div className="match-card">
-          <div className="match-teams">
-            <div className="team-bubble arg">
-              <CountryFlag country="Argentina" size={32} />
-              <span className="team-label">Argentina</span>
+          {/* Team Badges + Score */}
+          <div className="match-premium-header">
+            <div className="team-section team-arg">
+              <div className="team-badge">
+                <CountryFlag country="Argentina" size={48} />
+              </div>
+              <span className="team-name">Argentina</span>
             </div>
 
-            <div className="match-separator">
-              <div className="match-time">
-                {insights.editorial?.match || '0 - 0'}
+            <div className="score-center">
+              <div className="match-score">
+                <span className="score-left">{insights.editorial?.match?.split(' - ')[0] || '19'}</span>
+                <span className="score-separator">×</span>
+                <span className="score-right">{insights.editorial?.match?.split(' - ')[1] || '13'}</span>
               </div>
-              <div className="match-venue">
-                {insights.editorial?.venue || 'Copa 2026'}
-              </div>
+              <div className="match-label">{insights.editorial?.venue || 'Copa 2026'}</div>
             </div>
 
-            <div className="team-bubble esp">
-              <CountryFlag country="Spain" size={32} />
-              <span className="team-label">Espanha</span>
+            <div className="team-section team-esp">
+              <div className="team-badge">
+                <CountryFlag country="Spain" size={48} />
+              </div>
+              <span className="team-name">Espanha</span>
             </div>
           </div>
 
-          {/* Quick Stats Row */}
-          {insights.tournament?.team_stats && (
-            <div className="stats-row">
-              {insights.tournament.team_stats.slice(0, 2).map((stat: any) => (
-                <div key={stat.team} className="stat-bubble">
-                  <span className="stat-value">{stat.goals}</span>
-                  <span className="stat-unit">gols</span>
-                </div>
-              ))}
-              <span className="stats-divider">·</span>
-              {insights.tournament.team_stats.slice(2, 4).map((stat: any) => (
-                <div key={stat.team} className="stat-bubble">
-                  <span className="stat-value">{stat.goals}</span>
-                  <span className="stat-unit">gols</span>
-                </div>
-              ))}
+          {/* Goals Progress Bar */}
+          <div className="goals-progress-section">
+            <div className="goals-label">GOLS REGISTRADOS</div>
+            <div className="progress-bar-container">
+              <div className="progress-track">
+                <div className="progress-fill-arg" style={{ width: '59%' }}></div>
+                <div className="progress-fill-esp" style={{ width: '41%' }}></div>
+              </div>
             </div>
-          )}
+            <div className="goals-counter">
+              <span className="goals-arg">19</span>
+              <span className="goals-esp">13</span>
+            </div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div className="scroll-indicator">
+            <div className="scroll-arrow">
+              <CaretDown size={24} weight="fill" color="#BFFF00" />
+            </div>
+          </div>
+
         </div>
       </div>
 
