@@ -6,6 +6,7 @@ import {
 import gsap from 'gsap';
 import {MatchComparisonCard} from './MatchComparisonCard';
 import {ReceiptPreview} from './ReceiptPreview';
+import {TeamShield} from './TeamShield';
 import {SolanaWordmark, TxLINELogoBrand} from './LogoPlaceholders';
 import {APP_ENV} from '../env';
 import {addCue, useNarrativeScrubSection, useVideoScrubSection, type Cue} from '../lib/scrollCinema';
@@ -526,7 +527,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
           {[0,1].map((copyIndex)=>(
             <div className="ticker-group" key={copyIndex} aria-hidden={copyIndex===1||undefined}>
               {matchStats
-                ?matchStats.stats.map((stat)=><span className="ticker-stat" key={`${copyIndex}-${stat.label}`}><small>{stat.label}</small><b style={{display:'flex',alignItems:'center',gap:'8px'}}><span>{stat.home}</span><span style={{opacity:0.5,fontSize:'12px'}}>·</span><span>{stat.away}</span></b><i/></span>)
+                ?matchStats.stats.map((stat)=><span className="ticker-stat" key={`${copyIndex}-${stat.label}`}><small>{stat.label}</small><b style={{display:'flex',alignItems:'center',gap:'12px',justifyContent:'space-between'}}><span style={{display:'flex',alignItems:'center',gap:'6px',fontSize:'13px'}}><TeamShield teamName={matchStats.home_team} size={14}/><strong>{stat.home}</strong></span><span style={{opacity:0.4,fontSize:'10px'}}>·</span><span style={{display:'flex',alignItems:'center',gap:'6px',fontSize:'13px'}}><strong>{stat.away}</strong><TeamShield teamName={matchStats.away_team} size={14}/></span></b><i/></span>)
                 :quizzes.length
                 ?quizzes.map((quiz)=><span className="ticker-stat" key={`${copyIndex}-${quiz.quiz_id}`}><small>{quiz.status==='active'?'ATIVO':quiz.status==='closed'?'FECHADO':'EM BREVE'}</small><b>{quiz.title}</b><i>{quiz.total_players>0&&<span style={{fontSize:'10px',marginLeft:'6px'}}>👥 {quiz.total_players}</span>}</i></span>)
                 :liveFixtures.length
