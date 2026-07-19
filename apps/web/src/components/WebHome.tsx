@@ -8,6 +8,7 @@ import {MatchComparisonCard} from './MatchComparisonCard';
 import {SolanaWordmark, TxLINELogoBrand} from './LogoPlaceholders';
 import {APP_ENV} from '../env';
 import {addCue, useNarrativeScrubSection, useVideoScrubSection, type Cue} from '../lib/scrollCinema';
+import {apply3DTextDepth} from '../lib/textDepth3D';
 
 type WebHomeProps={
   loading:boolean;
@@ -184,6 +185,10 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
   const intelligenceCardRef=useRef<HTMLDivElement|null>(null);
 
   const tickerRef=useRef<HTMLElement|null>(null);
+  const marketSectionRef=useRef<HTMLElement|null>(null);
+  const intelligenceSectionRef=useRef<HTMLElement|null>(null);
+  const proofSectionRef=useRef<HTMLElement|null>(null);
+  const finalSectionRef=useRef<HTMLElement|null>(null);
 
   const toggleLang=()=>{
     const next:Lang=lang==='pt'?'en':'pt';
@@ -285,6 +290,59 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       });
     },market.sectionRef);
 
+    return()=>ctx.revert();
+  },[]);
+
+  // 3D Text Depth: aplica parallax em camadas de profundidade para cada seção principal
+  useEffect(()=>{
+    if(!marketSectionRef.current) return;
+    const ctx=apply3DTextDepth({
+      trigger:marketSectionRef.current,
+      depthAmount:40,
+      scaleAmount:0.12,
+      start:'top 70%',
+      end:'center center',
+      scrubSpeed:0.4,
+    });
+    return()=>ctx.revert();
+  },[]);
+
+  useEffect(()=>{
+    if(!intelligenceSectionRef.current) return;
+    const ctx=apply3DTextDepth({
+      trigger:intelligenceSectionRef.current,
+      depthAmount:35,
+      scaleAmount:0.1,
+      start:'top 75%',
+      end:'center center',
+      scrubSpeed:0.35,
+    });
+    return()=>ctx.revert();
+  },[]);
+
+  useEffect(()=>{
+    if(!proofSectionRef.current) return;
+    const ctx=apply3DTextDepth({
+      trigger:proofSectionRef.current,
+      depthAmount:38,
+      scaleAmount:0.11,
+      start:'top 70%',
+      end:'center center',
+      scrubSpeed:0.4,
+    });
+    return()=>ctx.revert();
+  },[]);
+
+  useEffect(()=>{
+    if(!finalSectionRef.current) return;
+    const ctx=apply3DTextDepth({
+      trigger:finalSectionRef.current,
+      depthAmount:45,
+      scaleAmount:0.14,
+      start:'top 65%',
+      end:'center center',
+      scrubSpeed:0.45,
+    });
     return()=>ctx.revert();
   },[]);
 
@@ -460,7 +518,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       </div>
     </aside>
 
-    <section className="web-fold market-fold" id="mercado" ref={market.sectionRef as React.RefObject<HTMLElement>}>
+    <section className="web-fold market-fold" id="mercado" ref={(el)=>{market.sectionRef.current=el; marketSectionRef.current=el;}} as React.RefObject<HTMLElement>}>
       <div className="fold-heading" ref={marketHeadingRef}><span className="web-kicker">{t.marketKicker}</span><h2>{t.marketH2a}<br/><em>{t.marketH2b}</em></h2><p>{t.marketP}</p></div>
       <div className="market-grid">
         <article ref={(el)=>{marketCardRefs.current[0]=el}}><span className="card-number">01</span><Database size={30}/><h3>{t.card1T}</h3><p>{t.card1P}</p><small>{t.card1S}</small></article>
@@ -494,7 +552,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
     </section>
     <div className="fold-blend" aria-hidden="true"/>
 
-    <section className="web-fold intelligence-fold" id="copa" ref={intelligence.sectionRef as React.RefObject<HTMLElement>}>
+    <section className="web-fold intelligence-fold" id="copa" ref={(el)=>{intelligence.sectionRef.current=el; intelligenceSectionRef.current=el;}} as React.RefObject<HTMLElement>}>
       <div className="fold-heading compact" ref={intelligenceHeadingRef}><span className="web-kicker">{t.cupKicker}</span><h2>{t.cupH2a}<br/><em>{t.cupH2b}</em></h2><p>{t.cupP}</p></div>
       <div ref={intelligenceCardRef}>
         <MatchComparisonCard/>
@@ -565,7 +623,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
     </section>
     <div className="fold-blend" aria-hidden="true"/>
 
-    <section className="web-fold proof-fold" id="como-funciona">
+    <section className="web-fold proof-fold" id="como-funciona" ref={proofSectionRef}>
       <div className="fold-heading" data-reveal><span className="web-kicker">{t.howKicker}</span><h2>{t.howH2a}<br/><em>{t.howH2b}</em></h2></div>
       <div className="proof-layout">
         <div className="steps-list" data-reveal>
@@ -584,7 +642,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       </div>
     </section>
 
-    <section className="web-fold final-fold">
+    <section className="web-fold final-fold" ref={finalSectionRef}>
       <div data-reveal><span className="web-kicker">{t.finalKicker}</span><h2>{t.finalH2a}<br/><em>{t.finalH2b}</em></h2><p>{t.finalP}</p><button className="web-primary" onClick={onStart} disabled={loading}>{loading?t.ctaLoading:t.ctaStart}<ArrowRight/></button></div>
       <footer><a className="web-brand" href="#inicio"><span>CHUTE</span></a><div className="brand-strip"><span>{t.poweredBy}</span><TxLINELogoBrand height={13} /><i/><SolanaWordmark height={12} /></div><span>DEMO · {network.toUpperCase()}</span></footer>
     </section>

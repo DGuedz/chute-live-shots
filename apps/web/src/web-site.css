@@ -8,8 +8,9 @@ html{scroll-behavior:smooth;background:#080b0a;color-scheme:dark}
 body{margin:0;background:#080b0a;color:#f1f4ec}
 body:has(.web-home){overflow-x:hidden}
 main:has(.web-home){width:100%;max-width:none;padding:0;margin:0;background:#080b0a}
-.web-home{--lime:#baff00;--ink:#080b0a;--panel:#111513;--line:#282e2a;--muted:#919a94;--white:#f1f4ec;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--white);min-height:100vh}
-.web-home *{box-sizing:border-box}
+.web-home{--lime:#baff00;--ink:#080b0a;--panel:#111513;--line:#282e2a;--muted:#919a94;--white:#f1f4ec;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--white);min-height:100vh;perspective:1200px}
+.web-home *{box-sizing:border-box;transform-style:preserve-3d;will-change:transform,opacity}
+.web-home h1,.web-home h2,.web-home h3,.web-home p,.web-home .web-kicker{transform-style:preserve-3d;transition:none}
 .web-home button,.web-home a{font-family:inherit}
 .web-nav{height:76px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:28px;padding:0 clamp(24px,5vw,80px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;background:rgba(8,11,10,.92);backdrop-filter:blur(18px)}
 .web-home :is(a,button):focus-visible{outline:2px solid var(--lime);outline-offset:3px}
