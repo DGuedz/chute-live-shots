@@ -5,6 +5,7 @@ import {
 } from '@phosphor-icons/react';
 import gsap from 'gsap';
 import {MatchComparisonCard} from './MatchComparisonCard';
+import {ReceiptPreview} from './ReceiptPreview';
 import {SolanaWordmark, TxLINELogoBrand} from './LogoPlaceholders';
 import {APP_ENV} from '../env';
 import {addCue, useNarrativeScrubSection, useVideoScrubSection, type Cue} from '../lib/scrollCinema';
@@ -632,12 +633,22 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
           <article><span>03</span><div><h3>{t.step3T}</h3><p>{t.step3P}</p></div><ChartLineUp/></article>
           <article><span>04</span><div><h3>{t.step4T}</h3><p>{t.step4P}</p></div><ShieldCheck/></article>
         </div>
-        <div className="receipt-preview" data-reveal>
-          <div className="receipt-top"><span>{t.receiptTitle}</span><span className="status-dot">{network.toUpperCase()}</span></div>
-          <div className="receipt-score"><small>ARGENTINA × {lang==='pt'?'ESPANHA':'SPAIN'}</small><strong>420 <span>PTS</span></strong><p>{t.receiptConfirmed}</p></div>
-          <div className="receipt-data"><p><span>{t.receiptWallet}</span><b>{wallet?shortWallet:t.receiptWalletOff}</b></p><p><span>{t.receiptSnapshot}</span><b>{t.receiptWaiting}</b></p><p><span>{t.receiptNetwork}</span><b>{network} · paper</b></p></div>
-          <button onClick={onReceipts}>{t.receiptCta}<ArrowUpRight/></button>
-          <small className="receipt-note">{t.receiptNote}</small>
+        <ReceiptPreview
+          network={network}
+          wallet={wallet}
+          onViewReceipts={onReceipts}
+          t={{
+            receiptTitle: t.receiptTitle,
+            receiptConfirmed: t.receiptConfirmed,
+            receiptWallet: t.receiptWallet,
+            receiptWalletOff: t.receiptWalletOff,
+            receiptSnapshot: t.receiptSnapshot,
+            receiptWaiting: t.receiptWaiting,
+            receiptNetwork: t.receiptNetwork,
+            receiptCta: t.receiptCta,
+            receiptNote: t.receiptNote,
+          }}
+        />
         </div>
       </div>
     </section>
