@@ -27,6 +27,12 @@ function getTimestamp(): string {
   return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Render goal stars (identity: Argentina = 3 stars for World Cups)
+function renderGoalStars(goals: number, team: 'arg' | 'esp'): string {
+  const baseStars = goals >= 10 ? 3 : goals >= 5 ? 2 : 1;
+  return '⭐'.repeat(Math.min(baseStars, 3));
+}
+
 // Polished flag and shield components
 function CountryFlag({ country, size = 24 }: { country: string; size?: number }) {
   const flags: Record<string, string> = {
@@ -244,8 +250,14 @@ export function MatchFeedPulsing({
               </div>
             </div>
             <div className="goals-counter">
-              <span className="goals-arg">19</span>
-              <span className="goals-esp">13</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span className="goals-arg">19</span>
+                <span style={{ fontSize: '12px', color: 'var(--argentina-primary)' }}>⭐⭐⭐</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span className="goals-esp">13</span>
+                <span style={{ fontSize: '12px', color: 'var(--spain-primary)' }}>⭐⭐</span>
+              </div>
             </div>
           </div>
 
