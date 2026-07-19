@@ -305,44 +305,51 @@
   gap: 8px;
 }
 
-/* ========== ICON DESIGN TOKENS ========== */
-.signal-emoji {
-  min-width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* ========== ICON DESIGN TOKENS (Phosphor Icons) ========== */
 .signal-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
-/* Signal icon colors - consistent per type */
+/* Signal icon colors - consistent per type (Neo Arcade palette) */
 .signal-icon-defense {
-  color: #60A5FA; /* Blue shield */
+  color: #60A5FA;
+  /* Blue shield for defense */
 }
 
 .signal-icon-player {
-  color: #FBBF24; /* Amber star */
+  color: #FBBF24;
+  /* Amber star for star player/craque */
 }
 
 .signal-icon-midfield {
-  color: #34D399; /* Emerald target */
+  color: #34D399;
+  /* Emerald target for midfield control */
 }
 
 .signal-icon-momentum {
-  color: #BFFF00; /* Lime lightning */
+  color: #BFFF00;
+  /* Lime lightning for momentum (primary accent) */
 }
 
 .signal-icon-possession {
-  color: #818CF8; /* Indigo cycle */
+  color: #818CF8;
+  /* Indigo for possession/cycling */
 }
 
 .signal-icon-shots {
-  color: #FB923C; /* Orange crosshair */
+  color: #FB923C;
+  /* Orange crosshair for shots on target */
+}
+
+/* Phosphor icon hover effect (optional enhancement) */
+.signal-icon:hover {
+  filter: brightness(1.2);
+  transition: filter 0.2s ease;
 }
 
 .edge-icon {

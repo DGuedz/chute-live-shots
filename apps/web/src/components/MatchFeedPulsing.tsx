@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../icons';
 import type { Insights } from '../types';
+import {
+  ShieldCheckered,
+  Star,
+  Target,
+  Lightning,
+  ArrowsClockwise,
+  Crosshair,
+} from '@phosphor-icons/react';
 
 interface MatchFeedPulsingProps {
   insights: Insights;
@@ -83,13 +91,58 @@ function SignalCard({ signal, detail, edge, index, player, metric, timestamp }: 
     return () => clearTimeout(timer);
   }, [index]);
 
-  const signalIcons: Record<string, string> = {
-    DEFESA: '🛡️',
-    CRAQUE: '⭐',
-    'MEIO-CAMPO': '🎯',
-    MOMENTUM: '⚡',
-    POSSESSÃO: '🔄',
-    FINALIZAÇÕES: '🎲',
+  // Render Phosphor icon by signal type
+  const getIconColorClass = (): string => {
+    switch (signal) {
+      case 'DEFESA':
+        return 'signal-icon-defense';
+      case 'CRAQUE':
+        return 'signal-icon-player';
+      case 'MEIO-CAMPO':
+        return 'signal-icon-midfield';
+      case 'MOMENTUM':
+        return 'signal-icon-momentum';
+      case 'POSSESSÃO':
+        return 'signal-icon-possession';
+      case 'FINALIZAÇÕES':
+        return 'signal-icon-shots';
+      case 'ATAQUE':
+        return 'signal-icon-momentum';
+      case 'MERCADOS':
+        return 'signal-icon-midfield';
+      default:
+        return 'signal-icon';
+    }
+  };
+
+  const renderSignalIcon = (): React.ReactNode => {
+    const iconProps = { size: 20, weight: 'fill' as const, className: `signal-icon ${getIconColorClass()}` };
+
+    try {
+      switch (signal) {
+        case 'DEFESA':
+          return <ShieldCheckered {...iconProps} aria-label="Defesa" />;
+        case 'CRAQUE':
+          return <Star {...iconProps} aria-label="Craque" />;
+        case 'MEIO-CAMPO':
+          return <Target {...iconProps} aria-label="Meio-campo" />;
+        case 'MOMENTUM':
+          return <Lightning {...iconProps} aria-label="Momentum" />;
+        case 'POSSESSÃO':
+          return <ArrowsClockwise {...iconProps} aria-label="Possessão" />;
+        case 'FINALIZAÇÕES':
+          return <Crosshair {...iconProps} aria-label="Finalizações" />;
+        case 'ATAQUE':
+          return <Lightning {...iconProps} aria-label="Ataque" />;
+        case 'MERCADOS':
+          return <Target {...iconProps} aria-label="Mercados" />;
+        default:
+          return <Star {...iconProps} aria-label="Sinal" />;
+      }
+    } catch (error) {
+      console.error('Error rendering icon for signal:', signal, error);
+      return null;
+    }
   };
 
   // Authority via player name + metric precision
@@ -100,7 +153,7 @@ function SignalCard({ signal, detail, edge, index, player, metric, timestamp }: 
     <div className={`signal-card-feed ${isPulsing ? 'pulse-in' : ''}`}>
       {/* Header: Icon + Signal Type + Authority Badge */}
       <div className="signal-header">
-        <span className="signal-emoji">{signalIcons[signal] || '💫'}</span>
+        {renderSignalIcon()}
         <div style={{ flex: 1 }}>
           <span className="signal-name">{signal}</span>
           {player && (
