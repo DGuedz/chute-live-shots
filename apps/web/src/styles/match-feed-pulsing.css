@@ -8,6 +8,20 @@
   max-width: 100%;
 }
 
+/* Soft green filter - reduce intensity across site */
+#match-feed-pulsing {
+  --neon-green: #BFFF00;
+  --neon-green-soft: rgba(191, 255, 0, 0.85);
+}
+
+/* Apply soft filter to all neon green elements */
+#match-feed-pulsing [style*="BFFF00"],
+#match-feed-pulsing [class*="lime"],
+#match-feed-pulsing [class*="neon"],
+#match-feed-pulsing [class*="accent"] {
+  filter: brightness(0.95) saturate(0.9);
+}
+
 /* ========== HEADER: Match Overview ========== */
 
 .feed-header {
@@ -17,18 +31,20 @@
   background: linear-gradient(180deg, rgba(8, 11, 10, 0.95) 0%, rgba(8, 11, 10, 0.85) 100%);
   backdrop-filter: blur(10px);
   padding: 16px;
-  border-bottom: 1px solid rgba(191, 255, 0, 0.1);
+  border-bottom: 1px solid rgba(191, 255, 0, 0.08);
+  filter: brightness(1.02);
 }
 
 .match-card {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background: rgba(191, 255, 0, 0.05);
-  border: 1px solid rgba(191, 255, 0, 0.15);
+  background: rgba(191, 255, 0, 0.04);
+  border: 1px solid rgba(191, 255, 0, 0.12);
   border-radius: 12px;
   padding: 24px;
   backdrop-filter: blur(8px);
+  filter: brightness(1.01);
 }
 
 /* ========== PREMIUM MATCH HEADER ========== */
@@ -122,6 +138,7 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
+  filter: brightness(0.95) saturate(0.80);
 }
 
 .progress-bar-container {
@@ -180,10 +197,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(191, 255, 0, 0.4);
+  border: 2px solid rgba(191, 255, 0, 0.25);
   border-radius: 50%;
-  background: rgba(191, 255, 0, 0.05);
+  background: rgba(191, 255, 0, 0.03);
   animation: bounce-arrow 2s infinite;
+  filter: brightness(1.0) saturate(0.75);
 }
 
 @keyframes bounce-arrow {
@@ -249,7 +267,8 @@
   font-size: 22px;
   font-weight: 700;
   color: #BFFF00;
-  text-shadow: 0 0 8px rgba(191, 255, 0, 0.3);
+  text-shadow: 0 0 8px rgba(191, 255, 0, 0.15);
+  filter: brightness(0.95) saturate(0.85);
 }
 
 .match-venue {
@@ -281,6 +300,7 @@
   font-size: 16px;
   font-weight: 700;
   color: #BFFF00;
+  filter: brightness(0.95) saturate(0.85);
 }
 
 .stat-unit {
@@ -317,7 +337,8 @@
   color: #BFFF00;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  opacity: 0.9;
+  opacity: 0.75;
+  filter: brightness(0.95) saturate(0.80);
 }
 
 .team-toggle,
@@ -353,10 +374,11 @@
 
 .team-option.active,
 .tier-option.active {
-  background: rgba(191, 255, 0, 0.15);
+  background: rgba(191, 255, 0, 0.12);
   border-color: #BFFF00;
   color: #BFFF00;
-  box-shadow: 0 0 12px rgba(191, 255, 0, 0.2), inset 0 0 8px rgba(191, 255, 0, 0.1);
+  box-shadow: 0 0 8px rgba(191, 255, 0, 0.12), inset 0 0 6px rgba(191, 255, 0, 0.06);
+  filter: brightness(0.98) saturate(0.85);
 }
 
 .tier-icon {
@@ -395,12 +417,13 @@
   font-size: 10px;
   font-weight: 700;
   padding: 4px 8px;
-  background: rgba(191, 255, 0, 0.2);
+  background: rgba(191, 255, 0, 0.15);
   color: #BFFF00;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   animation: pulse-badge 2s infinite;
+  filter: brightness(0.95) saturate(0.85);
 }
 
 @keyframes pulse-badge {
@@ -531,6 +554,7 @@
   color: #BFFF00;
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  filter: brightness(0.95) saturate(0.85);
 }
 
 .signal-detail {
@@ -556,9 +580,10 @@
 .edge-team {
   font-weight: 600;
   padding: 4px 8px;
-  background: rgba(191, 255, 0, 0.1);
+  background: rgba(191, 255, 0, 0.08);
   border-radius: 4px;
   color: #BFFF00;
+  filter: brightness(0.95) saturate(0.80);
 }
 
 /* Pulsing Animation */
@@ -575,7 +600,8 @@
   background: #BFFF00;
   border-radius: 50%;
   animation: pulse-dot 2s infinite;
-  box-shadow: 0 0 6px rgba(191, 255, 0, 0.5);
+  box-shadow: 0 0 4px rgba(191, 255, 0, 0.3);
+  filter: brightness(0.92) saturate(0.80);
 }
 
 @keyframes pulse-dot {
