@@ -353,6 +353,7 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
   const [lastSyncAt, setLastSyncAt] = useState<string>('');
   const [revealedAnswers, setRevealedAnswers] = useState<Record<string, RevealedAnswer>>({});
   const [pollingActive, setPollingActive] = useState(false);
+  const [proofVerify, setProofVerify] = useState<{status: 'idle' | 'loading' | 'ok' | 'error'; data?: any; error?: string}>({status: 'idle'});
 
   const availableWallets = WALLETS.filter((item) => item.get());
 
@@ -627,6 +628,24 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
     setWallet('');
     setBalance(null);
     clearWalletSession();
+  };
+
+  const verifyProofLive = async (targetQuizId = quizId) => {
+    setProofVerify({status: 'loading'});
+    try {
+      const response = await fetch(`${API_URL}/api/predictions/${targetQuizId}/verify`);
+      const payload = await response.json();
+      if (!response.ok) {
+        const detail = payload?.detail;
+        const msg = typeof detail === 'string' ? detail : detail?.detail || detail?.error || 'Não foi possível conferir a prova ao vivo.';
+        setProofVerify({status: 'error', error: msg});
+        return;
+      }
+      setProofVerify({status: 'ok', data: payload});
+      haptic('success');
+    } catch (verifyError) {
+      setProofVerify({status: 'error', error: verifyError instanceof Error ? verifyError.message : 'Falha de rede ao conferir a prova.'});
+    }
   };
 
   const anchorProof = async (memoText: string) => {
@@ -1322,6 +1341,35 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
                   <small>VALIDAÇÃO</small>
                   <strong>{predictiveProgress.on_chain_validation?.method || 'pendente no snapshot atual'}</strong>
                 </p>
+              </div>
+
+              <div className="verify-block">
+                <p className="eyebrow" style={{marginBottom: 8}}>PROVA VERIFICÁVEL · TXODDS</p>
+                <p className="fine" style={{marginBottom: 12}}>
+                  Não confie — confira. Puxe a validation proof direto da TxLINE agora e veja os stats que resolveram seus chutes, com o merkle root que a Solana valida.
+                </p>
+                <button
+                  className="secondary"
+                  disabled={proofVerify.status === 'loading'}
+                  onClick={() => void verifyProofLive(quizId)}
+                >
+                  {proofVerify.status === 'loading' ? 'Conferindo na TxLINE…' : 'Verificar prova ao vivo'} <span>🔎</span>
+                </button>
+                {proofVerify.status === 'ok' && proofVerify.data && (
+                  <div className="verify-result">
+                    <p className="verify-live-tag">✓ Proof conferida ao vivo em {new URL(proofVerify.data.source).host}</p>
+                    <div className="verify-stats">
+                      {(proofVerify.data.stats_proven || []).map((s: any) => (
+                        <span key={s.key} className="verify-stat"><small>stat {s.key}</small><b>{s.value}</b></span>
+                      ))}
+                    </div>
+                    <p className="verify-row"><small>Merkle root (eventStatRoot)</small><strong className="wrap">{proofVerify.data.event_stat_root}</strong></p>
+                    <p className="verify-row"><small>Updates no proof</small><strong>{proofVerify.data.update_count}</strong></p>
+                    <p className="verify-row"><small>Verificação on-chain</small><strong>{proofVerify.data.on_chain_method}</strong></p>
+                    <a className="verify-source-link" href={proofVerify.data.proof_ref} target="_blank" rel="noreferrer">Abrir o endpoint da proof ↗</a>
+                  </div>
+                )}
+                {proofVerify.status === 'error' && <p className="error" style={{marginTop: 10}}>{proofVerify.error}</p>}
               </div>
 
               <div className="anchor-block">
