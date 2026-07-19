@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../icons';
-import { RealtimeDataStatus } from './RealtimeDataStatus';
 import type { Insights } from '../types';
 import {
   ShieldCheckered,
@@ -53,37 +52,6 @@ function CountryShield({ country }: { country: string }) {
     Spain: '⚔️',
   };
   return <span style={{ fontSize: '20px' }}>{shields[country] || '⚽'}</span>;
-}
-
-// Social proof avatars
-function SocialProofAvatars() {
-  const avatarEmojis = ['👤', '👨', '👩', '👨‍💼', '👩‍💼'];
-  return (
-    <div style={{ display: 'flex', gap: '-4px', alignItems: 'center' }}>
-      {avatarEmojis.slice(0, 3).map((emoji, i) => (
-        <span
-          key={i}
-          style={{
-            fontSize: '18px',
-            marginLeft: i > 0 ? '-8px' : '0',
-            background: 'rgba(191, 255, 0, 0.1)',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid rgba(191, 255, 0, 0.2)',
-          }}
-        >
-          {emoji}
-        </span>
-      ))}
-      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', marginLeft: '8px' }}>
-        +47 apostando
-      </span>
-    </div>
-  );
 }
 
 // Signal card with pulsing animation + trust signals
@@ -210,6 +178,11 @@ export function MatchFeedPulsing({
 }: MatchFeedPulsingProps) {
   const [showFeed, setShowFeed] = useState(true);
 
+  const argGoals = Number(insights.editorial?.match?.split(' - ')[0]) || 19;
+  const espGoals = Number(insights.editorial?.match?.split(' - ')[1]) || 13;
+  const goalsTotal = argGoals + espGoals || 1;
+  const argShare = Math.round((argGoals / goalsTotal) * 100);
+
   return (
     <section id="match-feed-pulsing" className="match-feed-container">
       {/* ========== HEADER: Premium Match Overview ========== */}
@@ -226,9 +199,9 @@ export function MatchFeedPulsing({
 
             <div className="score-center">
               <div className="match-score">
-                <span className="score-left">{insights.editorial?.match?.split(' - ')[0] || '19'}</span>
+                <span className="score-left">{argGoals}</span>
                 <span className="score-separator">×</span>
-                <span className="score-right">{insights.editorial?.match?.split(' - ')[1] || '13'}</span>
+                <span className="score-right">{espGoals}</span>
               </div>
               <div className="match-label">{insights.editorial?.venue || 'Copa 2026'}</div>
             </div>
@@ -246,18 +219,18 @@ export function MatchFeedPulsing({
             <div className="goals-label">GOLS REGISTRADOS</div>
             <div className="progress-bar-container">
               <div className="progress-track">
-                <div className="progress-fill-arg" style={{ width: '59%' }}></div>
-                <div className="progress-fill-esp" style={{ width: '41%' }}></div>
+                <div className="progress-fill-arg" style={{ width: `${argShare}%` }}></div>
+                <div className="progress-fill-esp" style={{ width: `${100 - argShare}%` }}></div>
               </div>
             </div>
             <div className="goals-counter">
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <span className="goals-arg">19</span>
-                <span style={{ fontSize: '12px', color: 'var(--argentina-primary)' }}>⭐⭐⭐</span>
+                <span className="goals-arg">{argGoals}</span>
+                <span style={{ fontSize: '12px', color: 'var(--argentina-primary)' }}>{renderGoalStars(argGoals, 'arg')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <span className="goals-esp">13</span>
-                <span style={{ fontSize: '12px', color: 'var(--spain-primary)' }}>⭐⭐</span>
+                <span className="goals-esp">{espGoals}</span>
+                <span style={{ fontSize: '12px', color: 'var(--spain-primary)' }}>{renderGoalStars(espGoals, 'esp')}</span>
               </div>
             </div>
           </div>
@@ -271,12 +244,6 @@ export function MatchFeedPulsing({
 
         </div>
       </div>
-
-      {/* ========== REALTIME DATA STATUS ========== */}
-      <RealtimeDataStatus
-        isConnected={true}
-        lastUpdated={new Date()}
-      />
 
       {/* ========== CONTROLS: Team & Tier ========== */}
       <div className="feed-controls">
@@ -333,63 +300,17 @@ export function MatchFeedPulsing({
           <span className="feed-badge">ao vivo</span>
         </div>
 
-        {/* Social Proof Banner */}
-        <div style={{
-          background: 'rgba(191, 255, 0, 0.05)',
-          border: '1px solid rgba(191, 255, 0, 0.15)',
-          borderRadius: '8px',
-          padding: '12px',
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
-            <strong>Comunidade Ativa</strong> — 127 usuários acompanhando
-          </div>
-          <SocialProofAvatars />
-        </div>
-
         {showFeed && insights.editorial?.reading && (
           <div className="signals-feed">
-            {insights.editorial.reading.slice(0, 5).map((signal: any, index: number) => {
-              // Authority data: real player names per signal type
-              const playersBySignal: Record<string, string[]> = {
-                'ATAQUE': ['Álvarez', 'Morata', 'Gvardiol'],
-                'DEFESA': ['Otamendi', 'Nacho Fernández', 'Romero'],
-                'CRAQUE': ['Yamal', 'Messi', 'Gavi'],
-                'MEIO-CAMPO': ['Rodri', 'De Paul', 'Busquets'],
-                'MOMENTUM': ['Vini Jr', 'Pedri', 'Álvarez'],
-                'POSSESSÃO': ['Pedri', 'Enzo', 'Gavi'],
-                'FINALIZAÇÕES': ['Morata', 'Álvarez', 'Torres'],
-                'MERCADOS': ['Analista', 'Dados', 'API']
-              };
-
-              const player = playersBySignal[signal.signal]?.[index % 3] || 'Sistema';
-              const metrics: Record<string, string> = {
-                'ATAQUE': '19 gols marcados',
-                'DEFESA': '3 interceptações',
-                'CRAQUE': '2 assistências',
-                'MEIO-CAMPO': '87% posse',
-                'MOMENTUM': '5 dribles bem-sucedidos',
-                'POSSESSÃO': '62% controle',
-                'FINALIZAÇÕES': '7 chutes no alvo',
-                'MERCADOS': '1.95 odds médias'
-              };
-
-              return (
-                <SignalCard
-                  key={`${signal.signal}-${index}`}
-                  signal={signal.signal}
-                  detail={signal.detail}
-                  edge={signal.edge}
-                  index={index}
-                  player={player}
-                  metric={metrics[signal.signal]}
-                  timestamp="há 2 min"
-                />
-              );
-            })}
+            {insights.editorial.reading.slice(0, 5).map((signal: any, index: number) => (
+              <SignalCard
+                key={`${signal.signal}-${index}`}
+                signal={signal.signal}
+                detail={signal.detail}
+                edge={signal.edge}
+                index={index}
+              />
+            ))}
           </div>
         )}
 
@@ -424,10 +345,6 @@ export function MatchFeedPulsing({
                       <span className="icon">🎯</span>
                       <span>{player.assists}</span>
                     </div>
-                    <div className="stat" title="Acurácia de passe">
-                      <span className="icon">📊</span>
-                      <span>89%</span>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -448,22 +365,8 @@ export function MatchFeedPulsing({
           <span className="btn-text">{loading ? 'Carregando…' : 'Fazer meu chute'}</span>
         </button>
         <p className="btn-subtext">
-          ✓ Dados verificados · 5 perguntas · ~2 min · Resultado na Solana · {getTimestamp()}
+          5 perguntas preditivas · ~2 min · resultado confirmado ao vivo via TxLINE · prova na Solana
         </p>
-        <div style={{
-          fontSize: '11px',
-          color: 'rgba(255,255,255,0.5)',
-          display: 'flex',
-          gap: '16px',
-          justifyContent: 'center',
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid rgba(191, 255, 0, 0.1)'
-        }}>
-          <span>📊 127 apostadores ativos</span>
-          <span>🔒 Blockchain verificado</span>
-          <span>⏱️ Taxa: 0.5%</span>
-        </div>
       </div>
     </section>
   );

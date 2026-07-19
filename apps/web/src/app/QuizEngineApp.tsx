@@ -1126,7 +1126,7 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
                         <div style={{padding: '1rem'}}>
                           <strong>{String(answer)}</strong>
                           <div className={`reveal-badge ${revealedAnswers[question.id].correct ? 'correct' : 'incorrect'}`}>
-                            {revealedAnswers[question.id].correct ? '✓ ACERTOU' : '✗ ERROU'}
+                            {revealedAnswers[question.id].correct ? '● BATEU' : 'AINDA NÃO'}
                           </div>
                           <small style={{display: 'block', marginTop: '0.5rem'}}>Resposta: {String(revealedAnswers[question.id].actual)}</small>
                         </div>

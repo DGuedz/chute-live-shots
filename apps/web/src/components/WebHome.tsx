@@ -38,6 +38,11 @@ const COPY={
     ctaQuiz:'Fazer meu chute',ctaStart:'Começar meu chute',ctaLoading:'Abrindo…',
     mediaLabel:'Role para explorar',
     tickerEditorial:'HISTÓRICO DA COPA',tickerLive:'AO VIVO · TXLINE',
+    howStripKicker:'COMO FUNCIONA',
+    howStripH2a:'Três passos,',howStripH2b:'sem mistério.',
+    flow1T:'Leia o jogo',flow1P:'Histórico da Copa + sinais SL12 ao vivo (TxLINE) viram o contexto de cada pergunta.',
+    flow2T:'Preveja, não replay',flow2P:'5 perguntas rápidas sobre o que ainda vai acontecer na Argentina × Espanha — não sobre o que já rolou.',
+    flow3T:'Acompanhe e prove',flow3P:'Conecte a carteira, veja cada chute confirmar ao vivo no recibo enquanto assiste o jogo, e carimbe tudo on-chain na Solana.',
     marketKicker:'DO PALPITE AO RECIBO',
     marketH2a:'Um bolão que começa',marketH2b:'na sua leitura de jogo.',
     marketP:'A tecnologia fica por trás. Na frente, você só precisa entender de bola.',
@@ -65,10 +70,10 @@ const COPY={
     howKicker:'SIMPLES PARA O TORCEDOR',
     howH2a:'Do primeiro chute',howH2b:'à prova da rodada.',
     step1T:'Conecte',step1P:'Phantom, Solflare ou Backpack. Um toque.',
-    step2T:'Palpite',step2P:'Uma pergunta destrava a próxima.',
+    step2T:'Palpite',step2P:'Você prevê o que ainda vai rolar — não o que já rolou.',
     step3T:'Acompanhe',step3P:'O jogo real responde seus chutes em tempo real.',
     step4T:'Comprove',step4P:'Seu placar vira um recibo digital seu.',
-    receiptTitle:'CHUTE / RECIBO',receiptConfirmed:'4 de 5 palpites confirmados',
+    receiptTitle:'CHUTE / RECIBO',receiptConfirmed:'5 palpites registrados · aguardando a bola rolar',
     receiptWallet:'Carteira',receiptWalletOff:'não conectada',receiptSnapshot:'Resultado',receiptWaiting:'aguardando o jogo',receiptNetwork:'Rede',
     receiptCta:'Ver meus recibos',
     receiptNote:'Prévia visual. Sem premiação ou emissão real nesta etapa.',
@@ -88,6 +93,11 @@ const COPY={
     ctaQuiz:'Take my CHUTE',ctaStart:'Start my CHUTE',ctaLoading:'Opening…',
     mediaLabel:'Scroll to explore',
     tickerEditorial:'WORLD CUP HISTORY',tickerLive:'LIVE · TXLINE',
+    howStripKicker:'HOW IT WORKS',
+    howStripH2a:'Three steps,',howStripH2b:'no mystery.',
+    flow1T:'Read the game',flow1P:'World Cup history + live SL12 signals (TxLINE) become the context behind every question.',
+    flow2T:'Predict, don’t replay',flow2P:'5 quick calls on what’s still going to happen in Argentina × Spain — not what already did.',
+    flow3T:'Follow and prove it',flow3P:'Connect your wallet, watch each call confirm live on the receipt while you watch the match, and stamp it all on-chain on Solana.',
     marketKicker:'FROM CALL TO RECEIPT',
     marketH2a:'A pool that starts',marketH2b:'with how you read the game.',
     marketP:'The tech stays in the back. Up front, you just need to know football.',
@@ -115,10 +125,10 @@ const COPY={
     howKicker:'SIMPLE FOR THE FAN',
     howH2a:'From your first CHUTE',howH2b:'to the round’s proof.',
     step1T:'Connect',step1P:'Phantom, Solflare or Backpack. One tap.',
-    step2T:'Call it',step2P:'Each answer unlocks the next question.',
+    step2T:'Call it',step2P:'You predict what’s still going to happen — not what already did.',
     step3T:'Follow',step3P:'The real match answers your calls in real time.',
     step4T:'Prove it',step4P:'Your score becomes a digital receipt of yours.',
-    receiptTitle:'CHUTE / RECEIPT',receiptConfirmed:'4 of 5 calls confirmed',
+    receiptTitle:'CHUTE / RECEIPT',receiptConfirmed:'5 calls locked in · waiting for kickoff',
     receiptWallet:'Wallet',receiptWalletOff:'not connected',receiptSnapshot:'Result',receiptWaiting:'waiting for the match',receiptNetwork:'Network',
     receiptCta:'See my receipts',
     receiptNote:'Visual preview. No prizes or real issuance at this stage.',
@@ -538,6 +548,15 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
         </div>
       </div>
     </aside>
+
+    <section className="web-fold how-strip-fold" id="fluxo">
+      <div className="fold-heading compact"><span className="web-kicker">{t.howStripKicker}</span><h2>{t.howStripH2a}<br/><em>{t.howStripH2b}</em></h2></div>
+      <div className="market-grid">
+        <article><span className="card-number">01</span><ChartLineUp size={30}/><h3>{t.flow1T}</h3><p>{t.flow1P}</p></article>
+        <article><span className="card-number">02</span><SoccerBall size={30}/><h3>{t.flow2T}</h3><p>{t.flow2P}</p></article>
+        <article className="accent-card"><span className="card-number">03</span><ShieldCheck size={30}/><h3>{t.flow3T}</h3><p>{t.flow3P}</p></article>
+      </div>
+    </section>
 
     <section className="web-fold market-fold" id="mercado" ref={(el)=>{if(el){market.sectionRef.current=el; marketSectionRef.current=el;}}}>
       <div className="fold-heading" ref={marketHeadingRef}><span className="web-kicker">{t.marketKicker}</span><h2>{t.marketH2a}<br/><em>{t.marketH2b}</em></h2><p>{t.marketP}</p></div>

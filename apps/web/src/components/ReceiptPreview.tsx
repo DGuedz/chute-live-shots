@@ -20,12 +20,13 @@ type ReceiptPreviewProps = {
 export function ReceiptPreview({network, wallet, onViewReceipts, t}: ReceiptPreviewProps) {
   const shortWallet = wallet ? `${wallet.slice(0, 4)}…${wallet.slice(-4)}` : t.receiptWalletOff;
 
-  // Mock chutes para demonstração
+  // Prévia ilustrativa: todos os chutes começam pendentes — o placar real só existe
+  // depois que o jogo confirma cada previsão via sinal ao vivo (ver tela de resultado real).
   const chutes = [
-    {id: 1, status: 'confirmed', label: 'Chute 1'},
-    {id: 2, status: 'confirmed', label: 'Chute 2'},
-    {id: 3, status: 'confirmed', label: 'Chute 3'},
-    {id: 4, status: 'confirmed', label: 'Chute 4'},
+    {id: 1, status: 'pending', label: 'Chute 1'},
+    {id: 2, status: 'pending', label: 'Chute 2'},
+    {id: 3, status: 'pending', label: 'Chute 3'},
+    {id: 4, status: 'pending', label: 'Chute 4'},
     {id: 5, status: 'pending', label: 'Chute 5'},
   ];
 
@@ -38,7 +39,7 @@ export function ReceiptPreview({network, wallet, onViewReceipts, t}: ReceiptPrev
 
       <div className="receipt-score">
         <small>ARGENTINA × ESPAÑA</small>
-        <strong>420 <span>PTS</span></strong>
+        <strong>— <span>PTS</span></strong>
         <p>{t.receiptConfirmed}</p>
       </div>
 
