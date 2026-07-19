@@ -649,3 +649,101 @@
     background: linear-gradient(135deg, rgba(191, 255, 0, 0.03) 0%, rgba(191, 255, 0, 0.005) 100%);
   }
 }
+
+/* ========== TRUST SIGNALS & AUTHORITY BADGES ========== */
+
+.trust-banner {
+  background: rgba(191, 255, 0, 0.05);
+  border: 1px solid rgba(191, 255, 0, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trust-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.trust-text strong {
+  color: #BFFF00;
+  font-weight: 600;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(191, 255, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.verified-badge::before {
+  content: '✓';
+  color: #BFFF00;
+  font-weight: 700;
+}
+
+/* Player ranking badge */
+.player-rank {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 4px;
+  color: #BFFF00;
+}
+
+/* Timestamp indicator */
+.timestamp-indicator {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timestamp-indicator::before {
+  content: '⏰';
+  font-size: 11px;
+}
+
+/* Metric precision (numbers that build trust) */
+.metric-precision {
+  font-size: 12px;
+  color: #BFFF00;
+  font-weight: 500;
+  padding: 4px 0;
+}
+
+/* Footer trust indicators */
+.footer-trust-row {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(191, 255, 0, 0.1);
+}
+
+.footer-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Authority labels */
+.authority-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 8px;
+  display: block;
+  padding-top: 2px;
+}
