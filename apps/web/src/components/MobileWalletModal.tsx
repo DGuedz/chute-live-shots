@@ -4,11 +4,14 @@ import {QRCodeSVG} from 'qrcode.react';
 type MobileWalletModalProps={
   onClose:()=>void;
   targetPath?: string;
+  returnTo?: string;
   network?: 'devnet'|'mainnet';
 };
 
-export function MobileWalletModal({onClose,targetPath='/setup',network='mainnet'}:MobileWalletModalProps){
-  const appUrl=new URL(targetPath,`${APP_ENV.publicAppUrl}/`);
+export function MobileWalletModal({onClose,targetPath='/setup',returnTo,network='mainnet'}:MobileWalletModalProps){
+  // Se há um retorno esperado (quiz, result), incluir na URL para o app recuperar depois
+  const setupUrl = returnTo ? `${targetPath}?return=${encodeURIComponent(returnTo)}` : targetPath;
+  const appUrl=new URL(setupUrl,`${APP_ENV.publicAppUrl}/`);
   const phantomUrl=`https://phantom.app/ul/browse/${encodeURIComponent(appUrl.toString())}?ref=${encodeURIComponent(window.location.origin)}`;
   return <div className="mobile-wallet-backdrop" role="presentation" onClick={onClose}>
     <section className="mobile-wallet-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-wallet-title" onClick={event=>event.stopPropagation()}>

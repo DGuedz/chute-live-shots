@@ -867,6 +867,27 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
 
   const shortWallet = shortWalletLabel(wallet);
 
+  // Recuperar URL de retorno da query string (vem do QR code)
+  const returnFromSetup = (() => {
+    if (typeof window !== 'undefined' && route.kind === 'setup') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('return');
+    }
+    return null;
+  })();
+
+  // Redirecionar para retorno se wallet foi conectada e há um retorno pendente
+  useEffect(() => {
+    if (returnFromSetup && wallet && route.kind === 'setup') {
+      try {
+        const returnRoute = JSON.parse(decodeURIComponent(returnFromSetup));
+        window.setTimeout(() => navigate(returnRoute, {replace: true}), 500);
+      } catch {
+        // Falhou ao decodificar, ignorar
+      }
+    }
+  }, [wallet, returnFromSetup, route.kind, navigate]);
+
   if (route.kind === 'icons') {
     return (
       <main className="screen-in">
@@ -875,11 +896,23 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
     );
   }
 
+  // Calcular URL de retorno quando abre o modal
+  const computeReturnUrl = (): string | undefined => {
+    if (route.kind === 'quiz') {
+      return encodeURIComponent(JSON.stringify({kind: 'quiz', quizId}));
+    }
+    if (route.kind === 'result') {
+      return encodeURIComponent(JSON.stringify({kind: 'result', quizId}));
+    }
+    return undefined;
+  };
+
   return (
     <main className="screen-in web-app">
       {mobileWalletOpen && (
         <MobileWalletModal
           targetPath={routeToHref(setupRoute())}
+          returnTo={computeReturnUrl()}
           network={network}
           onClose={() => {
             setMobileWalletOpen(false);
