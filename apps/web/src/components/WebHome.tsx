@@ -225,6 +225,56 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
     return()=>{cancelled=true};
   },[]);
 
+  // Market cards: cada card entra sequencialmente com scroll, girando verde um por um
+  useEffect(()=>{
+    if(!market.sectionRef.current) return;
+    const ctx=gsap.context(()=>{
+      const cards=marketCardRefs.current.filter((c)=>c);
+      if(cards.length===0) return;
+
+      cards.forEach((card,idx)=>{
+        const startDelay=idx*0.15;
+        gsap.fromTo(
+          card,
+          {opacity:0,y:16,scale:0.94},
+          {
+            opacity:1,
+            y:0,
+            scale:1,
+            duration:0.7,
+            ease:'power2.out',
+            delay:startDelay,
+            scrollTrigger:{
+              trigger:market.sectionRef.current,
+              start:'top 70%',
+              end:'top 30%',
+              scrub:0.5,
+              markers:false,
+            },
+          }
+        );
+
+        // Animação da cor/accent: anima a cor de fundo levemente
+        if(idx<2){
+          gsap.to(card,{
+            '--accent-glow':1,
+            duration:0.8,
+            ease:'power2.out',
+            delay:startDelay+0.2,
+            scrollTrigger:{
+              trigger:market.sectionRef.current,
+              start:'top 60%',
+              end:'top 20%',
+              scrub:0.5,
+            },
+          } as any);
+        }
+      });
+    },market.sectionRef);
+
+    return()=>ctx.revert();
+  },[]);
+
   // Ticker: ativa com scroll, mostrando partidas/dados reais em movimento
   useEffect(()=>{
     if(!tickerRef.current) return;
