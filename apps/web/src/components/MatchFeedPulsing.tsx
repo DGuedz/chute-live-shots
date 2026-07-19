@@ -10,6 +10,7 @@ import {
   ArrowsClockwise,
   Crosshair,
   CaretDown,
+  Brain,
 } from '@phosphor-icons/react';
 
 interface MatchFeedPulsingProps {
@@ -162,6 +163,10 @@ export function MatchFeedPulsing({
   const espGoals = Number(insights.editorial?.match?.split(' - ')[1]) || 13;
   const goalsTotal = argGoals + espGoals || 1;
   const argShare = Math.round((argGoals / goalsTotal) * 100);
+  // Único sinal com leitura de mercado já vem pronto do editorial curado (nunca calculado no cliente).
+  const marketSignal = (insights.editorial?.reading || []).find(
+    (item: any) => typeof item?.signal === 'string' && item.signal.toLowerCase().includes('mercado'),
+  );
 
   return (
     <section id="match-feed-pulsing" className="match-feed-container">
@@ -225,6 +230,19 @@ export function MatchFeedPulsing({
         </div>
       </div>
 
+      {/* ========== INSIGHT PREDITIVO: leitura real do mercado, sem número inventado ========== */}
+      {marketSignal && (
+        <div className="market-insight">
+          <div className="market-insight-icon">
+            <Brain size={26} weight="fill" />
+          </div>
+          <div className="market-insight-body">
+            <span className="market-insight-kicker">Insight preditivo</span>
+            <p>{marketSignal.detail}</p>
+          </div>
+        </div>
+      )}
+
       {/* ========== CONTROLS: Team & Tier ========== */}
       <div className="feed-controls">
         {/* Step 1: Team */}
@@ -282,15 +300,18 @@ export function MatchFeedPulsing({
 
         {showFeed && insights.editorial?.reading && (
           <div className="signals-feed">
-            {insights.editorial.reading.slice(0, 5).map((signal: any, index: number) => (
-              <SignalCard
-                key={`${signal.signal}-${index}`}
-                signal={signal.signal}
-                detail={signal.detail}
-                edge={signal.edge}
-                index={index}
-              />
-            ))}
+            {insights.editorial.reading
+              .filter((signal: any) => signal !== marketSignal)
+              .slice(0, 5)
+              .map((signal: any, index: number) => (
+                <SignalCard
+                  key={`${signal.signal}-${index}`}
+                  signal={signal.signal}
+                  detail={signal.detail}
+                  edge={signal.edge}
+                  index={index}
+                />
+              ))}
           </div>
         )}
 
