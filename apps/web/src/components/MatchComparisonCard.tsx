@@ -1,5 +1,10 @@
 import {TrendUp} from '@phosphor-icons/react';
 import {motion} from 'motion/react';
+import {useEffect, useRef} from 'react';
+import gsap from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 type MatchComparisonCardProps={
   className?: string;
@@ -19,7 +24,44 @@ const rowMotion={
 };
 
 export function MatchComparisonCard({className='',activeIndex}:MatchComparisonCardProps){
-  return <div className={`comparison-card ${className}`.trim()}>
+  const containerRef=useRef<HTMLDivElement|null>(null);
+
+  useEffect(()=>{
+    if(!containerRef.current) return;
+    const ctx=gsap.context(()=>{
+      const metrics=containerRef.current?.querySelectorAll('.metric');
+      if(!metrics || metrics.length===0) return;
+
+      // Animar cada barra de métrica conforme o scroll passa por ela
+      metrics.forEach((metric,idx)=>{
+        const bars=metric.querySelectorAll('.metric-bar-left, .metric-bar-right');
+        if(bars.length===0) return;
+
+        gsap.fromTo(
+          bars,
+          {scaleX:0,opacity:.35},
+          {
+            scaleX:1,
+            opacity:1,
+            duration:.6,
+            ease:'power2.out',
+            scrollTrigger:{
+              trigger:metric,
+              start:'top 70%',
+              end:'top 20%',
+              scrub:.5,
+              markers:false,
+            },
+            stagger:.08,
+          }
+        );
+      });
+    },containerRef);
+
+    return ()=>ctx.revert();
+  },[]);
+
+  return <div ref={containerRef} className={`comparison-card ${className}`.trim()}>
     <motion.div
       className="team-head"
       variants={rowMotion}
