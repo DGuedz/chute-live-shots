@@ -579,6 +579,92 @@ def predictive_quiz_progress(quiz_id: str, participant_id: str = "demo-telegram-
         raise HTTPException(409, {"error": str(exc), "quiz_id": quiz_id}) from exc
 
 
+def _txline_credentials_for(proof_ref: str, network: str | None) -> tuple[str, str | None]:
+    """Pick the origin + API token that match the proof's own network.
+
+    The proof_ref URL is authoritative for the host (devnet vs mainnet), so we always fetch
+    the guest JWT from the same origin the proof lives on — otherwise a mainnet token can't
+    authenticate a devnet proof (and vice-versa). Mainnet uses the env token (set in prod);
+    devnet falls back to the persisted subscribe token."""
+    from urllib.parse import urlsplit
+    parts = urlsplit(proof_ref)
+    origin = f"{parts.scheme}://{parts.netloc}" if parts.scheme and parts.netloc else os.getenv("TXLINE_API_ORIGIN", "https://txline-dev.txodds.com")
+    is_mainnet = network == "mainnet" or "txline.txodds.com" in origin
+    if is_mainnet:
+        token = os.getenv("TXLINE_API_TOKEN") or get_state("txline_api_token")
+    else:
+        token = get_state("txline_api_token") or os.getenv("TXLINE_API_TOKEN")
+    return origin, token
+
+
+@app.get("/api/predictions/{quiz_id}/verify")
+def predictive_quiz_verify(quiz_id: str) -> dict:
+    """Verify-not-trust: fetch the TxLINE validation proof LIVE from source, right now.
+
+    This is the settlement-audit primitive: the same stat-validation proof (merkle root +
+    inclusion proofs) that `validateStatV2` checks on-chain, pulled straight from TxLINE so a
+    reviewer can confirm the market resolution is auditable and not fabricated by us. Fail-closed:
+    if the proof can't be fetched live, we say so — never a fake OK.
+    """
+    fixture_id, _team, _tier = _parse_predictive_quiz_id(quiz_id)
+    resolved_fixture = snapshot_builder.resolve_predictive_fixture_id(fixture_id)
+    snapshot_row = latest_snapshot(resolved_fixture)
+    if not snapshot_row:
+        raise HTTPException(409, {"error": "SNAPSHOT_UNAVAILABLE", "quiz_id": quiz_id, "detail": "Fixture sem snapshot TxLINE para verificar."})
+
+    proof_refs = snapshot_row.get("proof_refs") or []
+    proof_ref = proof_refs[0] if proof_refs else None
+    if not proof_ref:
+        raise HTTPException(409, {"error": "PROOF_REF_MISSING", "quiz_id": quiz_id, "detail": "Snapshot não carrega proof_ref TxLINE."})
+
+    origin, api_token = _txline_credentials_for(proof_ref, snapshot_row.get("network"))
+    if not api_token:
+        raise HTTPException(409, {"error": "TXLINE_API_TOKEN_INACTIVE", "quiz_id": quiz_id, "detail": "Assinatura TxLINE não ativada neste ambiente — proof não pode ser conferida ao vivo."})
+
+    try:
+        guest = httpx.post(f"{origin}/auth/guest/start", timeout=15)
+        guest.raise_for_status()
+        jwt = guest.json().get("token")
+        if not jwt:
+            raise RuntimeError("TXLINE_GUEST_TOKEN_MISSING")
+        headers = {"Authorization": f"Bearer {jwt}", "X-Api-Token": api_token, "Accept": "application/json"}
+        proof_resp = httpx.get(proof_ref, headers=headers, timeout=20)
+    except Exception as exc:
+        raise HTTPException(502, {"error": "TXLINE_PROOF_FETCH_FAILED", "quiz_id": quiz_id, "detail": str(exc)}) from exc
+
+    if proof_resp.status_code >= 400:
+        raise HTTPException(502, {"error": "TXLINE_PROOF_REJECTED", "status": proof_resp.status_code, "detail": proof_resp.text[:300]})
+
+    proof = proof_resp.json()
+
+    def _root_hex(value: Any) -> str | None:
+        if isinstance(value, list) and all(isinstance(b, int) for b in value):
+            return "0x" + bytes(value).hex()
+        return None
+
+    summary = proof.get("summary") if isinstance(proof, dict) else {}
+    update_stats = summary.get("updateStats") if isinstance(summary, dict) else {}
+    network = snapshot_row.get("network")
+    return {
+        "ok": True,
+        "quiz_id": quiz_id,
+        "verified_live": True,
+        "source": origin,
+        "proof_ref": proof_ref,
+        "snapshot_id": snapshot_row.get("snapshot_id"),
+        "content_hash": snapshot_row.get("content_hash"),
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "network": network,
+        "sl_level": "SL12" if network == "mainnet" else "SL1",
+        "stats_proven": proof.get("statsToProve") if isinstance(proof, dict) else None,
+        "event_stat_root": _root_hex(proof.get("eventStatRoot")) if isinstance(proof, dict) else None,
+        "sub_tree_root": _root_hex((summary or {}).get("eventStatsSubTreeRoot")),
+        "target_timestamp": proof.get("ts") if isinstance(proof, dict) else None,
+        "update_count": update_stats.get("updateCount") if isinstance(update_stats, dict) else None,
+        "on_chain_method": "validateStatV2.view",
+    }
+
+
 def _quiz_for_fixture(fixture_id: str, tier: str = "gols") -> tuple[dict, dict]:
     """Resolve a fixture to its (envelope, quiz) for a tier. Fail-closed on missing/unplayable data."""
     resolved = snapshot_builder.resolve_fixture_id(fixture_id)

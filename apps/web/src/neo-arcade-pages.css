@@ -997,6 +997,62 @@
   color: var(--neo-lime);
 }
 
+/* Verify-not-trust: live TxLINE proof fetch on the result screen */
+.verify-block {
+  padding: 16px;
+  background: var(--neo-bg-card);
+  border: 1px solid rgba(191, 255, 0, 0.28);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+.verify-result {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(191, 255, 0, 0.16);
+}
+.verify-live-tag {
+  color: var(--neo-neon-green);
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.verify-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.verify-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 58px;
+  padding: 8px 10px;
+  background: rgba(191, 255, 0, 0.06);
+  border: 1px solid rgba(191, 255, 0, 0.16);
+  border-radius: 6px;
+}
+.verify-stat small { color: var(--neo-text-muted); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; }
+.verify-stat b { color: var(--neo-neon-green); font-size: 20px; font-family: 'Barlow Condensed', sans-serif; }
+.verify-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 8px 0;
+  font-size: 11px;
+}
+.verify-row small { color: var(--neo-text-muted); white-space: nowrap; }
+.verify-row strong { text-align: right; }
+.verify-row strong.wrap { word-break: break-all; font-family: monospace; font-size: 10px; }
+.verify-source-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--neo-neon-green);
+  font-size: 11px;
+  text-decoration: none;
+}
+.verify-source-link:hover { text-decoration: underline; }
+
 /* ============================================================================
    WALLET & MISC
    ============================================================================ */
