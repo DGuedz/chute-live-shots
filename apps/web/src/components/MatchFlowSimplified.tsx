@@ -52,14 +52,14 @@ export function MatchFlowSimplified({
         {/* Quick Stats */}
         {insights.tournament?.team_stats && (
           <div className="quick-stats">
-            {insights.tournament.team_stats.slice(0, 2).map((stat) => (
+            {insights.tournament.team_stats.slice(0, 2).map((stat: any) => (
               <div key={stat.team} className="stat-mini">
                 <strong>{stat.goals}</strong>
                 <span className="stat-label">gols</span>
               </div>
             ))}
             <div className="stat-divider">vs</div>
-            {insights.tournament.team_stats.slice(2, 4).map((stat) => (
+            {insights.tournament.team_stats.slice(2, 4).map((stat: any) => (
               <div key={stat.team} className="stat-mini">
                 <strong>{stat.goals}</strong>
                 <span className="stat-label">gols</span>
@@ -85,7 +85,7 @@ export function MatchFlowSimplified({
               <div>
                 <p className="eyebrow-small">SINAIS DA PARTIDA</p>
                 <div className="signal-list-mini">
-                  {insights.editorial.reading.slice(0, 3).map((reading) => (
+                  {insights.editorial.reading.slice(0, 3).map((reading: any) => (
                     <div key={reading.signal} className="signal-mini">
                       <span className="signal-icon">
                         <Icon name="zap" size={14} />
@@ -130,7 +130,7 @@ export function MatchFlowSimplified({
       <div className="flow-card tier-choice">
         <p className="eyebrow">2. ESCOLHA O QUE PALPITAR</p>
         <div className="tier-selector-flow">
-          {(insights.tiers || []).map((tier) => {
+          {(insights.tiers || []).map((tier: any) => {
             const tierNames: Record<string, { label: string; emoji: string; desc: string }> =
               {
                 gols: { label: '⚽ Gols', emoji: '⚽', desc: 'Quantos gols marcará?' },
