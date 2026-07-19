@@ -30,6 +30,8 @@ import {
   type AppRoute,
 } from '../router';
 import {subscribeTxlineFreeTier} from '../txline/subscribe';
+import {MatchFeedPulsing} from '../components/MatchFeedPulsing';
+import '../styles/match-feed-pulsing.css';
 
 // Retry com exponential backoff (1s, 2s, 4s)
 const retryAsync = async <T,>(
@@ -997,156 +999,26 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
       )}
 
       {route.kind === 'match' && insights && (
-        <section id="app-content" className="team-ambient">
+        <section id="app-content">
           <a className="back" href={routeToHref(homeRoute())} onClick={navigateToHome}>
             ← Início
           </a>
-          <p className="eyebrow">PRÉ-JOGO · LEITURA TXODDS</p>
-          <div className="fixture-date">
-            {insights.editorial ? insights.editorial.venue : `Partida ${insights.fixture_id}`}
-          </div>
-
-          {insights.editorial && (
-            <>
-              <h2 className="reading-title">{insights.editorial.match}</h2>
-              <div className="reading-path">
-                {Object.entries(insights.editorial.path).map(([team, path]) => (
-                  <span key={team} style={{display: 'inline-flex', alignItems: 'center', gap: 6}}>
-                    <TeamMark team={team} /> {path}
-                  </span>
-                ))}
-              </div>
-              <p className="eyebrow" style={{marginTop: 12}}>
-                SINAIS DA PARTIDA · TXODDS
-              </p>
-              <div className="signal-list">
-                {insights.editorial.reading.map((reading) => {
-                  const homeTeam = Object.keys(insights.editorial?.path || {})[0];
-                  const edgeClass =
-                    reading.edge === 'equilíbrio' ? '' : reading.edge === homeTeam || reading.edge === 'Spain' ? ' edge-home' : ' edge-away';
-                  return (
-                    <div className="signal-card" key={reading.signal}>
-                      <div className="signal-side">
-                        <span className="signal-name" style={{display: 'inline-flex', alignItems: 'center', gap: 6}}>
-                          <Icon name={signalIconName(reading.signal)} size={16} color="lime" />
-                          {reading.signal}
-                        </span>
-                        <span className={`edge-chip${edgeClass} ${teamBrandClass(reading.edge)}`} style={{display: 'inline-flex', alignItems: 'center', gap: 6}}>
-                          {reading.edge === 'equilíbrio' ? (
-                            'EQUILÍBRIO'
-                          ) : (
-                            <>
-                              <TeamMark team={reading.edge} size={16} /> {teamLabel(reading.edge).toUpperCase()}
-                            </>
-                          )}
-                        </span>
-                      </div>
-                      <span className="signal-detail">{reading.detail}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {insights.tournament && (
-            <>
-              <p className="eyebrow" style={{marginTop: 12}}>
-                NÚMEROS DO TORNEIO · TXODDS
-              </p>
-              <div className="team-strip">
-                {insights.tournament.team_stats.slice(0, 5).map((item) => (
-                  <div className="stat-card" key={item.team}>
-                    <small style={{display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'center'}}>
-                      <TeamMark team={item.team} size={16} /> {item.team.toUpperCase()}
-                    </small>
-                    <strong>
-                      {item.goals} gols
-                      {item.xg ? ` · ${item.xg} xG` : ''}
-                    </strong>
-                    <span>
-                      {item.shots ? `${item.shots} finalizações` : ''}
-                      {item.clean_sheets ? ` · ${item.clean_sheets} CS` : ''}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="player-list">
-                {insights.tournament.player_stats.slice(0, 3).map((item) => (
-                  <div className="player-row" key={item.player}>
-                    <strong>{item.player}</strong>
-                    <span>
-                      {item.team} · {item.goals} gols · {item.assists} assist.
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {insights.disclaimer && insights.data_status === 'editorial_curated' && (
-            <div className="disclaimer">
-              <span>⚠</span>
-              <span>{insights.disclaimer}</span>
-            </div>
-          )}
-
-          <p className="eyebrow" style={{marginTop: 16}}>
-            ESCOLHA A EQUIPE
-          </p>
-          <div className="team-selector">
-            <button
-              className={`team-button brand-arg${selectedTeam === 'Argentina' ? ' selected' : ''}`}
-              onClick={() => {
-                setSelectedTeam('Argentina');
-                haptic('selection');
-              }}
-              disabled={loading}
-            >
-              <TeamMark team="Argentina" size={22} /> Argentina
-            </button>
-            <button
-              className={`team-button brand-esp${selectedTeam === 'Spain' ? ' selected' : ''}`}
-              onClick={() => {
-                setSelectedTeam('Spain');
-                haptic('selection');
-              }}
-              disabled={loading}
-            >
-              <TeamMark team="Spain" size={22} /> Espanha
-            </button>
-          </div>
-
-          <p className="eyebrow" style={{marginTop: 16}}>
-            ESCOLHA SEU TIER
-          </p>
-          <div className="tier-grid">
-            {(insights.tiers || []).map((item) => {
-              const tierLabel = item.id === 'gols' ? 'GOLS' : item.id === 'escanteios' ? 'ESCANTEIOS' : item.id === 'cartoes' ? 'CARTÕES' : item.label;
-              return (
-                <button
-                  key={item.id}
-                  className={`tier-card${item.available ? (tier === item.id ? ' selected' : '') : ' locked'}`}
-                  disabled={!item.available || loading}
-                  onClick={() => {
-                    haptic('impact');
-                    void startPredictiveQuiz(item.id);
-                  }}
-                >
-                  <div className="tier-head">
-                    <strong>{tierLabel}</strong>
-                    <span className="tier-state">{item.available ? '5 PERGUNTAS' : 'SEM DADOS'}</span>
-                  </div>
-                  <span className="tier-desc">{item.description}{!item.available ? ' · aguardando dados TxOdds (fail-closed)' : ''}</span>
-                  {item.hint && <span className="tier-hint">{item.hint}</span>}
-                </button>
-              );
-            })}
-          </div>
-          <p className="fine">
-            Cada tier gera 5 perguntas com probabilidade e odd calculadas a partir do histórico TxOdds; a leitura acima é o seu mapa para escolher.
-          </p>
-          {error && <p className="error">{error}</p>}
+          <MatchFeedPulsing
+            insights={insights}
+            selectedTeam={selectedTeam}
+            onTeamChange={(team) => {
+              setSelectedTeam(team);
+              haptic('selection');
+            }}
+            selectedTier={tier}
+            onTierSelect={(tierId) => {
+              haptic('impact');
+              void startPredictiveQuiz(tierId);
+            }}
+            onStartQuiz={() => void startPredictiveQuiz(tier)}
+            loading={loading}
+          />
+          {error && <p className="error" style={{padding: '0 16px'}}>{error}</p>}
         </section>
       )}
 
