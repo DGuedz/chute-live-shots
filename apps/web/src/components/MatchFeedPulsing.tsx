@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../icons';
+import { RealtimeDataStatus } from './RealtimeDataStatus';
 import type { Insights } from '../types';
 import {
   ShieldCheckered,
@@ -270,6 +271,12 @@ export function MatchFeedPulsing({
 
         </div>
       </div>
+
+      {/* ========== REALTIME DATA STATUS ========== */}
+      <RealtimeDataStatus
+        isConnected={true}
+        lastUpdated={new Date()}
+      />
 
       {/* ========== CONTROLS: Team & Tier ========== */}
       <div className="feed-controls">
