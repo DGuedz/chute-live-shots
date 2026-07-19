@@ -181,6 +181,8 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
   const intelligenceHeadingRef=useRef<HTMLDivElement|null>(null);
   const intelligenceCardRef=useRef<HTMLDivElement|null>(null);
 
+  const tickerRef=useRef<HTMLElement|null>(null);
+
   const toggleLang=()=>{
     const next:Lang=lang==='pt'?'en':'pt';
     setLang(next);
@@ -221,6 +223,35 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       .then((payload)=>{if(!cancelled&&Array.isArray(payload?.table))setTournamentTable(payload.table)})
       .catch(()=>{/* seção some silenciosamente se a tabela não carregar */});
     return()=>{cancelled=true};
+  },[]);
+
+  // Ticker: ativa com scroll, mostrando partidas/dados reais em movimento
+  useEffect(()=>{
+    if(!tickerRef.current) return;
+    const ctx=gsap.context(()=>{
+      const track=tickerRef.current?.querySelector('.ticker-track') as HTMLElement;
+      if(!track) return;
+
+      gsap.fromTo(
+        track,
+        {opacity:0,y:12},
+        {
+          opacity:1,
+          y:0,
+          duration:0.6,
+          ease:'power2.out',
+          scrollTrigger:{
+            trigger:tickerRef.current,
+            start:'top 85%',
+            end:'top 50%',
+            scrub:.3,
+            markers:false,
+          },
+        }
+      );
+    },tickerRef);
+
+    return()=>ctx.revert();
   },[]);
 
   // Barra de progresso fixa: reforça a leitura "preparando o chute" enquanto o usuário rola a home.
@@ -349,7 +380,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       </div>
     </section>
 
-    <aside className="stats-ticker" aria-label={liveFixtures.length?'Partidas reais do feed TxLINE':'Estatísticas históricas da Copa'}>
+    <aside ref={tickerRef} className="stats-ticker" aria-label={liveFixtures.length?'Partidas reais do feed TxLINE':'Estatísticas históricas da Copa'}>
       <span className="ticker-source">{liveFixtures.length?t.tickerLive:t.tickerEditorial}</span>
       <div className="ticker-window">
         <div className="ticker-track">
