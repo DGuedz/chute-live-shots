@@ -1,5 +1,5 @@
 /* Neo Arcade Football - Main Components */
-/* PALETA: Navy #031330 + Lime #C8F000 + Orange #FF5A00 APENAS */
+/* PALETA: Navy #031330 + Lime #C8F000 APENAS — laranja removido do sistema */
 
 @import url('neo-arcade-tokens.css');
 @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Anton&family=Rajdhani:wght@400;500;600;700&display=swap');
@@ -76,15 +76,15 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Primary: Orange Background */
+/* Primary: Lime Background */
 button:not(.secondary, .danger, .ghost, .back) {
   background-color: var(--neo-orange);
-  color: var(--neo-white);
+  color: var(--neo-navy);
   border-color: var(--neo-orange);
 }
 
 button:not(.secondary, .danger, .ghost, .back):hover:not(:disabled) {
-  background-color: #ff6f1a;
+  background-color: #d9ff2e;
 }
 
 /* Secondary: Lime Border */
@@ -99,7 +99,7 @@ button.secondary:hover:not(:disabled) {
   color: var(--neo-navy);
 }
 
-/* Danger: Orange Border */
+/* Danger: Lime Border */
 button.danger {
   background-color: transparent;
   color: var(--neo-orange);
@@ -108,7 +108,7 @@ button.danger {
 
 button.danger:hover:not(:disabled) {
   background-color: var(--neo-orange);
-  color: var(--neo-white);
+  color: var(--neo-navy);
 }
 
 /* Ghost: Text Only */
@@ -150,7 +150,7 @@ button.back:hover {
 
 .card:hover {
   border-color: var(--neo-orange);
-  box-shadow: 0 6px 16px rgba(255, 90, 0, 0.2);
+  box-shadow: 0 6px 16px rgba(200, 240, 0, 0.2);
 }
 
 .card > div, .proof p {
@@ -235,7 +235,7 @@ button.back:hover {
   top: 16px;
   right: 16px;
   background-color: var(--neo-orange);
-  color: var(--neo-white);
+  color: var(--neo-navy);
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 700;

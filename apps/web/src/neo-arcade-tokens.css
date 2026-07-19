@@ -1,9 +1,9 @@
 /* Neo Arcade Football - Design System Tokens */
 :root {
-  /* Primary Colors - 45% lime + 30% navy + 15% white + 10% orange */
+  /* Primary Colors - 60% lime + 30% navy + 10% white — verde é a única cor de ação */
   --neo-navy: #031330;           /* Azul-marinho profundo */
   --neo-lime: #C8F000;           /* Verde-limão (cor identidade) */
-  --neo-orange: #FF5A00;         /* Laranja energético (cor de ação) */
+  --neo-orange: #C8F000;         /* [deprecated] alias do lime — laranja removido do sistema */
   --neo-white: #F8F8F3;          /* Branco neutro */
 
   /* Secondary Colors */
@@ -21,12 +21,12 @@
   --neo-text-primary: #F8F8F3;   /* Texto principal branco */
   --neo-text-secondary: #A7D900; /* Texto secundário verde neon */
   --neo-text-muted: #4D5870;     /* Texto atenuado cinza */
-  --neo-text-action: #FF5A00;    /* Texto de ação laranja */
+  --neo-text-action: #C8F000;    /* Texto de ação verde-limão */
 
   /* Status Colors */
   --neo-success: #A7D900;        /* Sucesso verde neon */
   --neo-warning: #E7FF00;        /* Aviso amarelo elétrico */
-  --neo-error: #FF5A00;          /* Erro laranja */
+  --neo-error: #E7FF00;          /* Erro amarelo elétrico (laranja removido) */
   --neo-info: #C8F000;           /* Info verde-limão */
 
   /* Shadows & Effects */
@@ -35,13 +35,13 @@
   --neo-shadow-lg: 0 8px 24px rgba(3, 19, 48, 0.5);
   --neo-shadow-action: 0 0 20px rgba(200, 240, 0, 0.3);
   --neo-glow-lime: 0 0 12px rgba(200, 240, 0, 0.4);
-  --neo-glow-orange: 0 0 12px rgba(255, 90, 0, 0.4);
+  --neo-glow-orange: 0 0 12px rgba(200, 240, 0, 0.4); /* [deprecated] alias do glow-lime */
 
   /* Border Styles */
   --neo-border-thin: 1px solid rgba(200, 240, 0, 0.2);
   --neo-border-thick: 2px solid rgba(200, 240, 0, 0.5);
   --neo-border-heavy: 3px solid #C8F000;
-  --neo-border-action: 2px solid #FF5A00;
+  --neo-border-action: 2px solid #C8F000;
 
   /* Transitions */
   --neo-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);

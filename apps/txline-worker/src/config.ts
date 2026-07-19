@@ -19,12 +19,17 @@ export type TxlineConfig = {
 
 export function loadConfig(env = process.env): TxlineConfig {
   const network = env.TXLINE_NETWORK === 'mainnet' ? 'mainnet' : 'devnet';
+  const defaultRpc = network === 'mainnet' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com';
+  const configuredRpc = env.SOLANA_RPC_URL || '';
+  const rpcUrl = env.HELIUS_API_KEY && (!configuredRpc || configuredRpc.includes('PASTE_HELIUS_API_KEY_HERE'))
+    ? `https://${network === 'mainnet' ? 'mainnet' : 'devnet'}.helius-rpc.com/?api-key=${env.HELIUS_API_KEY}`
+    : configuredRpc || defaultRpc;
   return {
     apiBase: env.TXLINE_API_BASE || 'https://txline-dev.txodds.com/api',
     apiOrigin: env.TXLINE_API_ORIGIN || 'https://txline-dev.txodds.com',
     jwt: env.TXLINE_JWT,
     apiToken: env.TXLINE_API_TOKEN,
-    rpcUrl: env.SOLANA_RPC_URL || (network === 'mainnet' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com'),
+    rpcUrl,
     network,
     programId: env.TXLINE_PROGRAM_ID || '6pW64gN1s2uqjHkn1unFeEjAwJkPGHoppGvS715wyP2J',
     fixturesPath: env.TXLINE_FIXTURES_PATH || '/fixtures/snapshot',

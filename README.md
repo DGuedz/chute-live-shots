@@ -17,7 +17,9 @@ Fluxo-herói P0 verificável fechado (2026-07-17):
 - 5 perguntas, 4 opções mutuamente exclusivas, cada opção com `probability`/`odd`/`risk` auditáveis (priors Poisson, independentes do resultado). Zebra paga mais.
 - Ranking reconstruído do banco — sobrevive a restart da API; ordenação numérica (score, exatos, erro, tempo).
 - Phantom com **assinatura obrigatória**: nonce (`/api/wallet/challenge`) + verificação ed25519 no servidor.
-- Prova honesta: `txline_replay_proof_validated` / `txline_snapshot_unverified`; rede sempre rotulada `devnet · paper (sem premiação)`. Fixtures sem snapshot são fail-closed (`MISSING_DATA`).
+- Prova honesta: `txline_replay_proof_validated` / `txline_snapshot_unverified`; a rede é sempre rotulada de verdade (`mainnet` quando resolvida contra o feed real, `devnet · paper` no replay de demonstração). Fixtures sem snapshot são fail-closed (`MISSING_DATA`).
+- **Mainnet real, não simulada**: assinatura TxLINE (`subscribe` on-chain, SL12 tempo real) e âncora de prova via Memo program confirmadas em mainnet-beta — ver `.AGENTS/PRONTIDAO-MAINNET-2026-07-19.md` para as transações e o passo a passo reprodutível em `scripts/txline-mainnet/`.
+- Três tiers preditivos resolvendo contra o wire real da TxLINE (códigos numéricos 1–8: gols/cartões/escanteios) — **Gols, Escanteios, Cartões**; "faltas" e "chutes no alvo" saíram porque o feed gratuito da Copa não reporta esses campos.
 - Worker TxLINE com polling automático opcional (`TXLINE_AUTOSYNC=true`) com backoff exponencial e telemetria em `/txline/status`.
 - Rotas internas `/internal/txline/*` protegidas por `CHUTE_SERVICE_TOKEN` (obrigatório fora do dev local).
 
@@ -46,9 +48,11 @@ Teste do jurado: abra a web, escolha o fixture `REPLAY VALIDADO`, conecte a Phan
 
 ```bash
 cd apps/api && python3 -m pytest tests/ -q          # 16 testes, banco efêmero
-cd apps/txline-worker && npm test && npm run build  # 2 testes
+cd apps/txline-worker && npm test && npm run build  # 7 testes
 npm run build --workspace apps/web
 python3 scripts/verify_demo.py
+python3 scripts/verify_e2e.py                        # 29 provas, API real, banco efêmero, zero mocks
+python3 scripts/check_txline_live_fixture.py        # fixture live 18257739 (Spain x Argentina)
 ```
 
 ## Endpoints principais
@@ -65,17 +69,15 @@ python3 scripts/verify_demo.py
 
 Variáveis de ambiente: ver [.env.example](.env.example) (nunca commitar valores). Config sensível local do worker fica em `~/.config/chute/`, fora do repositório.
 
-## Escopo V0
+## Escopo atual
 
-- Uma partida por vez.
-- Uma família de mercado: finalizações/chutes a gol.
-- Variáveis iniciais: total de finalizações, finalizações no alvo, intervalo de minutos e time.
-- Devnet primeiro.
+- Uma partida por vez (a final Argentina × Espanha, Copa 2026).
+- Três famílias de mercado resolvendo contra dado real: Gols, Escanteios, Cartões.
+- Mainnet real para dados TxLINE (SL12) e para a âncora de prova on-chain (Memo program).
 - Wallet + autenticação TxLINE no backend.
-- Mercado paper/escrow com settlement demonstrável.
 - Quiz social com envelope de prova CHUTE, referência TxLINE e rastreabilidade Solana.
 
-Fora do escopo: múltiplas modalidades, narrador, social graph, múltiplos feeds esportivos, mainnet com dinheiro real e três tracks simultâneas.
+Fora do escopo **ainda**: múltiplas partidas simultâneas, narrador, social graph, múltiplos feeds esportivos, e o bolão pago com pote/settlement financeiro real (desenhado em `.AGENTS/ROADMAP-BOLAO-PAGO-ONCHAIN-2026-07-19.md`, não construído — hoje não há premiação nem custódia de fundos de terceiros).
 
 ## Documentos
 
@@ -96,7 +98,9 @@ python3 scripts/verify_demo.py
 npm run build --workspace apps/web
 ```
 
-O replay registra `fixtureId`, sequência de score, timestamp, proof reference e `contentHash`. A Merkle proof do stat key `1` foi validada via `validateStatV2.view` no Program ID TxLINE devnet. O resultado é paper/devnet: a proof está validada, mas não há payout ou settlement financeiro.
+O replay registra `fixtureId`, sequência de score, timestamp, proof reference e `contentHash`. A Merkle proof do stat key `1` foi validada via `validateStatV2.view` no Program ID TxLINE devnet. Este caminho específico (replay congelado) é paper/devnet: a proof está validada, mas não há payout ou settlement financeiro.
+
+Para a prova em mainnet real (assinatura TxLINE + âncora Memo, com hashes de transação verificáveis no Explorer), ver `.AGENTS/PRONTIDAO-MAINNET-2026-07-19.md`.
 
 ## Bot Telegram (/start)
 

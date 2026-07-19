@@ -2,7 +2,7 @@
 
 .predictive-mode {
   --accent-predictive: #00d4ff;
-  --zebra-predictive: #ff6b35;
+  --zebra-predictive: #E7FF00;
 }
 
 /* Tic-Tac Timer */
@@ -111,7 +111,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at center, rgba(255, 107, 53, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(231, 255, 0, 0.3) 0%, transparent 70%);
   animation: glow-fade 0.4s ease-out;
   pointer-events: none;
   border-radius: inherit;
@@ -144,9 +144,9 @@
 }
 
 .reveal-badge.incorrect {
-  background: rgba(255, 107, 53, 0.2);
-  color: #ff6b35;
-  border: 1px solid #ff6b35;
+  background: rgba(231, 255, 0, 0.2);
+  color: #E7FF00;
+  border: 1px solid #E7FF00;
 }
 
 @keyframes badge-pop {
@@ -173,8 +173,8 @@
 }
 
 .payoff-indicator.zebra {
-  color: #ff6b35;
-  text-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
+  color: #E7FF00;
+  text-shadow: 0 0 8px rgba(231, 255, 0, 0.5);
 }
 
 @keyframes payoff-bounce {
@@ -284,19 +284,12 @@
 }
 
 .tier-badge-predictive.zebra {
-  background: rgba(255, 107, 53, 0.15);
-  color: #ff6b35;
-  border: 1px solid rgba(255, 107, 53, 0.3);
+  background: rgba(231, 255, 0, 0.15);
+  color: #E7FF00;
+  border: 1px solid rgba(231, 255, 0, 0.3);
 }
 
-.tier-badge-predictive::before {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
+
 
 /* Progress Bar (Real-time) */
 .predictive-progress-bar {
@@ -339,8 +332,8 @@
 }
 
 .breakdown-item.incorrect {
-  border-left-color: #ff6b35;
-  background: rgba(255, 107, 53, 0.08);
+  border-left-color: #E7FF00;
+  background: rgba(231, 255, 0, 0.08);
 }
 
 .breakdown-question {

@@ -4,7 +4,7 @@ import { Icon } from '../icons';
 interface QuizCardIconsProps {
   title: string;
   description: string;
-  tier: 'chutes' | 'escanteios' | 'faltas';
+  tier: 'gols' | 'escanteios' | 'cartoes';
   available: boolean;
   questions: number;
 }
@@ -22,15 +22,15 @@ export const QuizCardWithIcons: React.FC<QuizCardIconsProps> = ({
 }) => {
   // Map tier to icon
   const tierIcons = {
-    chutes: 'shot',
+    gols: 'goal',
     escanteios: 'corner',
-    faltas: 'card',
+    cartoes: 'card',
   };
 
   const tierColors = {
-    chutes: 'lime',
+    gols: 'lime',
     escanteios: 'orange',
-    faltas: 'neonGreen',
+    cartoes: 'neonGreen',
   } as const;
 
   return (

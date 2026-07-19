@@ -2,9 +2,15 @@
 
 **Deadline: 19 jul 2026 · 23:59 UTC**
 
+## Atualização mainnet (2026-07-19)
+
+O item "SL12, mainnet, dry-run" abaixo deixou de ser dry-run: a assinatura TxLINE mainnet (subscribe
+on-chain + token de API) e a âncora de prova (Memo) estão confirmadas e reais em mainnet-beta, com
+hashes de transação verificáveis. Ver `.AGENTS/PRONTIDAO-MAINNET-2026-07-19.md` e `scripts/txline-mainnet/`.
+
 ## Core idea (para o formulário)
 
-CHUTE é um Mini App do Telegram onde o torcedor "lê" a partida com dados verificados TxLINE e transforma a leitura em 5 chutes por tier (chutes a gol, escanteios, faltas & cartões). Cada rodada gera um resultado auditável: snapshot congelado, content hash, proof reference TxLINE — e o jogador pode ancorar a prova do próprio placar on-chain (Solana, transação Memo assinada pela wallet). É a camada social/humana do TxLINE: dado verificável vira disputa, ranking e ritual de matchday.
+CHUTE é um app web (com Mini App do Telegram como canal adicional) onde o torcedor "lê" a partida com dados verificados TxLINE e transforma a leitura em 5 chutes por tier (Gols, Escanteios, Cartões). Cada rodada gera um resultado auditável: snapshot congelado, content hash, proof reference TxLINE — e o jogador pode ancorar a prova do próprio placar on-chain (Solana, transação Memo assinada pela wallet). É a camada social/humana do TxLINE: dado verificável vira disputa, ranking e ritual de matchday.
 
 ## Diferenciais frente aos critérios
 
@@ -39,9 +45,9 @@ Rodada completa em 2026-07-17 — tudo verde:
 |---|---|---|
 | API (pytest) | `cd apps/api && PYTHONPATH=. python3 -m pytest -q` | 22 passed |
 | Frontend Solana (vitest) | `npm test` | 14 passed (memo, Explorer, redes, fallback signTransaction, erros, persistência) |
-| Worker TxLINE | `cd apps/txline-worker && npm test` | 2 passed |
+| Worker TxLINE | `cd apps/txline-worker && npm test && npm run build` | 7 passed + TypeScript verde |
 | Replay determinístico | `python3 scripts/verify_demo.py` | score 634 · `txline_replay_proof_validated` |
-| **E2E sem mocks** | `python3 scripts/verify_e2e.py` | **26 provas** — API real + banco efêmero: replay 5/5 → ranking, preditivo 5/5 → breakdown resolvido contra snapshot TxLINE, memos on-chain no formato documentado, wallet ed25519 real (assinatura válida aceita; adulterada e replay de nonce → 401) |
+| **E2E sem mocks** | `python3 scripts/verify_e2e.py` | **29 provas** — API real + banco efêmero: replay 5/5 → ranking, ingestão live interna → progress preditivo resolvido com `proof_refs` + `on_chain_validation`, memos on-chain no formato documentado, wallet ed25519 real (assinatura válida aceita; adulterada e replay de nonce → 401) |
 | Build web | `npm run build` | ✓ (web3.js em chunk lazy) |
 
 Bugs reais encontrados e corrigidos por essas provas: progress preditivo lia campo inexistente (`payload_json` vs `payload`), parse de `quiz_id` quebrava com fixture hifenizado, e alias de fixture não era resolvido para o id numérico TxLINE — cada um agora coberto por teste de regressão (`apps/api/tests/test_predictive_progress.py`).

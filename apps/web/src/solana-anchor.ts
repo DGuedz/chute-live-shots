@@ -11,14 +11,31 @@ export const MEMO_PROGRAM_ID='MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr';
 export const WALLET_STORAGE_KEY='chute-wallet-session';
 export const NETWORK_STORAGE_KEY='chute-network';
 
-export const rpcUrl=(n:Network):string=>n==='mainnet'?'https://api.mainnet-beta.solana.com':'https://api.devnet.solana.com';
+const PUBLIC_DEVNET_RPC='https://api.devnet.solana.com';
+const PUBLIC_MAINNET_RPC='https://api.mainnet-beta.solana.com';
+export const rpcUrl=(n:Network):string=>n==='mainnet'
+ ?(import.meta.env.VITE_SOLANA_MAINNET_RPC_URL||PUBLIC_MAINNET_RPC)
+ :(import.meta.env.VITE_SOLANA_RPC_URL||PUBLIC_DEVNET_RPC);
+export const hasPrivateDevnetRpc=():boolean=>{
+ const configured=import.meta.env.VITE_SOLANA_RPC_URL;
+ return Boolean(configured&&configured!==PUBLIC_DEVNET_RPC&&(/^https:\/\//.test(configured)||/\/api\/solana\/rpc$/.test(configured)));
+};
 export const explorerUrl=(sig:string,network:Network):string=>`https://explorer.solana.com/tx/${sig}${network==='devnet'?'?cluster=devnet':''}`;
 
 export const buildReplayMemo=(r:{fixture_id:string|number;snapshot_id:string;content_hash:string;score:number}):string=>
  `CHUTE|${r.fixture_id}|${r.snapshot_id}|${r.content_hash}|score:${r.score}`;
 
-export const buildPredictiveMemo=(p:{fixture_id?:string;snapshot_id?:string|null;content_hash?:string|null;score:number;percentage:number}):string=>
- `CHUTE-PRED|${p.fixture_id||'?'}|${p.snapshot_id||'unresolved'}|${p.content_hash||'unresolved'}|score:${Math.round(p.score)}|${p.percentage}%`;
+const shortProofRef=(proofRef?:string|null):string|null=>{
+ if(!proofRef)return null;
+ if(proofRef.length<=18)return proofRef;
+ return `${proofRef.slice(0,10)}…${proofRef.slice(-6)}`;
+};
+
+export const buildPredictiveMemo=(p:{fixture_id?:string;snapshot_id?:string|null;content_hash?:string|null;score:number;percentage:number;proof_ref?:string|null}):string=>{
+ const base=`CHUTE-PRED|${p.fixture_id||'?'}|${p.snapshot_id||'unresolved'}|${p.content_hash||'unresolved'}|score:${Math.round(p.score)}|${p.percentage}%`;
+ const proofRef=shortProofRef(p.proof_ref);
+ return proofRef?`${base}|proof:${proofRef}`:base;
+};
 
 export const mapAnchorError=(e:unknown):string=>{
  const msg=e instanceof Error?e.message:String(e);

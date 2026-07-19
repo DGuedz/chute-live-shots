@@ -6,7 +6,7 @@ import * as PhosphorIcons from '@phosphor-icons/react';
 export const NEO_ARCADE_COLORS = {
   navy: '#031330',
   lime: '#C8F000',
-  orange: '#FF5A00',
+  orange: '#C8F000', /* [deprecated] alias do lime — laranja removido do sistema */
   white: '#F8F8F3',
   neonGreen: '#A7D900',
   electricYellow: '#E7FF00',
@@ -39,6 +39,9 @@ const ICON_REGISTRY: IconRegistry = {
   soccer: { tabler: TablerIcons.BallFootball },
   goal: { tabler: TablerIcons.Trophy },
   shot: { tabler: TablerIcons.Flame },
+  attack: { tabler: TablerIcons.Target },
+  defense: { tabler: TablerIcons.Shield },
+  midfield: { tabler: TablerIcons.Route },
   ball: { tabler: TablerIcons.BallFootball },
   corner: { tabler: TablerIcons.CornerDownRight },
   card: { tabler: TablerIcons.Cards },
@@ -137,12 +140,12 @@ export const Icon: React.FC<IconProps> = ({
     );
   }
 
-  /* Tabler icons use strokeWidth */
+  /* Tabler icons: `stroke` é a cor do traço; `strokeWidth` é a espessura */
   return (
     <Component
       size={size}
       color={colorValue}
-      stroke={strokeWidth}
+      strokeWidth={strokeWidth}
       className={className}
     />
   );

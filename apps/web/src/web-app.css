@@ -1,0 +1,299 @@
+/* Camada interna do app no mesmo design system editorial da home (web-site.css).
+   Escopada em main.web-app para vencer o CSS neo-arcade legado sem !important. */
+
+@keyframes screen-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+main.screen-in{animation:screen-in .38s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){main.screen-in{animation:none}}
+main.web-app{--lime:#baff00;--ink:#080b0a;--panel:#101411;--line:#282e2a;--muted:#919a94;--white:#f1f4ec;
+  font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--white);min-height:100vh;
+  width:100%;max-width:none;margin:0;padding:0 0 90px}
+main.web-app *{box-sizing:border-box}
+main.web-app :is(a,button):focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+main.web-app [id]{scroll-margin-top:96px}
+main.web-app section{width:min(720px,100%);margin:0 auto;padding:34px clamp(20px,5vw,32px) 10px;display:flex;flex-direction:column;align-items:stretch;background:none;border:0}
+main.web-app section.predictive-mode{width:min(1240px,100%)}
+
+/* Nav interna, espelhando .web-nav da home */
+main.web-app .app-nav{margin-bottom:6px}
+main.web-app .web-brand{border:0;background:none;padding:0;cursor:pointer}
+main.web-app .app-nav-status{display:flex;align-items:center;gap:10px;justify-content:center}
+main.web-app .app-network{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;color:var(--lime);font-size:10px;font-weight:800;letter-spacing:.14em}
+main.web-app .app-network i{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime)}
+main.web-app .app-txline{border:0;background:none;color:#b3bbb5;font-size:12px;font-weight:600;padding:8px 0;cursor:pointer;text-transform:none;letter-spacing:0;display:flex;align-items:center}
+main.web-app .app-txline img{display:block;opacity:.8;transition:opacity .18s ease}
+main.web-app .app-txline:hover img{opacity:1}
+main.web-app .wallet-button img{display:block}
+
+/* Tipografia base */
+main.web-app h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:-.03em;line-height:.9;font-size:clamp(40px,8vw,58px);margin:14px 0 12px}
+main.web-app h2 em{font-style:normal;color:var(--lime)}
+main.web-app h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:24px;letter-spacing:.02em;margin:26px 0 12px;color:var(--white)}
+main.web-app .eyebrow{display:flex;align-items:center;gap:10px;color:var(--lime);font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin:18px 0 4px}
+main.web-app .eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 16px var(--lime)}
+main.web-app .muted{color:var(--muted);font-size:15px;line-height:1.6;margin:4px 0 14px}
+main.web-app .fine{color:#69716c;font-size:11px;line-height:1.55;letter-spacing:.02em;margin:16px 0 0}
+main.web-app .error{color:#ff806f;font-size:13px;margin-top:14px}
+main.web-app .fixture-date{color:#8e9790;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:2px 0 10px}
+
+/* Botões: primário lime (padrão), secundário fantasma, voltar discreto */
+main.web-app section>button,main.web-app .setup-ready>button,main.web-app .anchor-block>button{display:inline-flex;align-items:center;justify-content:center;gap:14px;background:var(--lime);color:var(--ink);border:0;border-radius:2px;padding:17px 24px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;margin-top:16px;transition:transform .18s ease,box-shadow .18s ease}
+main.web-app section>button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(186,255,0,.15)}
+main.web-app section>button:disabled{opacity:.45;cursor:default}
+main.web-app button.secondary,main.web-app .anchor-block>button{background:transparent;color:var(--white);border:1px solid var(--line)}
+main.web-app button.secondary:hover,main.web-app .anchor-block>button:hover{border-color:#3d453f;box-shadow:none}
+main.web-app .back{align-self:flex-start;background:none;border:0;color:#8e9790;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:none;padding:0;margin:0 0 8px;cursor:pointer}
+main.web-app .back:hover{color:var(--white);transform:none;box-shadow:none}
+
+/* Cartão de placar */
+main.web-app .match-score-card{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;border:1px solid var(--line);background:var(--panel);padding:26px 22px;margin:14px 0 10px}
+main.web-app .score-team{display:flex;flex-direction:column;align-items:center;gap:8px}
+main.web-app .score-team strong{font-family:'Barlow Condensed',sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.03em}
+main.web-app .team-flag{font-size:30px;line-height:1}
+main.web-app .score-center{display:flex;flex-direction:column;align-items:center;gap:6px}
+main.web-app .score-center small{color:#707973;font-size:9px;letter-spacing:.16em}
+main.web-app .score-center b{font-family:'Barlow Condensed',sans-serif;font-size:54px;line-height:1;color:var(--lime)}
+main.web-app .score-center span{color:#707973;font-size:9px;letter-spacing:.12em}
+main.web-app .match-lede{margin-top:0}
+main.web-app .live-pulse{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:7px 12px;border:1px solid rgba(186,255,0,.35);color:var(--lime);font-size:10px;font-weight:700;letter-spacing:.12em;margin:2px 0 8px}
+main.web-app .live-pulse i{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:web-app-pulse 1.4s ease infinite}
+@keyframes web-app-pulse{50%{opacity:.35}}
+
+/* Grades de estatística e cartões de dado */
+main.web-app .stat-grid,main.web-app .team-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0}
+main.web-app .team-strip{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+main.web-app .stat-card{border:1px solid var(--line);background:var(--panel);padding:16px 14px;display:flex;flex-direction:column;gap:6px}
+main.web-app .stat-card small{color:#8e9790;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+main.web-app .stat-card strong{font-family:'Barlow Condensed',sans-serif;font-size:26px;line-height:1;color:var(--white)}
+main.web-app .stat-card span{color:#69716c;font-size:10px;letter-spacing:.04em}
+main.web-app .card{border:1px solid var(--line);background:var(--panel);padding:6px 18px;margin:8px 0}
+main.web-app .card>div{display:flex;justify-content:space-between;align-items:baseline;gap:18px;padding:12px 0;border-bottom:1px solid #1c211d}
+main.web-app .card>div:last-child{border-bottom:0}
+main.web-app .card small{color:#8e9790;font-size:9px;font-weight:700;letter-spacing:.14em}
+main.web-app .card strong{font-size:12px;font-weight:600;text-align:right;overflow-wrap:anywhere}
+
+/* Leitura editorial e sinais */
+main.web-app .reading-title{font-size:clamp(34px,6vw,46px)}
+main.web-app .reading-path{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 6px}
+main.web-app .reading-path span{border:1px solid var(--line);background:var(--panel);padding:8px 12px;font-size:12px;color:#c6cdc8}
+main.web-app .signal-list{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+main.web-app .signal-card{border:1px solid var(--line);background:var(--panel);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+main.web-app .signal-side{display:flex;justify-content:space-between;align-items:center;gap:12px}
+main.web-app .signal-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+main.web-app .edge-chip{font-size:9px;font-weight:800;letter-spacing:.12em;padding:5px 9px;border:1px solid var(--line);color:#8e9790;white-space:nowrap}
+main.web-app .edge-chip.edge-home,main.web-app .edge-chip.edge-away{border-color:rgba(186,255,0,.4);color:var(--lime)}
+main.web-app .signal-detail{color:#8e9790;font-size:12px;line-height:1.5}
+main.web-app .player-list{border:1px solid var(--line);background:var(--panel);margin:8px 0}
+main.web-app .player-row{display:flex;justify-content:space-between;gap:14px;padding:13px 16px;border-bottom:1px solid #1c211d;font-size:13px}
+main.web-app .player-row:last-child{border-bottom:0}
+main.web-app .player-row span{color:#8e9790;font-size:11px}
+main.web-app .disclaimer{display:flex;gap:10px;border:1px solid #3a3324;background:#14120b;color:#cfc490;font-size:11px;line-height:1.5;padding:12px 14px;margin:10px 0}
+
+/* Alternadores e tiers */
+main.web-app .mode-toggle,main.web-app .team-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+main.web-app .mode-toggle button,main.web-app .team-button{border:1px solid var(--line);background:var(--panel);color:#b3bbb5;padding:14px 12px;font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:0;margin:0;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+main.web-app .mode-toggle button.active,main.web-app .team-button.selected{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+main.web-app .tier-grid{display:flex;flex-direction:column;gap:8px;margin:6px 0}
+main.web-app .tier-card{border:1px solid var(--line);background:var(--panel);color:var(--white);text-align:left;padding:16px 18px;display:flex;flex-direction:column;gap:7px;cursor:pointer;font-family:inherit;border-radius:0;margin:0}
+main.web-app .tier-card:hover:not(:disabled){border-color:#3d453f}
+main.web-app .tier-card.selected{border-color:var(--lime);box-shadow:inset 3px 0 0 var(--lime)}
+main.web-app .tier-card.locked{opacity:.45;cursor:default}
+main.web-app .tier-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+main.web-app .tier-head strong{font-family:'Barlow Condensed',sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.02em}
+main.web-app .tier-state{color:var(--lime);font-size:9px;font-weight:800;letter-spacing:.14em;white-space:nowrap}
+main.web-app .tier-card.locked .tier-state{color:#707973}
+main.web-app .tier-desc{color:#8e9790;font-size:12px;line-height:1.5}
+main.web-app .tier-hint{color:#69716c;font-size:10px;letter-spacing:.03em}
+main.web-app .tier-card .tier-head strong,main.web-app .tier-card.selected .tier-head strong{color:var(--white)}
+main.web-app .tier-card:hover:not(.locked) .tier-head strong,main.web-app .tier-card:hover:not(.locked) .tier-desc,main.web-app .tier-card:hover:not(.locked) .tier-hint,main.web-app .tier-card:hover:not(.locked) .tier-state{color:var(--ink)}
+main.web-app .tier-card .tier-state{background:none;padding:0}
+main.web-app .tier-card .tier-desc{text-transform:none;letter-spacing:0;font-size:12px}
+main.web-app .tier-card .tier-hint{text-transform:none;letter-spacing:.03em}
+
+/* Quiz */
+main.web-app .quiz-immersive-layout{display:flex;flex-direction:column;gap:0}
+main.web-app .quiz-immersive-shell{position:relative;height:165svh;margin-top:10px}
+main.web-app .quiz-immersive-stage{position:sticky;top:94px;height:calc(100svh - 118px);transform-origin:center top;will-change:transform,opacity}
+main.web-app .quiz-immersive-frame{position:relative;min-height:calc(100svh - 118px);overflow:hidden;border:1px solid var(--line);background:#0f1311}
+main.web-app .quiz-immersive-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(5,1fr);opacity:.42}
+main.web-app .quiz-immersive-grid span{border-right:1px solid rgba(241,244,236,.06);border-bottom:1px solid rgba(241,244,236,.06)}
+main.web-app .quiz-immersive-copy{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:flex-start;padding:24px;background:radial-gradient(circle at top left,rgba(186,255,0,.07),transparent 28%),linear-gradient(180deg,rgba(8,11,10,.76),rgba(8,11,10,.92))}
+main.web-app .quiz-immersive-topline{display:flex;justify-content:space-between;gap:12px;width:100%;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#d3d8d4}
+main.web-app .quiz-stage-kicker{margin:18px 0 8px;color:var(--lime);font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+main.web-app .quiz-stage-heading{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+main.web-app .quiz-stage-chapter{display:inline-flex;align-items:center;gap:8px;color:#cfd6d1;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+main.web-app .quiz-stage-chapter::before{content:'';width:18px;height:1px;background:rgba(186,255,0,.45)}
+main.web-app .quiz-immersive-copy h3{font-size:clamp(38px,4.4vw,60px);line-height:.9;max-width:9ch;margin:0;letter-spacing:-.04em}
+main.web-app .quiz-stage-status{margin:0 0 14px;color:#eef1eb;font-size:16px;line-height:1.35;max-width:28ch}
+main.web-app .quiz-immersive-copy small{color:#8e9790;font-size:11px;line-height:1.45;max-width:42ch}
+main.web-app .quiz-stage-card{width:100%;margin:4px 0 16px;background:rgba(16,20,17,.82)}
+main.web-app .quiz-stage-card .metric.active{background:rgba(186,255,0,.08)}
+main.web-app .quiz-stage-card .metric.active>div span{color:var(--lime)}
+main.web-app .quiz-stage-question{margin:0 0 8px;color:#cfd6d1;font-size:13px;line-height:1.55;max-width:40ch}
+main.web-app .quiz-stage-active-question{margin:0 0 10px;color:#f1f4ec;font-size:15px;line-height:1.5;max-width:38ch}
+main.web-app .quiz-stage-track{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;width:100%;margin-top:18px}
+main.web-app .quiz-stage-track span{display:block;height:4px;background:rgba(241,244,236,.16)}
+main.web-app .quiz-stage-track span.active{background:var(--lime);box-shadow:0 0 16px rgba(186,255,0,.35)}
+main.web-app .quiz-stage-track span.past{background:rgba(186,255,0,.45)}
+main.web-app .quiz-stage-chapters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;width:100%;margin-top:10px}
+main.web-app .quiz-stage-chapters span{display:flex;justify-content:center;align-items:center;padding:7px 0;border:1px solid rgba(241,244,236,.12);color:#8e9790;font-size:10px;font-weight:800;letter-spacing:.12em}
+main.web-app .quiz-stage-chapters span.active{border-color:var(--lime);color:var(--ink);background:var(--lime)}
+main.web-app .quiz-stage-chapters span.past{color:#d3d8d4}
+main.web-app .quiz-stage-footnote{margin:12px 0 0;color:#909995;font-size:11px;line-height:1.5}
+main.web-app .quiz-workspace{display:flex;flex-direction:column;width:min(720px,100%);margin:-14svh auto 0;padding:0 clamp(20px,5vw,32px) 0;background:linear-gradient(180deg,rgba(8,11,10,.06),rgba(8,11,10,.98) 9%,var(--ink) 18%)}
+main.web-app .quiz-context,main.web-app .quiz-progress{display:flex;justify-content:space-between;gap:14px;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;background:none;border:0;border-radius:0;padding:0}
+main.web-app .quiz-context{color:#8e9790;margin:4px 0 2px}
+main.web-app .quiz-progress{color:var(--lime);border-bottom:1px solid var(--line);padding:0 0 14px;margin-bottom:10px}
+main.web-app .tier-badge-predictive{display:inline-block;border:1px solid var(--line);background:none;color:#8e9790;font-size:9px;font-weight:800;letter-spacing:.12em;padding:4px 8px;border-radius:0}
+main.web-app .question-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 0;font-size:10px;letter-spacing:.13em;color:#8e9790}
+main.web-app .question-meta b{border:1px solid rgba(186,255,0,.4);color:var(--lime);padding:5px 9px;font-size:9px;letter-spacing:.12em}
+main.web-app .stat-basis{color:#69716c;font-size:11px;margin:0 0 10px}
+main.web-app .risk-strip{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 12px}
+main.web-app .risk-strip span{border:1px solid var(--line);background:var(--panel);color:#8e9790;font-size:10px;letter-spacing:.1em;padding:8px 12px}
+main.web-app .risk-strip strong{color:var(--white)}
+main.web-app .quiz-options{display:flex;flex-direction:column;gap:8px;margin:4px 0 4px}
+main.web-app .quiz-options button{border:1px solid var(--line);background:var(--panel);color:var(--white);text-align:left;padding:15px 18px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border-radius:0;margin:0;text-transform:none;letter-spacing:0}
+main.web-app .quiz-options button:hover:not(:disabled){border-color:#3d453f}
+main.web-app .quiz-options button.selected{border-color:var(--lime);background:rgba(186,255,0,.07);box-shadow:inset 3px 0 0 var(--lime)}
+main.web-app .quiz-options button small{color:#8e9790;font-weight:500;font-size:11px;margin-top:3px}
+main.web-app .answer-feedback{border:1px solid rgba(186,255,0,.4);color:var(--lime);font-size:12px;padding:12px 14px;margin-top:12px}
+
+/* Prova / recibo — mesmo tratamento do recibo-lime da home */
+main.web-app .proof{background:var(--lime);color:var(--ink);padding:24px 22px;margin:12px 0;box-shadow:14px 14px 0 #181e1a;border:0;border-radius:0}
+main.web-app .proof p{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:0;padding:10px 0;border-bottom:1px solid rgba(8,11,10,.18);font-size:11px;color:var(--ink)}
+main.web-app .proof p:last-child{border-bottom:0}
+main.web-app .proof small{font-size:9px;font-weight:800;letter-spacing:.12em;opacity:.68;color:var(--ink)}
+main.web-app .proof strong{font-weight:700;text-align:right;overflow-wrap:anywhere;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:12px;text-shadow:none}
+main.web-app .proof .wrap{max-width:60%;font-size:10px}
+main.web-app .anchor-block{margin-top:6px;display:flex;flex-direction:column;background:none;border:0;padding:0;box-shadow:none;border-radius:0}
+main.web-app .anchor-link{color:var(--lime);font-size:13px;font-weight:700;text-decoration:none;margin-top:14px}
+main.web-app .anchor-link:hover{text-decoration:underline}
+
+/* Setup TxLINE */
+main.web-app .setup-steps{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+main.web-app .setup-steps>div{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:14px;border:1px solid var(--line);background:var(--panel);padding:15px 18px;opacity:.55}
+main.web-app .setup-steps>div.active{opacity:1;border-color:rgba(186,255,0,.4)}
+main.web-app .setup-steps b{font-family:'Barlow Condensed',sans-serif;font-size:19px;color:#707973;background:none;border-radius:0;width:auto;height:auto;display:block;line-height:1}
+main.web-app .setup-steps>div.active b{color:var(--lime);background:none}
+main.web-app .setup-steps span{font-size:14px;font-weight:600}
+main.web-app .setup-steps small{color:#8e9790;font-size:10px;letter-spacing:.05em;text-align:right}
+main.web-app .setup-ready{border:1px solid rgba(186,255,0,.4);background:rgba(186,255,0,.06);padding:20px;margin:12px 0;font-size:14px;line-height:1.7;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+main.web-app .setup-ready small{color:#9aa39c;font-size:11px;line-height:1.5}
+main.web-app .wallet-error{border:1px solid #5b3129;background:#150e0c;color:#ff9c8d;font-size:12px;line-height:1.55;padding:13px 15px;margin:10px 0}
+main.web-app .wallet-picker{width:min(720px,100%);margin:0 auto;padding:0 clamp(20px,5vw,32px);display:flex;gap:8px}
+main.web-app .wallet-picker button{flex:1;border:1px solid var(--line);background:var(--panel);color:var(--white);padding:13px;font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+main.web-app .wallet-picker button:hover{border-color:var(--lime);color:var(--lime)}
+
+/* Preditivo */
+main.web-app .predictive-progress-bar{height:5px;background:#252b27;overflow:hidden;margin:10px 0}
+main.web-app .predictive-progress-fill{height:100%;background:var(--lime);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+main.web-app .tic-tac-container{position:relative;width:74px;height:74px;margin:12px auto}
+main.web-app .tic-tac-circle{position:absolute;inset:0;display:grid;place-items:center;border:2px solid var(--lime);border-radius:50%;font-family:'Barlow Condensed',sans-serif;font-size:34px;color:var(--lime)}
+main.web-app .tic-tac-ring{position:absolute;inset:0;border:1px solid rgba(186,255,0,.3);border-radius:50%;animation:web-app-ring 1.6s ease-out infinite}
+main.web-app .tic-tac-ring:nth-child(3){animation-delay:.5s}
+main.web-app .tic-tac-ring:nth-child(4){animation-delay:1s}
+@keyframes web-app-ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.65);opacity:0}}
+main.web-app .question-reveal{display:flex;flex-direction:column}
+main.web-app .glow-option{border:1px solid var(--line);background:var(--panel)}
+main.web-app .glow-option.correct{border-color:rgba(186,255,0,.55);box-shadow:0 0 26px rgba(186,255,0,.14)}
+main.web-app .glow-option.incorrect{border-color:#5b3129;box-shadow:0 0 26px rgba(255,90,60,.1)}
+main.web-app .reveal-badge{display:inline-block;margin-top:8px;padding:6px 10px;font-size:10px;font-weight:800;letter-spacing:.12em}
+main.web-app .reveal-badge.correct{background:var(--lime);color:var(--ink)}
+main.web-app .reveal-badge.incorrect{background:#5b3129;color:#ffb3a6}
+main.web-app .payoff-indicator{font-family:'Barlow Condensed',sans-serif;font-size:30px;color:var(--white)}
+main.web-app .payoff-indicator .easy{color:var(--lime)}
+main.web-app .predictive-breakdown{display:flex;flex-direction:column;gap:8px;margin:6px 0}
+main.web-app .breakdown-item{display:flex;justify-content:space-between;align-items:center;gap:16px;border:1px solid var(--line);background:var(--panel);padding:14px 16px}
+main.web-app .breakdown-item.correct{border-left:3px solid var(--lime)}
+main.web-app .breakdown-item.incorrect{border-left:3px solid #5b3129}
+main.web-app .breakdown-question strong{font-size:13px}
+main.web-app .breakdown-question small{display:block;color:#8e9790;font-size:11px;margin-top:3px}
+main.web-app .breakdown-payoff{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+main.web-app .breakdown-payoff-value{font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--lime)}
+main.web-app .breakdown-item.incorrect .breakdown-payoff-value{color:#8e9790}
+main.web-app .breakdown-payoff-mult{color:#69716c;font-size:10px;letter-spacing:.08em}
+main.web-app .polling-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime);animation:web-app-pulse 1.4s ease infinite;margin:10px 0 0}
+
+@media(max-width:900px){
+  main.web-app .app-nav{grid-template-columns:auto 1fr auto}
+  main.web-app .app-nav-status{justify-content:flex-end;padding-right:14px}
+  main.web-app .quiz-immersive-shell{height:138svh}
+  main.web-app .quiz-immersive-stage{top:78px;height:56svh}
+  main.web-app .quiz-immersive-frame{min-height:56svh}
+  main.web-app .quiz-workspace{margin:-8svh auto 0;background:linear-gradient(180deg,rgba(8,11,10,.12),rgba(8,11,10,.98) 10%,var(--ink) 20%)}
+}
+@media(max-width:560px){
+  main.web-app .stat-grid{grid-template-columns:1fr 1fr}
+  main.web-app .app-nav-status{display:none}
+  main.web-app .proof .wrap{max-width:52%}
+  main.web-app .score-center b{font-size:44px}
+  main.web-app .quiz-immersive-shell{height:126svh}
+  main.web-app .quiz-immersive-copy{padding:18px}
+  main.web-app .quiz-immersive-copy h3{font-size:38px;max-width:11ch}
+  main.web-app .quiz-stage-status{font-size:14px}
+  main.web-app .quiz-stage-card .metric{grid-template-columns:52px 1fr 52px;gap:10px}
+  main.web-app .quiz-stage-card .metric>b{font-size:22px}
+  main.web-app .quiz-workspace{margin:-5svh auto 0;padding:0 20px 0}
+}
+
+/* Figura estilizada da pergunta do quiz */
+main.web-app .question-figure{width:60px;height:60px;margin:2px auto 14px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(186,255,0,.35);border-radius:50%;background:radial-gradient(circle,rgba(186,255,0,.14),transparent 72%);box-shadow:0 0 22px rgba(186,255,0,.16)}
+
+/* ============================================================
+   BRANDING DAS SELEÇÕES — ambientes imersivos sobre preto.
+   Celeste/ouro (Argentina) × vermelho/ouro (Espanha); o verde
+   recua para acento de sistema nestes ambientes.
+   ============================================================ */
+:root{
+  --arg-celeste:#75AADB; --arg-gold:#C7A24B;
+  --esp-red:#D0121F; --esp-gold:#FFC400;
+}
+
+/* Escudo pulsante em caixa fixa: o shape do card nunca quebra */
+main.web-app .crest-mark{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;overflow:visible}
+main.web-app .crest-mark img{width:100%;height:100%;object-fit:contain;display:block;animation:crest-pulse 2.8s ease-in-out infinite}
+main.web-app .crest-mark.brand-arg img{filter:drop-shadow(0 0 5px rgba(117,170,219,.45))}
+main.web-app .crest-mark.brand-esp img{filter:drop-shadow(0 0 5px rgba(208,18,31,.45))}
+@keyframes crest-pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+}
+main.web-app .crest-mark.brand-arg img{animation-name:crest-pulse-arg}
+main.web-app .crest-mark.brand-esp img{animation-name:crest-pulse-esp}
+@keyframes crest-pulse-arg{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(117,170,219,.35))}
+  50%{transform:scale(1.08);filter:drop-shadow(0 0 12px rgba(117,170,219,.75))}
+}
+@keyframes crest-pulse-esp{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(208,18,31,.35))}
+  50%{transform:scale(1.08);filter:drop-shadow(0 0 12px rgba(208,18,31,.7)) drop-shadow(0 0 4px rgba(255,196,0,.4))}
+}
+@media (prefers-reduced-motion: reduce){
+  main.web-app .crest-mark img{animation:none}
+}
+
+/* Ambiente imersivo do confronto: as duas brandings respiram sobre o preto */
+main.web-app .team-ambient{
+  background:
+    radial-gradient(520px 300px at 6% -4%, rgba(117,170,219,.12), transparent 62%),
+    radial-gradient(520px 300px at 94% -4%, rgba(208,18,31,.12), transparent 62%),
+    transparent;
+}
+
+/* Seleção de equipe nas cores da seleção — o verde sai do bloco selecionado */
+main.web-app .team-button{transition:border-color .2s ease,background .2s ease,color .2s ease}
+main.web-app .team-button.selected{background:none;color:var(--white)}
+main.web-app .team-button.brand-arg.selected{border-color:var(--arg-celeste);background:linear-gradient(135deg,rgba(117,170,219,.18),rgba(199,162,75,.10));box-shadow:0 0 14px rgba(117,170,219,.25)}
+main.web-app .team-button.brand-esp.selected{border-color:var(--esp-red);background:linear-gradient(135deg,rgba(208,18,31,.18),rgba(255,196,0,.10));box-shadow:0 0 14px rgba(208,18,31,.25)}
+
+/* Selo de vantagem (edge) na cor da seleção dona do sinal */
+main.web-app .edge-chip.brand-arg{border-color:rgba(117,170,219,.55);color:var(--arg-celeste);background:rgba(117,170,219,.08)}
+main.web-app .edge-chip.brand-esp{border-color:rgba(208,18,31,.55);color:#ff6b74;background:rgba(208,18,31,.08)}
+
+/* Recibo vivo: cabeçalho ao vivo + chips de chute que acendem quando batem */
+main.web-app .live-eyebrow{display:inline-flex;align-items:center;gap:8px}
+main.web-app .live-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(186,255,0,.5);animation:live-pulse 1.8s ease-out infinite}
+@keyframes live-pulse{0%{box-shadow:0 0 0 0 rgba(186,255,0,.5)}70%{box-shadow:0 0 0 9px rgba(186,255,0,0)}100%{box-shadow:0 0 0 0 rgba(186,255,0,0)}}
+main.web-app .hit-chip{font-size:9px;font-weight:800;letter-spacing:.12em;padding:3px 8px;border:1px solid var(--line);color:#8e9790;white-space:nowrap}
+main.web-app .hit-chip.hit{border-color:var(--lime);color:var(--ink);background:var(--lime);animation:hit-flash .6s ease-out 1;box-shadow:0 0 12px rgba(186,255,0,.45)}
+@keyframes hit-flash{0%{transform:scale(.85)}55%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){main.web-app .live-dot,main.web-app .hit-chip.hit{animation:none}}
