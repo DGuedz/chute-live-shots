@@ -305,12 +305,51 @@
   gap: 8px;
 }
 
+/* ========== ICON DESIGN TOKENS ========== */
 .signal-emoji {
-  font-size: 18px;
   min-width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.signal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Signal icon colors - consistent per type */
+.signal-icon-defense {
+  color: #60A5FA; /* Blue shield */
+}
+
+.signal-icon-player {
+  color: #FBBF24; /* Amber star */
+}
+
+.signal-icon-midfield {
+  color: #34D399; /* Emerald target */
+}
+
+.signal-icon-momentum {
+  color: #BFFF00; /* Lime lightning */
+}
+
+.signal-icon-possession {
+  color: #818CF8; /* Indigo cycle */
+}
+
+.signal-icon-shots {
+  color: #FB923C; /* Orange crosshair */
+}
+
+.edge-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  color: #94A3B8;
 }
 
 .signal-name {
