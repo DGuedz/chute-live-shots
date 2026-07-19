@@ -31,6 +31,27 @@ import {
 } from '../router';
 import {subscribeTxlineFreeTier} from '../txline/subscribe';
 
+// Retry com exponential backoff (1s, 2s, 4s)
+const retryAsync = async <T,>(
+  fn: () => Promise<T>,
+  maxAttempts = 3,
+  baseDelayMs = 1000,
+): Promise<T> => {
+  let lastError: Error | undefined;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (attempt < maxAttempts) {
+        const delayMs = baseDelayMs * Math.pow(2, attempt - 1);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  throw lastError || new Error('Retry failed');
+};
+
 type Option = {
   value: string | number;
   label: string;
@@ -634,35 +655,44 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
     }
     setTxlineTokenStep('signing');
     try {
-      const start = await fetch(`${API_URL}/api/txline/activate/start`, {method: 'POST'});
-      if (!start.ok) throw new Error(`activate/start ${start.status}`);
-      const {message} = await start.json();
+      const message = await retryAsync(async () => {
+        const start = await fetch(`${API_URL}/api/txline/activate/start`, {method: 'POST'});
+        if (!start.ok) throw new Error(`activate/start ${start.status}`);
+        const {message: msg} = await start.json();
+        if (!msg) throw new Error('Message missing from activate/start');
+        return msg;
+      });
       const signed = await provider.signMessage(new TextEncoder().encode(message), 'utf8');
       const walletSignature = btoa(String.fromCharCode(...signed.signature));
-      const done = await fetch(`${API_URL}/api/txline/activate/complete`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({wallet_signature: walletSignature}),
+      await retryAsync(async () => {
+        const done = await fetch(`${API_URL}/api/txline/activate/complete`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({wallet_signature: walletSignature}),
+        });
+        if (!done.ok) {
+          const failureText = await done.text();
+          throw new Error(`activate/complete ${done.status}: ${failureText.slice(0, 300)}`);
+        }
       });
-      if (!done.ok) {
-        const failureText = await done.text();
-        throw new Error(`activate/complete ${done.status}: ${failureText.slice(0, 300)}`);
-      }
       setTxlineTokenStep('active');
       haptic('success');
     } catch (activationError) {
       setTxlineTokenStep('error');
-      setTxlineTokenError(activationError instanceof Error ? activationError.message : String(activationError));
+      const errorMsg = activationError instanceof Error ? activationError.message : String(activationError);
+      setTxlineTokenError(`${errorMsg} (tentou 3x, ainda falhando — suporte necessário)`);
     }
   };
 
   const startTxlineSetup = async () => {
     setWalletError('');
-    if (network !== 'devnet') {
-      setWalletError('Mude para Devnet antes de assinar o plano gratuito TxLINE.');
+    // Permite devnet ou mainnet (env determina qual usar)
+    if (network !== 'devnet' && network !== 'mainnet') {
+      setWalletError('Conecte em Devnet ou Mainnet para ativar o TxLINE.');
       return;
     }
-    if (!hasPrivateDevnetRpc()) {
+    // RPC devnet é opcional; mainnet usa api.mainnet-beta.solana.com como fallback
+    if (network === 'devnet' && !hasPrivateDevnetRpc()) {
       setWalletError('RPC privado Devnet ainda não configurado. Adicione a URL Helius antes de assinar.');
       return;
     }
@@ -682,20 +712,26 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
     }
     setTxlineStep('subscribing');
     try {
-      const signature = await Promise.race([
-        subscribeTxlineFreeTier(provider as Parameters<typeof subscribeTxlineFreeTier>[0], rpcUrl('devnet')),
-        new Promise<never>((_, reject) =>
-          setTimeout(
-            () =>
-              reject(
-                new Error(
-                  'PHANTOM_TIMEOUT: o popup de assinatura não respondeu em 60s. Feche e reabra a aba do CHUTE na Phantom e tente de novo.',
-                ),
+      const rpc = network === 'mainnet' ? rpcUrl('mainnet') : rpcUrl('devnet');
+      const signature = await retryAsync(
+        () =>
+          Promise.race([
+            subscribeTxlineFreeTier(provider as Parameters<typeof subscribeTxlineFreeTier>[0], rpc),
+            new Promise<never>((_, reject) =>
+              setTimeout(
+                () =>
+                  reject(
+                    new Error(
+                      'PHANTOM_TIMEOUT: o popup de assinatura não respondeu em 60s. Feche e reabra a aba do CHUTE na Phantom e tente de novo.',
+                    ),
+                  ),
+                60000,
               ),
-            60000,
-          ),
-        ),
-      ]);
+            ),
+          ]),
+        2, // Retry 2x (não 3, porque Phantom timeout é 60s cada)
+        2000,
+      );
       setTxlineSubscribeSig(signature);
       setTxlineStep('subscribed');
       haptic('success');
@@ -707,7 +743,9 @@ export default function QuizEngineApp({route, navigate}: QuizEngineAppProps) {
     } catch (subscribeError) {
       setTxlineStep('error');
       const raw = subscribeError instanceof Error ? subscribeError.message : String(subscribeError);
-      setWalletError(`${mapAnchorError(subscribeError)} Detalhe: ${raw}`);
+      setWalletError(
+        `${mapAnchorError(subscribeError)} Detalhe: ${raw}. Tentou 2x — feche a Phantom, reabra e tente de novo.`,
+      );
     }
   };
 
