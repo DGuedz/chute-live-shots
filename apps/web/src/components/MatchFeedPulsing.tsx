@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../icons';
 import type { Insights } from '../types';
-import {
-  ShieldCheckered,
-  Star,
-  Target,
-  Lightning,
-  Repeat,
-  Crosshair,
-  Scale,
-  Trophy,
-} from '@phosphor-icons/react';
 
 interface MatchFeedPulsingProps {
   insights: Insights;
@@ -43,70 +33,6 @@ function CountryShield({ country }: { country: string }) {
   return <span style={{ fontSize: '20px' }}>{shields[country] || '⚽'}</span>;
 }
 
-// Render premium signal icon with Phosphor
-function renderSignalIcon(signal: string): React.ReactNode {
-  const iconProps = { size: 20, weight: 'fill' as const };
-
-  switch (signal) {
-    case 'DEFESA':
-      return (
-        <ShieldCheckered
-          {...iconProps}
-          className="signal-icon signal-icon-defense"
-          aria-label="Defesa"
-        />
-      );
-    case 'CRAQUE':
-      return (
-        <Star
-          {...iconProps}
-          className="signal-icon signal-icon-player"
-          aria-label="Craque"
-        />
-      );
-    case 'MEIO-CAMPO':
-      return (
-        <Target
-          {...iconProps}
-          className="signal-icon signal-icon-midfield"
-          aria-label="Meio-campo"
-        />
-      );
-    case 'MOMENTUM':
-      return (
-        <Lightning
-          {...iconProps}
-          className="signal-icon signal-icon-momentum"
-          aria-label="Momentum"
-        />
-      );
-    case 'POSSESSÃO':
-      return (
-        <Repeat
-          {...iconProps}
-          className="signal-icon signal-icon-possession"
-          aria-label="Possessão"
-        />
-      );
-    case 'FINALIZAÇÕES':
-      return (
-        <Crosshair
-          {...iconProps}
-          className="signal-icon signal-icon-shots"
-          aria-label="Finalizações"
-        />
-      );
-    default:
-      return (
-        <Trophy
-          {...iconProps}
-          className="signal-icon"
-          aria-label="Sinal"
-        />
-      );
-  }
-}
-
 // Signal card with pulsing animation
 function SignalCard({ signal, detail, edge, index }: any) {
   const [isPulsing, setIsPulsing] = useState(false);
@@ -120,10 +46,19 @@ function SignalCard({ signal, detail, edge, index }: any) {
     return () => clearTimeout(timer);
   }, [index]);
 
+  const signalIcons: Record<string, string> = {
+    DEFESA: '🛡️',
+    CRAQUE: '⭐',
+    'MEIO-CAMPO': '🎯',
+    MOMENTUM: '⚡',
+    POSSESSÃO: '🔄',
+    FINALIZAÇÕES: '🎲',
+  };
+
   return (
     <div className={`signal-card-feed ${isPulsing ? 'pulse-in' : ''}`}>
       <div className="signal-header">
-        <span className="signal-emoji">{renderSignalIcon(signal)}</span>
+        <span className="signal-emoji">{signalIcons[signal] || '💫'}</span>
         <span className="signal-name">{signal}</span>
       </div>
 
@@ -132,22 +67,7 @@ function SignalCard({ signal, detail, edge, index }: any) {
       <div className="signal-edge">
         <span className="edge-label">Vantagem:</span>
         <span className="edge-team">
-          {edge === 'equilíbrio' ? (
-            <>
-              <Scale
-                size={14}
-                weight="fill"
-                className="edge-icon"
-                aria-label="Equilíbrio"
-              />
-              <span>EQUILÍBRIO</span>
-            </>
-          ) : (
-            <>
-              <CountryFlag country={edge === 'Argentina' ? 'Argentina' : 'Spain'} size={14} />
-              <span>{edge.toUpperCase()}</span>
-            </>
-          )}
+          {edge === 'equilíbrio' ? '⚖️ EQUILÍBRIO' : `${edge === 'Argentina' ? '🇦🇷' : '🇪🇸'} ${edge.toUpperCase()}`}
         </span>
       </div>
 
