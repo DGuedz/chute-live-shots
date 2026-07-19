@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../icons';
+import { TeamShield } from './TeamShield';
 import type { Insights } from '../types';
 import {
   ShieldCheckered,
@@ -31,27 +32,6 @@ function getTimestamp(): string {
 function renderGoalStars(goals: number, team: 'arg' | 'esp'): string {
   const baseStars = goals >= 10 ? 3 : goals >= 5 ? 2 : 1;
   return '⭐'.repeat(Math.min(baseStars, 3));
-}
-
-// Polished flag and shield components
-function CountryFlag({ country, size = 24 }: { country: string; size?: number }) {
-  const flags: Record<string, string> = {
-    Argentina: '🇦🇷',
-    Spain: '🇪🇸',
-  };
-  return (
-    <span style={{ fontSize: `${size}px`, display: 'inline-flex', alignItems: 'center' }}>
-      {flags[country] || '⚽'}
-    </span>
-  );
-}
-
-function CountryShield({ country }: { country: string }) {
-  const shields: Record<string, string> = {
-    Argentina: '🛡️',
-    Spain: '⚔️',
-  };
-  return <span style={{ fontSize: '20px' }}>{shields[country] || '⚽'}</span>;
 }
 
 // Signal card with pulsing animation + trust signals
@@ -192,7 +172,7 @@ export function MatchFeedPulsing({
           <div className="match-premium-header">
             <div className="team-section team-arg">
               <div className="team-badge">
-                <CountryFlag country="Argentina" size={48} />
+                <TeamShield teamName="Argentina" size={48} />
               </div>
               <span className="team-name">Argentina</span>
             </div>
@@ -208,7 +188,7 @@ export function MatchFeedPulsing({
 
             <div className="team-section team-esp">
               <div className="team-badge">
-                <CountryFlag country="Spain" size={48} />
+                <TeamShield teamName="Spain" size={48} />
               </div>
               <span className="team-name">Espanha</span>
             </div>
@@ -256,7 +236,7 @@ export function MatchFeedPulsing({
               onClick={() => onTeamChange('Argentina')}
               type="button"
             >
-              <CountryFlag country="Argentina" size={18} />
+              <TeamShield teamName="Argentina" size={18} />
               <span>Argentina</span>
             </button>
             <button
@@ -264,7 +244,7 @@ export function MatchFeedPulsing({
               onClick={() => onTeamChange('Spain')}
               type="button"
             >
-              <CountryFlag country="Spain" size={18} />
+              <TeamShield teamName="Spain" size={18} />
               <span>Espanha</span>
             </button>
           </div>
