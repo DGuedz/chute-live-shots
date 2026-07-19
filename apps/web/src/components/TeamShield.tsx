@@ -7,39 +7,34 @@ type TeamShieldProps = {
 
 const SHIELD_MAP: Record<string, string> = {
   'argentina': '/teams/argentina-afa.svg',
+  'Argentina': '/teams/argentina-afa.svg',
   'arg': '/teams/argentina-afa.svg',
+  'ARG': '/teams/argentina-afa.svg',
   'spain': '/teams/spain-national-team.png',
+  'Spain': '/teams/spain-national-team.png',
   'esp': '/teams/spain-national-team.png',
+  'ESP': '/teams/spain-national-team.png',
 };
 
 export function TeamShield({ teamName, size = 20 }: TeamShieldProps) {
   if (!teamName) return null;
 
-  const normalized = teamName.trim().toLowerCase();
-  let shieldUrl = SHIELD_MAP[normalized];
+  const trimmed = teamName.trim();
+  let shieldUrl = SHIELD_MAP[trimmed];
 
-  // Try 3-letter code if exact match fails
-  if (!shieldUrl && normalized.length >= 3) {
-    shieldUrl = SHIELD_MAP[normalized.slice(0, 3)];
+  // Try lowercase if exact match fails
+  if (!shieldUrl) {
+    shieldUrl = SHIELD_MAP[trimmed.toLowerCase()];
+  }
+
+  // Try 3-letter code if still not found
+  if (!shieldUrl && trimmed.length >= 3) {
+    shieldUrl = SHIELD_MAP[trimmed.slice(0, 3)];
   }
 
   if (!shieldUrl) {
-    console.warn(`[TeamShield] No shield found for: "${teamName}" (normalized: "${normalized}")`);
-    // Render a placeholder to show the component is rendering
-    return (
-      <div
-        style={{
-          display: 'inline-block',
-          width: size,
-          height: size,
-          backgroundColor: 'rgba(255,255,255,0.15)',
-          borderRadius: '2px',
-          verticalAlign: 'middle',
-          marginRight: '2px',
-        }}
-        title={`No shield for: ${teamName}`}
-      />
-    );
+    console.warn(`[TeamShield] No shield found for: "${teamName}"`);
+    return null;
   }
 
   return (
