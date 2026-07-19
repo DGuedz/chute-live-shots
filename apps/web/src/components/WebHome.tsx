@@ -649,7 +649,6 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
             receiptNote: t.receiptNote,
           }}
         />
-        </div>
       </div>
     </section>
 
