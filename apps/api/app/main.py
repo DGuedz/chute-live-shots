@@ -264,6 +264,16 @@ def txline_fixtures() -> dict:
         raise HTTPException(502, {"data_status": "MISSING_DATA", "error": str(exc)}) from exc
 
 
+@app.get("/api/quizzes")
+def quizzes() -> dict:
+    try:
+        response = httpx.get(f"{TXLINE_WORKER_URL}/txline/quizzes", timeout=15)
+        response.raise_for_status()
+        return {"data_status": "txline_live", "quizzes": response.json()}
+    except Exception as exc:
+        raise HTTPException(502, {"data_status": "MISSING_DATA", "error": str(exc)}) from exc
+
+
 class TxlineFixturesIngest(BaseModel):
     network: Literal["devnet", "mainnet"] = "devnet"
     source_timestamp: Optional[str] = None

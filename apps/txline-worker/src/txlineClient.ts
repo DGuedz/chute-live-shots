@@ -51,6 +51,12 @@ export class TxlineClient {
     return response.data;
   }
 
+  async listQuizzes(params: Record<string, string> = {}) {
+    if (!this.config.quizzesPath) throw new Error('MISSING_DATA: quizzesPath not configured');
+    const response = await this.withJwtRetry((headers) => this.http.get(this.config.quizzesPath!, {params, headers}));
+    return response.data;
+  }
+
   async getScores(fixtureId: string) {
     const response = await this.withJwtRetry((headers) => this.http.get(`${this.config.scoresPath}/${encodeURIComponent(fixtureId)}`, {headers}));
     return response.data;

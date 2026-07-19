@@ -9,6 +9,7 @@ export type TxlineConfig = {
   fixturesPath: string;
   scoresPath: string;
   proofsPath: string;
+  quizzesPath?: string;
   sseUrl?: string;
   persistenceUrl: string;
   serviceToken?: string;
@@ -35,6 +36,7 @@ export function loadConfig(env = process.env): TxlineConfig {
     fixturesPath: env.TXLINE_FIXTURES_PATH || '/fixtures/snapshot',
     scoresPath: env.TXLINE_SCORES_PATH || '/scores',
     proofsPath: env.TXLINE_PROOFS_PATH || '/proofs',
+    quizzesPath: env.TXLINE_QUIZZES_PATH || '/quizzes/active',
     sseUrl: env.TXLINE_SSE_URL,
     persistenceUrl: env.CHUTE_API_URL || 'http://127.0.0.1:8000',
     serviceToken: env.CHUTE_SERVICE_TOKEN,

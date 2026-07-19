@@ -131,6 +131,7 @@ const TEAM_PT:Record<string,string>={Spain:'Espanha',France:'França',England:'I
 
 type LiveFixture={fixture_id:string;home_team:string;away_team:string;game_state:string|null};
 type TournamentRow={pos:number;team:string;games:number;wins:number;draws:number;losses:number;goals_for:number;goals_against:number;goal_diff:number;corners:number;yellow_cards:number;red_cards:number};
+type Quiz={quiz_id:string;title:string;status:'active'|'closed'|'upcoming';total_players:number;total_correct:number;prize_pool:string};
 
 const editorialStats=[
   ['Copa 2026','48 seleções'],['Formato','104 jogos'],['Argentina','19 gols'],
@@ -151,6 +152,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
   const t=COPY[lang];
   const shortWallet=wallet?`${wallet.slice(0,4)}…${wallet.slice(-4)}`:t.connect;
   const [liveFixtures,setLiveFixtures]=useState<LiveFixture[]>([]);
+  const [quizzes,setQuizzes]=useState<Quiz[]>([]);
   const [tournamentTable,setTournamentTable]=useState<TournamentRow[]>([]);
   const [showFullTable,setShowFullTable]=useState(false);
 
@@ -195,20 +197,31 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
     return t.liveSoon;
   };
 
-  // Dados reais da TxLINE alimentam a home: sem fixture persistida, o ticker cai no histórico editorial.
+  // Dados reais da TxLINE alimentam a home: quizes com estatísticas em tempo real via SL 12
   useEffect(()=>{
     let cancelled=false;
-    fetch(`${APP_ENV.apiUrl}/api/fixtures`)
-      .then((response)=>response.ok?response.json():null)
-      .then((payload)=>{
-        if(cancelled||!payload?.fixtures)return;
-        const unique=new Map<string,LiveFixture>();
-        for(const fixture of payload.fixtures as LiveFixture[]){
-          const key=`${fixture.home_team}x${fixture.away_team}`;
-          if(fixture.home_team&&fixture.away_team&&!unique.has(key))unique.set(key,fixture);
+    Promise.all([
+      fetch(`${APP_ENV.apiUrl}/api/quizzes`).then((r)=>r.ok?r.json():null),
+      fetch(`${APP_ENV.apiUrl}/api/fixtures`).then((r)=>r.ok?r.json():null),
+    ])
+      .then(([quizzesPayload,fixturesPayload])=>{
+        if(cancelled)return;
+
+        // Carrega quizes com estatísticas da TxLINE
+        if(quizzesPayload?.quizzes&&Array.isArray(quizzesPayload.quizzes)){
+          setQuizzes(quizzesPayload.quizzes.slice(0,6));
         }
-        const statePriority=(state:string|null)=>state==='2'||state==='3'?0:state==='4'||state==='5'?2:1;
-        setLiveFixtures([...unique.values()].sort((a,b)=>statePriority(a.game_state)-statePriority(b.game_state)).slice(0,6));
+
+        // Carrega fixtures para fallback se não houver quizes
+        if(fixturesPayload?.fixtures){
+          const unique=new Map<string,LiveFixture>();
+          for(const fixture of fixturesPayload.fixtures as LiveFixture[]){
+            const key=`${fixture.home_team}x${fixture.away_team}`;
+            if(fixture.home_team&&fixture.away_team&&!unique.has(key))unique.set(key,fixture);
+          }
+          const statePriority=(state:string|null)=>state==='2'||state==='3'?0:state==='4'||state==='5'?2:1;
+          setLiveFixtures([...unique.values()].sort((a,b)=>statePriority(a.game_state)-statePriority(b.game_state)).slice(0,6));
+        }
       })
       .catch(()=>{/* fail-closed: ticker segue com histórico editorial */});
     return()=>{cancelled=true};
@@ -430,13 +443,15 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       </div>
     </section>
 
-    <aside ref={tickerRef} className="stats-ticker" aria-label={liveFixtures.length?'Partidas reais do feed TxLINE':'Estatísticas históricas da Copa'}>
-      <span className="ticker-source">{liveFixtures.length?t.tickerLive:t.tickerEditorial}</span>
+    <aside ref={tickerRef} className="stats-ticker" aria-label={quizzes.length?'Quizes com dados TxLINE SL12 em tempo real':liveFixtures.length?'Partidas reais do feed TxLINE':'Estatísticas históricas da Copa'}>
+      <span className="ticker-source">{quizzes.length?'QUIZES AO VIVO · TXLINE':liveFixtures.length?t.tickerLive:t.tickerEditorial}</span>
       <div className="ticker-window">
         <div className="ticker-track">
           {[0,1].map((copyIndex)=>(
             <div className="ticker-group" key={copyIndex} aria-hidden={copyIndex===1||undefined}>
-              {liveFixtures.length
+              {quizzes.length
+                ?quizzes.map((quiz)=><span className="ticker-stat" key={`${copyIndex}-${quiz.quiz_id}`}><small>{quiz.status==='active'?'ATIVO':quiz.status==='closed'?'FECHADO':'EM BREVE'}</small><b>{quiz.title}</b><i>{quiz.total_players>0&&<span style={{fontSize:'10px',marginLeft:'6px'}}>👥 {quiz.total_players}</span>}</i></span>)
+                :liveFixtures.length
                 ?liveFixtures.map((fixture)=><span className="ticker-stat" key={`${copyIndex}-${fixture.fixture_id}`}><small>{stateLabel(fixture.game_state)}</small><b>{teamName(fixture.home_team)} × {teamName(fixture.away_team)}</b><i/></span>)
                 :editorialStats.map(([label,value])=><span className="ticker-stat" key={`${copyIndex}-${label}-${value}`}><small>{label}</small><b>{value}</b><i/></span>)}
             </div>
