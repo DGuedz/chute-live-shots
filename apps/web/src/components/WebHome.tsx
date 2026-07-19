@@ -518,7 +518,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
       </div>
     </aside>
 
-    <section className="web-fold market-fold" id="mercado" ref={(el)=>{market.sectionRef.current=el; marketSectionRef.current=el;}} as React.RefObject<HTMLElement>}>
+    <section className="web-fold market-fold" id="mercado" ref={(el)=>{if(el){market.sectionRef.current=el; marketSectionRef.current=el;}}}>
       <div className="fold-heading" ref={marketHeadingRef}><span className="web-kicker">{t.marketKicker}</span><h2>{t.marketH2a}<br/><em>{t.marketH2b}</em></h2><p>{t.marketP}</p></div>
       <div className="market-grid">
         <article ref={(el)=>{marketCardRefs.current[0]=el}}><span className="card-number">01</span><Database size={30}/><h3>{t.card1T}</h3><p>{t.card1P}</p><small>{t.card1S}</small></article>
@@ -552,7 +552,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
     </section>
     <div className="fold-blend" aria-hidden="true"/>
 
-    <section className="web-fold intelligence-fold" id="copa" ref={(el)=>{intelligence.sectionRef.current=el; intelligenceSectionRef.current=el;}} as React.RefObject<HTMLElement>}>
+    <section className="web-fold intelligence-fold" id="copa" ref={(el)=>{if(el){intelligence.sectionRef.current=el; intelligenceSectionRef.current=el;}}}>
       <div className="fold-heading compact" ref={intelligenceHeadingRef}><span className="web-kicker">{t.cupKicker}</span><h2>{t.cupH2a}<br/><em>{t.cupH2b}</em></h2><p>{t.cupP}</p></div>
       <div ref={intelligenceCardRef}>
         <MatchComparisonCard/>
