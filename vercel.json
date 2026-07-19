@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm --workspace apps/web run build",
   "outputDirectory": "apps/web/dist",
   "framework": "vite",
+  "installCommand": "npm install",
+  "nodeVersion": "20.x",
   "env": {
     "VITE_PUBLIC_APP_URL": {
       "description": "Public app URL for Phantom deep links",
@@ -16,18 +18,5 @@
       "description": "Solana mainnet RPC (default: api.mainnet-beta.solana.com)",
       "required": false
     }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "http://backend-url.railway.app/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  }
 }
