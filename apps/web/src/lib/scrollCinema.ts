@@ -52,14 +52,17 @@ function useCanvasVideoPainter(
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     let rafId = 0;
+    let resizeScheduled = false;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
       const w = container.clientWidth, h = container.clientHeight;
-      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
+      const targetW = Math.round(w * dpr), targetH = Math.round(h * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
       }
+      resizeScheduled = false;
     };
 
     const drawCover = () => {
@@ -73,13 +76,26 @@ function useCanvasVideoPainter(
     };
 
     const loop = () => {
-      resize();
-      if (video.readyState >= 2) drawCover();
+      // Só executar resize se foi agendado
+      if (resizeScheduled) resize();
+      if (video.readyState >= 2) {
+        try {
+          drawCover();
+        } catch (e) {
+          // Evitar crashes se o canvas ctx falhar
+          console.warn('[canvas-painter] draw error:', e);
+        }
+      }
       rafId = requestAnimationFrame(loop);
     };
-    rafId = requestAnimationFrame(loop);
 
-    const onResize = () => resize();
+    const onResize = () => {
+      resizeScheduled = true;
+    };
+
+    // Inicializar canvas size
+    resize();
+    rafId = requestAnimationFrame(loop);
     window.addEventListener('resize', onResize);
     return () => {
       cancelAnimationFrame(rafId);
@@ -134,6 +150,8 @@ export function useVideoScrubSection(options: VideoScrubSectionOptions) {
       }
 
       const videoProxy = {time: 0};
+
+      // Criar timeline com pin/scrub — ScrollTrigger vai animar videoProxy.time
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -147,6 +165,7 @@ export function useVideoScrubSection(options: VideoScrubSectionOptions) {
       });
       timelineRef.current = tl;
 
+      // Sincronizar vídeo via proxy timeline — a timeline GSAP controla videoProxy.time
       if (video) {
         const bindVideoScrub = () => {
           const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : (options.fallbackDuration || 8);
@@ -158,18 +177,26 @@ export function useVideoScrubSection(options: VideoScrubSectionOptions) {
               duration: 1,
               ease: 'none',
               onUpdate: () => {
-                if (Math.abs(video.currentTime - videoProxy.time) > 0.02) video.currentTime = videoProxy.time;
+                if (video.readyState >= 2 && Math.abs(video.currentTime - videoProxy.time) > 0.05) {
+                  video.currentTime = videoProxy.time;
+                }
               },
             },
             0,
           );
         };
-        if (video.readyState >= 1 && Number.isFinite(video.duration) && video.duration > 0) bindVideoScrub();
-        else video.addEventListener('loadedmetadata', bindVideoScrub, {once: true});
+        // Aguardar que o vídeo esteja pronto antes de fazer bind
+        if (video.readyState >= 1 && Number.isFinite(video.duration) && video.duration > 0) {
+          bindVideoScrub();
+        } else {
+          video.addEventListener('loadedmetadata', bindVideoScrub, {once: true});
+        }
       }
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options.pin, options.scrollLength]);
 
