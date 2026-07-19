@@ -586,7 +586,7 @@ export function WebHome({loading,wallet,network,error,onStart,onWallet,onReceipt
 
     <section className="web-fold final-fold">
       <div data-reveal><span className="web-kicker">{t.finalKicker}</span><h2>{t.finalH2a}<br/><em>{t.finalH2b}</em></h2><p>{t.finalP}</p><button className="web-primary" onClick={onStart} disabled={loading}>{loading?t.ctaLoading:t.ctaStart}<ArrowRight/></button></div>
-      <footer><a className="web-brand" href="#inicio"><img src="/chute-live-shots-logo.svg" alt=""/><span>CHUTE</span></a><div className="brand-strip"><span>{t.poweredBy}</span><TxLINELogoBrand height={13} /><i/><SolanaWordmark height={12} /></div><span>DEMO · {network.toUpperCase()}</span></footer>
+      <footer><a className="web-brand" href="#inicio"><span>CHUTE</span></a><div className="brand-strip"><span>{t.poweredBy}</span><TxLINELogoBrand height={13} /><i/><SolanaWordmark height={12} /></div><span>DEMO · {network.toUpperCase()}</span></footer>
     </section>
   </div>;
 }
